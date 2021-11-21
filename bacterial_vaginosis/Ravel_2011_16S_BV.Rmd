@@ -1,0 +1,51 @@
+---
+title: "Ravel_2011_16S_BV"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(SummarizedExperiment)
+library(dplyr)
+library(tibble)
+library(tidyr)
+library(purrr)
+library(ggplot2)
+```
+
+## Import data
+
+```{r}
+se <- readRDS(file = "Ravel_2011_16S_BV_se.rds")
+```
+
+```{r}
+colnames(colData(se))
+```
+
+
+```{r}
+sample_metadata <- se %>% 
+    colData() %>% 
+    as.data.frame() %>% 
+    rownames_to_column(var = "Sample") %>% 
+    as_tibble()
+    
+```
+
+
+```{r}
+sample_metadata %>% 
+    modify_if(.p = is.character, .f = as.factor) %>% 
+    summary()
+```
+
+
+
+
+
+
+
