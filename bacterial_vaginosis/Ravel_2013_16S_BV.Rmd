@@ -16,6 +16,7 @@ library(tidyr)
 library(tibble)
 library(purrr)
 library(ggplot2)
+source("../R/functions_da.R")
 ```
 
 The data comes from the article of Ravel et. al. 2013.
@@ -27,7 +28,7 @@ microbiota before, during and after episodes of bacterial vaginosis.
 Microbiome 1, 29 (2013). https://doi.org/10.1186/2049-2618-1-29
 
 ```{r}
-se <- readRDS("Ravel_2013_BV_se.rds")
+se <- readRDS("Ravel_2013_16S_BV_se.rds")
 se
 ```
 
@@ -43,11 +44,14 @@ sample_metadata <- se %>%
         subjectID = as.factor(subjectID),
         pH = as.double(pH),
         Nugent_Score = as.integer(Nugent_Score),
+        ## Is the sample positive to either SBV or ABV using Amsel?
         amsel_pos = case_when(SBV == "1" | ABV == "1" ~ 1, TRUE ~ 0),
+        ## Classification according to the Amsel and the article's criteria
         amsel_res = case_when(
             SBV == "1" ~ "SBV", ABV == "1" ~ "ABV", TRUE ~ "Neg"
         ),
         nugent_res = case_when(
+            ## Classification based on Nugent scores
             Nugent_Score <= 3 ~ "Negative",
             Nugent_Score >=4 & Nugent_Score <= 6 ~ "Intermediate",
             Nugent_Score >= 7 ~ "Positive"
@@ -65,88 +69,68 @@ glimpse(sample_metadata)
 ```{r}
 sample_metadata %>% 
     count(subjectID, nugent_res, name = "count") %>% 
-    # filter(nugent_res != "Intermediate") %>% 
     filter(!is.na(nugent_res)) %>%
     ggplot(aes(subjectID, count)) +
     geom_col(aes(fill = nugent_res), position = "stack") +
+    geom_text(
+        aes(label = count, group = nugent_res), 
+        position = position_stack(vjust = 0.5)
+    ) +
     theme_bw() +
     theme(
         axis.text.x = element_text(angle = 45, hjust = 1)
     )
 ```
 
-Exploring the relationship between Nugent Scores and pH
+## Select subjects
+
+Subjects with nine or more samples classified in both positive and negative BV
+were selected.
 
 ```{r}
-sample_metadata %>% 
+subject_neg_pos_counts <- sample_metadata %>% 
+  filter(
+      !is.na(nugent_res),
+      nugent_res != "Intermediate",
+  ) %>% 
+  count(subjectID, nugent_res) %>% 
+  pivot_wider(names_from = nugent_res, values_from = n) %>% 
+  drop_na() %>% 
+  filter(Negative >= 9, Positive >= 9)
+
+subject_neg_pos_counts
+```
+
+```{r}
+subject_neg_pos_counts %>% 
+  summarise(across(c(Negative, Positive), sum))
+```
+
+```{r}
+selected_sample_metadata <- sample_metadata %>% 
+    filter(
+        subjectID %in% subject_neg_pos_counts$subjectID,
+        nugent_res != "Intermediate"
+    )
+selected_samples <- selected_sample_metadata$Sample
+```
+
+## Nugent score vs pH of selected subjects
+
+There should be a clear positive correlation pattern between pH and Nugent
+score.
+
+```{r}
+selected_sample_metadata %>% 
     mutate(pH = as.double(pH), Nugent_Score = as.integer(Nugent_Score)) %>% 
     suppressWarnings() %>% 
     filter(!is.na(pH), !is.na(Nugent_Score)) %>% 
     ggplot(aes(Nugent_Score, pH )) +
-    geom_boxplot(
-        aes(group = Nugent_Score), fill = "gray80", 
-        outlier.color = "red"
-        ) +
-    geom_point(size = .25, position = "jitter", shape = 1) +
+    geom_boxplot(aes(group = Nugent_Score, color = nugent_res)) +
+    # geom_point(size = .25, position = "jitter", shape = 1) +
     geom_smooth() +
+    scale_x_continuous(breaks = seq(0, 10, 1)) + 
     theme_bw()
-```
-
-
-### Select subjects
-
-+ Keep only subjects from the same ethnical group (white):
-
-```{r}
-subjects_data <- sample_metadata %>% 
-    select(subjectID, AGE, amsel_pos, ETHa) %>% 
-    group_by(subjectID) %>%
-    slice_max(order_by = amsel_pos, with_ties = FALSE) %>% 
-    ungroup() %>% 
-    filter(ETHa == 0)
-
-subjects <- unique(subjects_data$subjectID)
-```
-
-
-```{r}
-subjects_data %>% 
-    modify_at(.at = c("subjectID", "amsel_pos", "ETHa"), .f = as.factor) %>% 
-    summary()
-```
-
-According to the article, only four subjects never experienced some form of BV.
-However, in the summary above there are five subjects.
-
-```{r}
-negative_subjects <- subjects_data %>% 
-    filter(amsel_pos == 0) %>% 
-    pull(subjectID)
-negative_subjects
-```
-
-```{r}
-sample_metadata %>% 
-    filter(subjectID %in% negative_subjects) %>% 
-    select(subjectID, SBV, ABV) %>% 
-    distinct()
-```
-
-## Assays
-
-```{r}
-count_matrix <- assays(se)$counts
-count_matrix[1:5, 1:5]
-```
-
-
-```{r}
-relative_abundance_matrix <- assays(se)$relative_abundance
-relative_abundance_matrix[1:5, 1:5]
-```
-
-```{r}
-max(colSums(relative_abundance_matrix))
 ```
 
 ## Summarize by genus
@@ -174,10 +158,9 @@ tidy_table_genus <- assays(se_genus)$relative_abundance %>%
     rownames_to_column(var = "Taxa") %>% 
     as_tibble() %>% 
     pivot_longer(names_to = "Sample", values_to = "Abundance", 2:last_col()) %>% 
-    left_join(sample_metadata, by = "Sample") %>% 
+    right_join(selected_sample_metadata, by = "Sample") %>% 
     right_join(taxa_genus, by = c("Taxa" = "tax_name")) %>% 
-    relocate(Sample, Taxa, Abundance) %>% 
-    filter(subjectID %in% subjects)
+    relocate(Sample, Taxa, Abundance)
 ```
 
 
@@ -211,7 +194,7 @@ tidy_table_genus %>%
     scale_color_discrete(name = "BV diagnostic (Nugent score)") +
     labs(
         y = "Relative abundance", x = "Nugent score",
-        title = "Full dataset (Ravel et. al., 2013)"
+        title = "Ravel et. al., 2013"
     ) +
     theme_bw() +
     theme(
@@ -220,11 +203,35 @@ tidy_table_genus %>%
 ```
 
 ```{r}
+selected_se <- se[,selected_samples]
+taxa_lgl <- rowSums(assays(selected_se)$counts) > 0
+selected_se <- selected_se[taxa_lgl, ]
+nugent_scores <- colData(selected_se)$Nugent_Score 
+colData(selected_se)$BV <- 
+  ifelse(nugent_scores >= 7, "Positive BV", "Negative BV")
+table(colData(selected_se)$BV)
+```
 
+## Differential expression analysis
+
+Some variables
+
+```{r}
+mode(assays(selected_se)$counts) <- "integer"
+grp <- "BV"
+ref <- "Negative BV"
+```
+
+```{r}
+deseq_results <- deseq2Poscounts(selected_se, grp = grp, ref = ref)
 ```
 
 
 
+```{r}
+deseq_results %>% 
+  filter(ADJPVAL <=0.1) 
+```
 
 
 

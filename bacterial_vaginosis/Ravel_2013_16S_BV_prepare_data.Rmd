@@ -165,7 +165,7 @@ assays(se) <- S4Vectors::SimpleList(
 
 ```{r}
 taxonomy_table <- 
-    read.table("Ravel_2013_BV_taxonomy_table.tsv", sep = "\t", header = TRUE, row.names = 1)
+    read.table("Ravel_2013_16S_BV_taxonomy_table.tsv", sep = "\t", header = TRUE, row.names = 1)
 ```
 
 ```{r}

@@ -32,7 +32,15 @@ sample_metadata <- se %>%
     colData() %>% 
     as.data.frame() %>% 
     rownames_to_column(var = "Sample") %>% 
-    as_tibble()
+    as_tibble() %>% 
+    mutate(
+        BV = case_when(
+            Nugent.score <= 3 ~ "Negative BV",
+            Nugent.score >= 4 & Nugent.score <= 6 ~ "Intermediate",
+            Nugent.score >= 7 ~  "Positive BV"
+        ),
+        Nugent.score = as.factor(Nugent.score)
+    )
     
 ```
 
@@ -43,9 +51,74 @@ sample_metadata %>%
     summary()
 ```
 
+```{r}
+sample_metadata %>% 
+    count(Ethnic.Groupa, BV) %>% 
+    ggplot(aes(Ethnic.Groupa, n)) +
+    geom_col(aes(fill = BV), position = "dodge")
+```
 
 
 
 
+## Combine by genus
 
+```{r}
+se_genus <- mia::agglomerateByRank(se, rank = "genus")
+```
+
+Relative abundance for genus rank level
+
+```{r}
+relative_abundance_genus <- assays(se_genus)$relative_abundance %>% 
+    as.data.frame() %>% 
+    rownames_to_column("Taxon_name") %>% 
+    as_tibble()
+
+taxonomy_table_genus <- rowData(se_genus) %>% 
+    as.data.frame() %>% 
+    rownames_to_column("Taxon_name") %>% 
+    as_tibble()
+
+tidy_table_genus <- 
+    left_join(
+        relative_abundance_genus, taxonomy_table_genus, by = "Taxon_name"
+    ) %>% 
+    pivot_longer(
+        names_to = "Sample", values_to = "Abundance", `S001`:`S394`
+    ) %>% 
+    right_join(sample_metadata, by = "Sample") %>% 
+    relocate(Sample, Taxon_name, Abundance)
+```
+
+Filter by genus (only Lactobacillus)
+
+
+Abundance by Nugent.score
+
+```{r}
+taxa_regex <- c(
+    "Lactobacillus$"
+)
+tidy_table_genus %>% 
+    filter(grepl(taxa_regex, Taxon_name)) %>% 
+    ggplot(aes(Nugent.score, Abundance)) +
+    geom_boxplot(aes(group = Nugent.score, color = BV)) +
+    geom_point(size = .1, shape = 1, position = "jitter") 
+    
+```
+
+Abundance by race
+
+```{r}
+taxa_regex <- c(
+    "Lactobacillus$"
+)
+tidy_table_genus %>% 
+    filter(grepl(taxa_regex, Taxon_name)) %>% 
+    ggplot(aes(Ethnic.Groupa, Abundance)) +
+    geom_boxplot(aes(group = Ethnic.Groupa, color = Ethnic.Groupa)) +
+    geom_point(size = .1, shape = 1, position = "jitter")
+
+```
 
