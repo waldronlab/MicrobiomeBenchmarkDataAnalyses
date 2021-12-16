@@ -1,8 +1,8 @@
 ---
 title: "HMP_2012_16S_gingival_V35_subset"
 output:
-  pdf_document: default
-  html_document: default
+  html_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -13,59 +13,72 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r load packages}
+```{r load packages, message=FALSE}
 library(benchdamic)
-library(phyloseq)
 library(MicrobiomeBenchmarkData)
 library(dplyr)
+library(phyloseq)
+
+## knit directory must be set to "project directory"
+source("R/functions_da.R")
 ```
+
+Import dataset
 
 ```{r import dataset}
-dat_names <- getDataset()
-tse <- getDataset(dat_names[4], dryrun = FALSE)[[1]]
+dataset_name <- "HMP_2012_16S_gingival_V35_subset"
+tse <- getDataset(dataset_name, dryrun = FALSE)[[1]]
 ```
 
-Create prior knowledge info
+In this document, we use the [benchdamic package](https://bioconductor.org/packages/devel/bioc/html/benchdamic.html)
+for benchmarking different differential abundance (DA) methods using the
+`r dataset_name`.
+
+Create prior knowledge information:
 
 ```{r prior knowledge}
-biologicalInfo <- tse %>% 
-    rowData() %>% 
-    as.data.frame() %>% 
-    select(GENUS, BIOSIS) %>% 
-    mutate(
-        newNames = paste0(rownames(.), "|", GENUS),
-        BIOSIS = ifelse(is.na(BIOSIS), "unknown", BIOSIS)
-    ) %>% 
-    rename(Type = BIOSIS)
+biologicalInfo <- as.data.frame(rowData(tse)[,c("GENUS", "BIOSIS")])
+biologicalInfo$newNames <- 
+  paste0(rownames(biologicalInfo), "|", biologicalInfo$GENUS)
+biologicalInfo$Type <- 
+  ifelse(is.na(biologicalInfo$BIOSIS), "unknown", biologicalInfo$BIOSIS)
+head(biologicalInfo)
 ```
 
 Convert to phyloseq
 
 ```{r convert to phyloseq}
-## Biosis information is lost, but it's already stored in the biologicalInfo
-## variable
+## Biosis information is lost at this step, but it's already stored in the
+## biologicalInfo variable
 ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse)
 ```
 
-Useful variables
+Some useful variables:
 
 ```{r useful variables}
+## Name of the column with the conditions to be compared
 grp <- "hmp_body_subsite"
+
+## Name of the conditions to be compared
 contrast <- c("subgingival_plaque", "supragingival_plaque")
 ```
 
-Set reference
+Set reference:
 
 ```{r set reference}
+## Using subgingival plaque as reference (contast[1])
 sample_data(ps)[[grp]] <- factor(sample_data(ps)[[grp]])
-sample_data(ps)[[grp]] <- relevel(
-    x = sample_data(ps)[[grp]], ref = contrast[1]
-)
+sample_data(ps)[[grp]] <- relevel(sample_data(ps)[[grp]], contrast[1])
 ```
 
-Prepare normalization
+## Estimate normalization factors (NF) per sample
 
-```{r normalization}
++ "none".
++ "TMM".
++ "poscounts".
++ "median CSS".
+
+```{r normalization, message=FALSE}
 ## Normalization methods
 norm_pars <- tibble::tribble(
     ~fun, ~method,
@@ -79,10 +92,19 @@ norm_pars <- tibble::tribble(
 my_norm <- setNormalizations(fun = norm_pars$fun, method = norm_pars$method)
 
 ## Run normalization
-ps <- runNormalizations(normalization_list = my_norm, object = ps)
+ps <- quiet(runNormalizations(normalization_list = my_norm, object = ps))
 ```
 
-Create weights
+Normalization factors (NFs) have been added as columns to the sample_data.
+
+```{r}
+sample_data(ps) %>% 
+  data.frame() %>% 
+  select(starts_with("NF")) %>% 
+  head()
+```
+
+## Create matrix with weights
 
 ```{r create weights}
 zinbweights <- weights_ZINB(
@@ -93,7 +115,9 @@ zinbweights <- weights_ZINB(
 
 ```
 
-Prepare DA methods
+## Run DA methods
+
+Prepare DA methods:
 
 ```{r prepare DA methods}
 # edgeR
@@ -164,29 +188,13 @@ my_methods <- c(
 )
 ```
 
-Prepare directions (for enrichment)
-
-```{r direction}
-direction <- c(
-    edgeR.TMM = "logFC", 
-    DESeq2.poscounts = "log2FoldChange",
-    limma.CSSmedian = "logFC",
-    limma.TMM = "logFC",
-    metgenomeSeq.CSSmedian = paste0(grp, contrast[2]),
-    ALDEx2.none = "effect",
-    corncob.none = "Estimate",
-    MAST.none = "logFC",
-    Seurat.none = "avg_log2FC"
-)
-```
-
-# Run DA
+Run DA methods:
 
 ```{r run DA methods}
-DA <- runDA(method_list = my_methods, object = ps, weights = zinbweights)
+DA <- quiet(runDA(method_list = my_methods, object = ps, weights = zinbweights))
 ```
 
-## Run ANCOMBC
+Run ANCOMBC (separetely):
 
 ```{r}
 ancombc <- function(ps, formula, group) {
@@ -222,9 +230,25 @@ my_ancombc <-  ancombc(ps, grp, grp)
 DA$ancombc <- my_ancombc
 ```
 
-# Enrichment
+## Enrichment
 
-## Run enrichment
+Prepare directions (for enrichment):
+
+```{r direction}
+direction <- c(
+    edgeR.TMM = "logFC", 
+    DESeq2.poscounts = "log2FoldChange",
+    limma.CSSmedian = "logFC",
+    limma.TMM = "logFC",
+    metgenomeSeq.CSSmedian = paste0(grp, contrast[2]),
+    ALDEx2.none = "effect",
+    corncob.none = "Estimate",
+    MAST.none = "logFC",
+    Seurat.none = "avg_log2FC"
+)
+```
+
+Run enrichment: 
 
 ```{r create enrichment}
 enrichment <- createEnrichment(
@@ -244,13 +268,13 @@ enrichment <- createEnrichment(
 )
 ```
 
-## Plot enrichment
+Plot enrichment:
 
 ```{r, fig.height=7}
 plotEnrichment(
     enrichment = enrichment, 
     enrichmentCol = "Type",
-    levels_to_plot = c("Aerobic", "Anaerobic")
+    levels_to_plot = c("Aerobic", "Anaerobic", "F Anaerobic")
 )
 
 ```
@@ -258,6 +282,8 @@ plotEnrichment(
 # TRUE and FALSE positives
 
 ## Create table of positives
+
+Create positives
 
 ```{r create positives}
 positives <- createPositives(
@@ -285,8 +311,7 @@ Table of positives:
 head(positives)
 ```
 
-
-## Plot positives
+Plot positives
 
 ```{r}
 plotPositives(positives)

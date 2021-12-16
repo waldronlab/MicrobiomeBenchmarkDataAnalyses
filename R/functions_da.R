@@ -1,5 +1,4 @@
 ## This file contains functions for differential abundance (DA) analyses
-utils::globalVariables(c("taxonName", "FC", "adjPvalues"))
 
 deseq2Poscounts <- function(se, grp, ref = NULL) {
     se <- groupsAsFactors(se, grp = grp, ref = ref)
@@ -256,3 +255,9 @@ ancom_bc <- function(se, grp, ref = NULL) {
         magrittr::set_colnames(c("FC", "PVAL", "ADJPVAL")) %>%
         tibble::as_tibble(rownames = "TAXA")
 }
+
+quiet <- function(x) { 
+    sink(tempfile()) 
+    on.exit(sink()) 
+    invisible(force(x)) 
+} 
