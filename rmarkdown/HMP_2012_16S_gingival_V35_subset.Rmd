@@ -1,8 +1,8 @@
 ---
 title: "HMP_2012_16S_gingival_V35_subset"
 output:
-  pdf_document:
-    latex_engine: xelatex
+  html_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -19,7 +19,8 @@ source("R/functions_da.R")
 ```
 
 ```{r}
-tse <- getDataset("HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
+dat_name <- "HMP_2012_16S_gingival_V35_subset"
+tse <- getDataset(x = dat_name, dryrun = FALSE)[[1]]
 ## A couple of useful variables
 ref <- "subgingival_plaque"
 grp <- "hmp_body_subsite"

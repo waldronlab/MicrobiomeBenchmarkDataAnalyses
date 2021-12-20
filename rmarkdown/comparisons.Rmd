@@ -1,0 +1,119 @@
+---
+title: "Comparisons"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(MicrobiomeBenchmarkData)
+library(benchdamic)
+library(phyloseq)
+
+library(ALDEx2)
+
+
+library(ggplot2)
+```
+
+
+
+
+
+```{r}
+tse = getDataset(x = "HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
+ps = mia::makePhyloseqFromTreeSummarizedExperiment(tse)
+```
+
+```{r}
+mat <- assay(tse)
+conditions <- colData(tse)$hmp_body_subsite
+```
+
+
+## Add normalizations
+
+```{r}
+normalization_methods <- tibble::tribble(
+    ~fun, ~method,
+    "norm_edgeR", "none",
+    "norm_edgeR", "TMM",
+    "norm_DESeq2", "poscounts"
+)
+
+set_norm <- setNormalizations(
+    fun = normalization_methods$fun, method = normalization_methods$method
+)
+
+
+ps <- runNormalizations(
+    normalization_list = set_norm, object = ps, verbose = FALSE
+)
+
+
+
+```
+
+
+
+
+
+## ALDEx2
+
+Directly using the `aldex` function from the ALDEx2 package:
+
+```{r}
+aldex_output <- aldex(
+    reads = mat, conditions = conditions, mc.samples = 128, test = "t",
+    effect = TRUE, include.sample.summary = FALSE, verbose = FALSE,
+    denom = "iqlr"
+)
+```
+
+```{r}
+aldex_output %>% 
+    ggplot(aes(effect, -log10(wi.ep))) +
+    geom_point()
+```
+
+
+```{r}
+aldex_sig <- ifelse(aldex_output$wi.eBH <= 0.1, TRUE, FALSE)
+
+rownames(aldex_output)[aldex_sig]
+```
+
+## Setting the test first
+
+```{r}
+my_aldex2 <- set_ALDEx2(
+    pseudo_count = FALSE, conditions = conditions, mc.samples = 128, 
+    test = "t", denom = "iqlr", norm = "none", expand = FALSE
+)
+
+aldex_benchdamic_output <- runDA(method_list = my_aldex2, object = ps)
+
+```
+
+
+```{r}
+aldex_benchdamic_output$ALDEx2.none.iqlr.t$statInfo %>% 
+    ggplot(aes(effect, -log10(wi.ep))) +
+    geom_point()
+```
+
+```{r}
+aldex_benchdamic_sig <- ifelse(
+    aldex_benchdamic_output$ALDEx2.none.iqlr.t$statInfo$wi.eBH <= 0.1, 
+    TRUE, FALSE
+) 
+
+aldex_benchdamic_output$ALDEx2.none.iqlr.t$statInfo %>% 
+    rownames() %>% 
+    .[aldex_benchdamic_sig]
+
+```
+
