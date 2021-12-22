@@ -28,6 +28,10 @@ Import dataset
 ```{r import dataset}
 dataset_name <- "HMP_2012_16S_gingival_V35_subset"
 tse <- getDataset(dataset_name, dryrun = FALSE)[[1]]
+colData(tse)$grp <- factor(
+    colData(tse)$hmp_body_subsite, 
+    levels = c("subgingival_plaque", "supragingival_plaque")
+)
 ```
 
 In this document, we use the [benchdamic package](https://bioconductor.org/packages/devel/bioc/html/benchdamic.html)
@@ -57,7 +61,7 @@ Some useful variables:
 
 ```{r useful variables}
 ## Name of the column with the conditions to be compared
-grp <- "hmp_body_subsite"
+grp <- "grp"
 
 ## Name of the conditions to be compared
 contrast <- c("subgingival_plaque", "supragingival_plaque")
@@ -92,7 +96,7 @@ norm_pars <- tibble::tribble(
 my_norm <- setNormalizations(fun = norm_pars$fun, method = norm_pars$method)
 
 ## Run normalization
-ps <- quiet(runNormalizations(normalization_list = my_norm, object = ps))
+ps <- runNormalizations(normalization_list = my_norm, object = ps)
 ```
 
 Normalization factors (NFs) have been added as columns to the sample_data.
@@ -130,7 +134,7 @@ my_edger <- set_edgeR(
 
 # DESeq2
 my_deseq2 <- set_DESeq2(
-    contrast = c(grp, contrast),
+    contrast = c(grp, "supragingival_plaque", "subgingival_plaque"),
     design = as.formula(paste0("~", grp)),
     norm = "poscounts"
 )
@@ -178,7 +182,7 @@ my_mast <- set_MAST(
 # Seurat
 my_seurat <- set_Seurat(
     test.use = "wilcox",
-    contrast = c(grp, contrast),
+    contrast = c(grp, "supragingival_plaque", "subgingival_plaque"),
     norm = "none"
 )
 
@@ -191,10 +195,10 @@ my_methods <- c(
 Run DA methods:
 
 ```{r run DA methods}
-DA <- quiet(runDA(method_list = my_methods, object = ps, weights = zinbweights))
+DA <- runDA(method_list = my_methods, object = ps, weights = zinbweights)
 ```
 
-Run ANCOMBC (separetely):
+Run ANCOMBC (separately):
 
 ```{r}
 ancombc <- function(ps, formula, group) {
