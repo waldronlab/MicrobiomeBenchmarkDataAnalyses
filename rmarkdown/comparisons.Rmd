@@ -8,35 +8,55 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r}
+```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
 library(benchdamic)
 library(phyloseq)
 
+library(lefser)
+library(DESeq2)
 library(ALDEx2)
 
 
 library(ggplot2)
 ```
 
+```{r, include=FALSE}
+## A useful function to hide messages
+quiet <- function(x) { 
+    sink(tempfile()) 
+    on.exit(sink()) 
+    invisible(force(x)) 
+} 
+```
 
+## Data
 
+For this example, I'll use the subgingival vs supragingival plaque datasets.
 
+```{r import data}
+grp <- "hmp_body_subsite"
+condA <- "subgingival_plaque" # reference
+condB <- "supragingival_plaque"
 
-```{r}
+alpha_val <- 0.1
+
 tse = getDataset(x = "HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
+colData(tse)[[grp]] <- factor(colData(tse)[[grp]], levels = c(condA, condB))
 ps = mia::makePhyloseqFromTreeSummarizedExperiment(tse)
+ps
 ```
 
-```{r}
-mat <- assay(tse)
-conditions <- colData(tse)$hmp_body_subsite
+```{r extract matrix and conditions}
+mat <- otu_table(ps) |> as.data.frame() |> as.matrix()
+conditions <- sample_data(ps)[[grp]]
 ```
 
+## Add normalization factors to sample data
 
-## Add normalizations
+This step is required for benchdamic
 
-```{r}
+```{r normalization factors, message=FALSE}
 normalization_methods <- tibble::tribble(
     ~fun, ~method,
     "norm_edgeR", "none",
@@ -48,18 +68,48 @@ set_norm <- setNormalizations(
     fun = normalization_methods$fun, method = normalization_methods$method
 )
 
-
 ps <- runNormalizations(
     normalization_list = set_norm, object = ps, verbose = FALSE
 )
 
+sample_data(ps)[,startsWith(colnames(sample_data(ps)), "NF.")] |>
+    as.data.frame() |>
+    head()
+```
 
+## DESeq2
 
+```{r deseq2 - original, message=FALSE}
+dds <- DESeqDataSet(tse, design = as.formula(paste0("~ ", grp)))
+dds <- DESeq2::estimateSizeFactors(object = dds, type = "poscounts")
+ddsRes <- DESeq(object = dds, test = "LRT", reduced = ~1, parallel = FALSE)
+dds_res <- results(ddsRes)
+dds_res |> as.data.frame() |> head()
 ```
 
 
+```{r deseq2 - benchdamic, message=FALSE}
+deseq2_benchdamic <- set_DESeq2(
+    pseudo_count = FALSE, design = as.formula(paste0("~", grp)),
+    contrast = c(grp, condB, condA), alpha = alpha_val, norm = "poscounts",
+    weights_logical = FALSE, expand = TRUE
+)
 
+deseq2_benchdamic_result <- 
+    runDA(method_list = deseq2_benchdamic, object = ps, verbose = FALSE)
 
+deseq2_benchdamic_statInfo <- deseq2_benchdamic_result$DESeq2.poscounts$statInfo
+
+head(deseq2_benchdamic_statInfo)
+```
+
+The results of both analyses are the same:
+
+```{r}
+mapply(dds_res, deseq2_benchdamic_statInfo, FUN = function(x, y) {
+    all(x == y)
+})
+```
 
 ## ALDEx2
 
@@ -74,7 +124,7 @@ aldex_output <- aldex(
 ```
 
 ```{r}
-aldex_output %>% 
+aldex_output |>
     ggplot(aes(effect, -log10(wi.ep))) +
     geom_point()
 ```
@@ -86,7 +136,7 @@ aldex_sig <- ifelse(aldex_output$wi.eBH <= 0.1, TRUE, FALSE)
 rownames(aldex_output)[aldex_sig]
 ```
 
-## Setting the test first
+Using benchdamic functions
 
 ```{r}
 my_aldex2 <- set_ALDEx2(
@@ -100,7 +150,7 @@ aldex_benchdamic_output <- runDA(method_list = my_aldex2, object = ps)
 
 
 ```{r}
-aldex_benchdamic_output$ALDEx2.none.iqlr.t$statInfo %>% 
+aldex_benchdamic_output$ALDEx2.none.iqlr.t$statInfo |>
     ggplot(aes(effect, -log10(wi.ep))) +
     geom_point()
 ```
@@ -111,9 +161,13 @@ aldex_benchdamic_sig <- ifelse(
     TRUE, FALSE
 ) 
 
-aldex_benchdamic_output$ALDEx2.none.iqlr.t$statInfo %>% 
-    rownames() %>% 
-    .[aldex_benchdamic_sig]
+aldex_benchdamic_output$ALDEx2.none.iqlr.t$statInfo |>
+    rownames() |>
+    {\(y) y[aldex_benchdamic_sig]}()
 
 ```
+
+
+
+
 

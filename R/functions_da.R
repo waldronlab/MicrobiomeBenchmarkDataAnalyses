@@ -261,3 +261,14 @@ quiet <- function(x) {
     on.exit(sink()) 
     invisible(force(x)) 
 } 
+
+clr <- function(x) {
+    ## Centered log ratio transformation of a vector
+    ## Sources: 
+    ## + https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6755255/
+    ## + https://www.r-bloggers.com/2021/08/calculate-geometric-mean-in-r/
+    if (any(is.na(x) | any(x <= 0)))
+        stop("Input vector must not contain NAs, 0s, or negative numbers.")
+    log(x / exp(mean(log(x))))
+}
+

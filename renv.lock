@@ -30,6 +30,12 @@
       "Source": "Bioconductor",
       "Hash": "ae553c2779c85946f1452919cc3e71e3"
     },
+    "AnnotationHub": {
+      "Package": "AnnotationHub",
+      "Version": "3.2.0",
+      "Source": "Bioconductor",
+      "Hash": "d22c20229f638ef04edc26f753c602bb"
+    },
     "BH": {
       "Package": "BH",
       "Version": "1.78.0-0",
@@ -117,6 +123,13 @@
       "Source": "Bioconductor",
       "Hash": "9f66edf50ad856a56a804a451ce7b3bc"
     },
+    "DT": {
+      "Package": "DT",
+      "Version": "0.20",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0163cd2ce6c7995005a0fc363d570963"
+    },
     "DelayedArray": {
       "Package": "DelayedArray",
       "Version": "0.20.0",
@@ -134,6 +147,12 @@
       "Version": "1.36.0",
       "Source": "Bioconductor",
       "Hash": "0365ebbdb9249577b45d1c486ff70720"
+    },
+    "ExperimentHub": {
+      "Package": "ExperimentHub",
+      "Version": "2.2.0",
+      "Source": "Bioconductor",
+      "Hash": "18eb02fa67b1a9dd7c0c27196c150f01"
     },
     "FDb.InfiniumMethylation.hg19": {
       "Package": "FDb.InfiniumMethylation.hg19",
@@ -189,6 +208,13 @@
       "Version": "1.22.1",
       "Source": "Bioconductor",
       "Hash": "04b03e15910f87fc66dc76cf5f396c7b"
+    },
+    "Hotelling": {
+      "Package": "Hotelling",
+      "Version": "1.0-8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0c8f2297b3d33b874c78fa9f6fcb1149"
     },
     "IRanges": {
       "Package": "IRanges",
@@ -498,6 +524,13 @@
       "Source": "Bioconductor",
       "Hash": "619feb3635b27a198477316a033b1ea8"
     },
+    "TH.data": {
+      "Package": "TH.data",
+      "Version": "1.1-0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "26f97c62cab23881762215e12b43f99b"
+    },
     "TTR": {
       "Package": "TTR",
       "Version": "0.24.3",
@@ -738,6 +771,13 @@
       "Repository": "CRAN",
       "Hash": "019388fc48e48b3da0d3a76ff94608a8"
     },
+    "coin": {
+      "Package": "coin",
+      "Version": "1.4-2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f08e319f3a1699ebffe34e9485d98139"
+    },
     "colorspace": {
       "Package": "colorspace",
       "Version": "2.0-2",
@@ -758,6 +798,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "77384bfdf946d3d06549279214a2cfa0"
+    },
+    "corpcor": {
+      "Package": "corpcor",
+      "Version": "1.6.10",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "17ebe3b6d75d09c5bab3891880b34237"
     },
     "cowplot": {
       "Package": "cowplot",
@@ -786,6 +833,12 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "6aa54f69598c32177e920eb3402e8293"
+    },
+    "curatedMetagenomicData": {
+      "Package": "curatedMetagenomicData",
+      "Version": "3.2.3",
+      "Source": "Bioconductor",
+      "Hash": "5cd0cdfeb02aff0d45a23dc59597bf40"
     },
     "curl": {
       "Package": "curl",
@@ -1166,6 +1219,12 @@
       "Source": "Bioconductor",
       "Hash": "03c450d9b0fb408c6d4041c456a4da92"
     },
+    "interactiveDisplayBase": {
+      "Package": "interactiveDisplayBase",
+      "Version": "1.32.0",
+      "Source": "Bioconductor",
+      "Hash": "011d5724a7ccdd3c3e8788701242666d"
+    },
     "irlba": {
       "Package": "irlba",
       "Version": "2.3.5",
@@ -1243,12 +1302,25 @@
       "Repository": "CRAN",
       "Hash": "d908914ae53b04d4c0c0fd72ecc35370"
     },
+    "lefser": {
+      "Package": "lefser",
+      "Version": "1.4.0",
+      "Source": "Bioconductor",
+      "Hash": "45a660eea2e71ea7abf4a1e70c7f003c"
+    },
     "leiden": {
       "Package": "leiden",
       "Version": "0.3.9",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "d6768920a499f996e6025c5daecf33fb"
+    },
+    "libcoin": {
+      "Package": "libcoin",
+      "Version": "1.0-9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "8400d6bc0318f0b9b082b0e75fa6dd90"
     },
     "lifecycle": {
       "Package": "lifecycle",
@@ -1376,6 +1448,20 @@
       "Repository": "CRAN",
       "Hash": "fec5f52652d60615fdb3957b3d74324a"
     },
+    "modeltools": {
+      "Package": "modeltools",
+      "Version": "0.2-23",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f5a957c02222589bdf625a67be68b2a9"
+    },
+    "multcomp": {
+      "Package": "multcomp",
+      "Version": "1.4-17",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "4ea2d10edb2bd6a12553d2ab2e7fffbd"
+    },
     "multtest": {
       "Package": "multtest",
       "Version": "2.50.0",
@@ -1388,6 +1474,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "6dfe8bf774944bd5595785e3229d8771"
+    },
+    "mvtnorm": {
+      "Package": "mvtnorm",
+      "Version": "1.1-3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "7a7541cc284cb2ba3ba7eae645892af5"
     },
     "nleqslv": {
       "Package": "nleqslv",
@@ -1746,6 +1839,13 @@
       "Version": "1.54.0",
       "Source": "Bioconductor",
       "Hash": "fcd0a6d7691bb3aefb4608e6e0996095"
+    },
+    "sandwich": {
+      "Package": "sandwich",
+      "Version": "3.0-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b79279ca91d53a98de8144852b67a1d0"
     },
     "sass": {
       "Package": "sass",
