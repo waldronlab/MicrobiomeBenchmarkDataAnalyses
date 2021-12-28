@@ -1,0 +1,84 @@
+---
+title: "Comparison of functions to perform CLR"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+There are a few packages that can be used for centered-log transformation of
+a matrix.
+
+
+```{r}
+library(curatedMetagenomicData)
+```
+
+I chose this dataset because it was used in the lefser package (Bioconductor)
+
+```{r}
+tse <- curatedMetagenomicData(
+    "ZellerG_2014.relative_abundance", dryrun = FALSE, counts = TRUE, 
+    rownames = "short"
+)[[1]]
+tse_subset <- tse[,colData(tse)$study_condition != "adenoma"]
+m <- assays(tse_subset)$relative_abundance
+```
+
+Comparing different functions
+
+```{r}
+## Defined function in global environment
+my_clr <- function(x) log(x / exp(mean(log(x))))
+res <- apply(m + 1, 2, my_clr)
+
+## Hotelling pkg
+res_hot <- m |>
+    t() |>
+    {\(y) Hotelling::clr(y + 1)}() |>
+    t()
+
+## compositions pkg
+res_com <- m |>
+    t() |>
+    {\(y) compositions::clr(y + 1)}() |>
+    t()
+class(res_com) <- NULL
+attr(res_com, "orig") <- NULL
+
+## mixOmics pkg
+res_mix <- m |> 
+    t() |>
+    {\(y) mixOmics::logratio.transfo(y + 1, logratio = "CLR")}() |>
+    t()
+class(res_mix) <- NULL # This is needed to remove the "clr" class
+```
+
+```{r}
+all.equal(res, res_hot)
+all.equal(res, res_com)
+all.equal(res, res_mix)
+```
+
+## A simpler test
+
+```{r}
+mat <- matrix(0:8, nrow = 3)
+mat
+```
+
+```{r}
+mat_my_clr <- apply(mat + 1, 2, my_clr)
+mat_my_clr
+```
+
+```{r}
+mat_mix <- t(mixOmics::logratio.transfo(t(mat), logratio = "CLR", offset = 1)) |>
+    {\(y) `class<-`(y, "matrix")}()
+mat_mix
+```
+
+## Conclusion
+`mixOmics::logratio.transfo` with transposition of the matrix should be chosen.
+The "clr" class should be removed, though.
