@@ -1,0 +1,146 @@
+---
+title: "Lefser"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+In this markdown, I test the lefser package with and without clr transformation
+and using different datasets
+
+```{r}
+library(lefser)
+library(curatedMetagenomicData)
+library(MicrobiomeBenchmarkData)
+```
+
+Define a centered log ratio transformation function:
+
+```{r}
+clr <- function(x) {
+    ## Centered log ratio transformation of a vector
+    ## Sources: 
+    ## + https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6755255/
+    ## + https://www.r-bloggers.com/2021/08/calculate-geometric-mean-in-r/
+    if (any(is.na(x) | any(x <= 0)))
+        stop("Input vector must not contain NAs, 0s, or negative numbers.")
+    log(x / exp(mean(log(x))))
+}
+```
+
+## Data from the leser package
+
+```{r}
+data("zeller14")
+zeller14_rnames <- rownames(zeller14)
+zeller14 <- 
+    zeller14[grepl("s__", zeller14_rnames ) & !grepl("t__", zeller14_rnames), ]
+zeller14 <- zeller14[, zeller14$study_condition != "adenoma"]
+zeller14 <- zeller14[rowSums(assay(zeller14)) > 0, ]
+assays(zeller14)$clr <- apply(assays(zeller14)[[1]] + 1, 2, clr)
+```
+
+Perform lefser analysis with counts:
+
+```{r}
+zeller14_res <- lefser(
+    expr = zeller14, groupCol = "study_condition", blockCol = "age_category",
+    assay = 1L
+)
+zeller14_res$Names <- sub("^.*s__", "", zeller14_res$Names)
+dim(zeller14_res)
+
+```
+```{r}
+lefserPlot(zeller14_res)
+```
+
+Perform lefser analysis with clr transformation of counts:
+
+```{r}
+zeller14_clr_res <- lefser(
+    expr = zeller14, groupCol = "study_condition", blockCol = "age_category",
+    assay = 2L
+)
+dim(zeller14_clr_res)
+```
+
+## Zeller dataset from curatedMetagenomicData v3
+
+```{r}
+zeller_list <- curatedMetagenomicData(
+    pattern = "ZellerG_2014.relative_abundance", dryrun = FALSE, counts = TRUE,
+    rownames = "short"
+)
+zeller_tse <- zeller_list[[1]]
+
+zeller_tse <- zeller_tse[, colData(zeller_tse)$study_condition != "adenoma"]
+zeller_tse <- zeller_tse[rowSums(assay(zeller_tse)) > 0, ]
+
+zeller_se <- SummarizedExperiment(
+    assays = list(counts = assay(zeller_tse)),
+    colData = colData(zeller_tse),
+    rowData = rowData(zeller_tse)
+)
+assays(zeller_se)$clr <- apply(assays(zeller_se)[["counts"]] + 1, 2, clr)
+```
+
+
+Analysis with raw counts
+
+```{r}
+zeller_se_res <- lefser(
+    expr = zeller_se, groupCol = "study_condition", blockCol = "age_category",
+    assay = 1L
+)
+dim(zeller_se_res)
+```
+
+```{r}
+lefserPlot(zeller_se_res)
+```
+
+Analysis with clr transform
+
+```{r}
+zeller_se_clr_res <- lefser(
+    expr = zeller_se, groupCol = "study_condition", blockCol = "age_category",
+    assay = 2L
+)
+dim(zeller_se_clr_res)
+```
+## Ona dataset from MicrobiomeBenchmarkData
+
+```{r}
+tse <- getDataset("HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
+se <- SummarizedExperiment::SummarizedExperiment(
+    assays = list(counts = assay(tse)),
+    colData = colData(tse),
+    rowData = rowData(tse)
+)
+se
+```
+
+```{r}
+allRanks <- mia::splitByRanks(se)
+se_genus <- allRanks$GENUS
+assays(se_genus)$clr <- apply(assays(se_genus)[[1]] + 1, 2, clr)
+se_genus
+
+```
+
+Direct counts:
+
+```{r}
+res_genus_counts <- lefser(se_genus, groupCol = "hmp_body_subsite", assay = 1L)
+res_genus_counts
+```
+
+CLR transform:
+
+```{r}
+res_genus_clr <- lefser(se_genus, groupCol = "hmp_body_subsite", assay = 2L)
+dim(res_genus_clr)
+```
