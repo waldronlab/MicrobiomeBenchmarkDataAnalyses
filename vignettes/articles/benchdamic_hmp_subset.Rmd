@@ -1,0 +1,14 @@
+---
+title: "benchdamic_hmp_subset"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(MicrobiomeBenchmarkDataAnalyses)
+```

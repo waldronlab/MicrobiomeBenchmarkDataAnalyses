@@ -1,0 +1,81 @@
+---
+title: "Fold Change"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Comparing fold change formulas/methods/functions
+
+
+```{r}
+a <- 1:10
+b <- 101:110
+```
+
+How to calculate fold change according to Bioconductor. See this
+[post](https://www.bioconductor.org/help/course-materials/2015/Uruguay2015/day5-data_analysis.html).
+
+
+
+```{r}
+## Calculate log
+num <- mean(log2(a))
+denom <- mean(log2(b))
+
+## Calculate mean
+
+output <- num - denom
+output2 <- denom - num
+
+```
+
+
+Another approach is to divide num / denom
+
+```{r}
+
+log_fold_change <- function(num, denom) {
+    if (num >= denom) {
+        return(log2(num / denom))
+    } else if (num < denom) {
+        return(-log2((denom / num)))
+    }
+}
+
+
+log_fold_change(mean(b), mean(a))
+log_fold_change(mean(a), mean(b))
+
+```
+
+```{r}
+log_fold_change_2 <- function(num, denom) {
+        if (num >= denom) {
+            return(log2(num) - log2(denom))
+    } else if (num < denom) {
+        return(-(log2(denom) - log2(num)))
+    }
+}
+
+log_fold_change_2(mean(a), mean(b))
+log_fold_change_2(mean(b), mean(a))
+
+
+```
+
+
+
+
+
+```{r}
+gtools::foldchange(mean(b), mean(a)) |> log2()
+
+
+```
+
+
+
+

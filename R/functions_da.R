@@ -272,3 +272,39 @@ clr <- function(x) {
     log(x / exp(mean(log(x))))
 }
 
+
+wilcox_test <- function(x, grp) {
+    
+    se_and_tse_class <- c("SummarizedExperiment", "TreeSummarizedExperiment")
+    
+    if (class(x) == "phyloseq") {
+        
+        abundance_matrix <- microbiome::abundances(x)
+        taxa <- rownames(abundance_matrix)
+        metadata <- microbiome::meta(x)
+        
+    } else if (class(x) %in% se_and_tse_class) {
+        
+        abundance_matrix <- SummarizedExperiment::assay(x)
+        taxa <- rownames(abundance_matrix)
+        metadata <- SummarizedExperiment::colData(x)
+        
+    }
+    
+    p_val <- vector("double", length(taxa))
+    names(p_val) <- taxa
+    for (i in seq_along(taxa)) {
+        Abundance <- data.frame(abundance_matrix[taxa[i], ])
+        Group <- metadata[rownames(Abundance),][grp]
+        df <- cbind(Abundance, Group)
+        colnames(df) <- c("Abundance", "Group")
+        wi_res <- stats::wilcox.test(formula  = Abundance ~ Group, data = df)
+        p_val[[i]] <- wi_res$p.value
+    }
+    
+    data.frame(rawP = p_val, adjP = stats::p.adjust(p_val, method = "fdr"))
+}
+
+
+
+

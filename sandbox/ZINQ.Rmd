@@ -1,0 +1,24 @@
+---
+title: "ZINQ"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data
+
+```{r}
+library(ZINQ)
+library(MicrobiomeBenchmarkData)
+```
+
+```{r}
+tse <- getDataset("HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
+```
+
+```{r}
+
+```
+

@@ -7,6 +7,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+In this file, I compare the bechdamic framework with the orignal methods. This
+was done to find the parameters that would allow me to replicate the framework
+of Calgaro, 2020 in all of the datasets.
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
@@ -19,15 +22,10 @@ library(ALDEx2)
 
 
 library(ggplot2)
-```
 
-```{r, include=FALSE}
-## A useful function to hide messages
-quiet <- function(x) { 
-    sink(tempfile()) 
-    on.exit(sink()) 
-    invisible(force(x)) 
-} 
+## Get normalization options for each method in a tibble
+source("../R/utils.R")
+source("../R/normalization_methods.R")
 ```
 
 ## Data
@@ -57,13 +55,6 @@ conditions <- sample_data(ps)[[grp]]
 This step is required for benchdamic
 
 ```{r normalization factors, message=FALSE}
-normalization_methods <- tibble::tribble(
-    ~fun, ~method,
-    "norm_edgeR", "none",
-    "norm_edgeR", "TMM",
-    "norm_DESeq2", "poscounts"
-)
-
 set_norm <- setNormalizations(
     fun = normalization_methods$fun, method = normalization_methods$method
 )
