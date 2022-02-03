@@ -1,0 +1,43 @@
+---
+title: "bv"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(MicrobiomeBenchmarkDataAnalyses)
+```
+
+```{r}
+col_data_url <- "https://knights-lab.github.io/MLRepo/datasets/ravel/task-nugent-category.txt"
+col_data <- read.table(col_data_url, sep = "\t", header = TRUE, comment.char = "")
+colnames(col_data) <- c("Sample", "Nugent")
+```
+
+## gg97
+
+OTU table
+
+```{r}
+otu_table_gg97_url <- "https://knights-lab.github.io/MLRepo/datasets/ravel/gg/otutable.txt"
+otu_table_gg97 <- read.table(otu_table_gg97_url, sep = "\t", header = TRUE, comment.char = "")
+rownames(otu_table_gg97) <- otu_table_gg97[[1]]
+otu_table_gg97 <- as.matrix(otu_table_gg97[,-1])
+otu_table_gg97[1:5, 1:5]
+```
+
+Taxa table
+
+```{r}
+tax_table_gg97_url <- "https://knights-lab.github.io/MLRepo/datasets/ravel/gg/taxatable.txt"
+tax_table_gg97 <- read.table(tax_table_gg97_url, sep = "\t", header = FALSE)
+```
+
+
+
+
