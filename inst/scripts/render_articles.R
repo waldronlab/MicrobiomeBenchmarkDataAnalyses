@@ -3,3 +3,9 @@ rmarkdown::render(
     output_format = "html_document", 
     output_file = "benchdamic_hmp_subset.html", output_dir = "rendered_articles"
 )
+
+rmarkdown::render(
+    input = "vignettes/articles/benchdamic_nychanes.Rmd", 
+    output_format = "html_document", 
+    output_file = "benchdamic_nychanes.html", output_dir = "rendered_articles"
+)
