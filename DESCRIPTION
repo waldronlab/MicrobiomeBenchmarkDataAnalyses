@@ -1,15 +1,26 @@
 Package: MicrobiomeBenchmarkDataAnalyses
-Title: What the Package Does (One Line, Title Case)
+Title: Benchmarking analyses with the MicrobiomeBenchmarkData package
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person("Samuel David", "Gamboa-Tuz", , "Samuel.Gamboa.Tuz@gmail.com",
+        role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6863-7943"))
+Description: This project/package is for performing analyses for the paper
+    using the MicrobiomeBenchmarkData package.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Suggests: 
+    benchdamic,
     knitr,
+    MicrobiomeBenchmarkData,
     rmarkdown
 VignetteBuilder: knitr
+Imports: 
+    SummarizedExperiment,
+    microbiome,
+    stats,
+    ZINQ
+Remotes:
+    waldronlab/MicrobiomeBenchmarkData,
+    wdl2459/ZINQ-v2

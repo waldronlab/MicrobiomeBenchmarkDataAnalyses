@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(benchdamic)
 library(phyloseq)
+library(mia)
 library(MicrobiomeBenchmarkData)
 library(MicrobiomeBenchmarkDataAnalyses)
 library(dplyr)
@@ -27,41 +28,53 @@ grp <- "grp"
 
 ## Name of the conditions to be compared.
 ## Reference should be first always.
-contrast <- c("subgingival_plaque", "supragingival_plaque")
+contrast <- c("never_smoker", "cigarette")
+
+## Dataset name
+dataset_name <- "Beghini_2019_16S_smoking"
 ```
 
 ## Import dataset
 
 ```{r import dataset}
-dataset_name <- "HMP_2012_16S_gingival_V35_subset"
 tse <- getDataset(dataset_name, dryrun = FALSE)[[1]]
 ## a grp column is created as a copy of the hmp_body_subsite column
-colData(tse)$grp <- factor(colData(tse)$hmp_body_subsite, levels = contrast)
+colData(tse)$grp <- factor(colData(tse)$smokingstatus, levels = contrast)
 ```
 
+
+```{r}
+rowData(tse)$Genus <- sub(" [0-9]+$", "", sub("^.+__", "", rowData(tse)$Genus))
+tse_by_ranks <- splitByRanks(x = tse)
+tse_genus <- tse_by_ranks$Genus
+tse_genus <- tse_genus[!grepl("uncultured", rownames(tse_genus)),]
+```
+
+Import prior knowledge
+
+
+```{r}
+biosis_tsv <- "https://raw.githubusercontent.com/waldronlab/nychanesmicrobiome/master/inst/extdata/biosis.tsv"
+biosis <- read.table(biosis_tsv, sep = "\t", header = TRUE)
+colnames(biosis) <- c("Genus", "Biosis")
+biosis$Biosis <- sub(" ", "_", biosis$Biosis)
+rownames(biosis) <- biosis$Genus
+priorInfo <- biosis[rownames(tse_genus),]
+head(priorInfo)
+```
 ## benchdamic pipeline
 
 In this document, we use the [benchdamic package](https://bioconductor.org/packages/devel/bioc/html/benchdamic.html)
 for benchmarking different differential abundance (DA) methods using the
 `r dataset_name`.
 
-### Create prior knowledge information
-
-```{r prior knowledge}
-priorInfo <- as.data.frame(rowData(tse)[,c("GENUS", "BIOSIS")])
-priorInfo$newNames <- 
-  paste0(rownames(priorInfo), "|", priorInfo$GENUS)
-priorInfo$Type <- 
-  ifelse(is.na(priorInfo$BIOSIS), "unknown", priorInfo$BIOSIS)
-head(priorInfo)
-```
-
 ### Convert to phyloseq
 
 ```{r convert to phyloseq}
 ## Biosis information is lost at this step, but it's already stored in the
 ## priorInfo variable
-ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse)
+ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse_genus)
+ps
 ```
 
 Set reference:
@@ -126,7 +139,7 @@ my_edger <- set_edgeR(
 
 # DESeq2
 my_deseq2 <- set_DESeq2(
-    contrast = c(grp, "supragingival_plaque", "subgingival_plaque"),
+    contrast = c(grp, contrast[2], contrast[1]),
     design = as.formula(paste0("~", grp)),
     norm = "poscounts"
 )
@@ -174,7 +187,7 @@ my_mast <- set_MAST(
 # Seurat
 my_seurat <- set_Seurat(
     test.use = "wilcox",
-    contrast = c(grp, "supragingival_plaque", "subgingival_plaque"),
+    contrast = c(grp, contrast[2], contrast[1]),
     norm = "none"
 )
 
@@ -261,8 +274,8 @@ Run enrichment:
 enrichment <- createEnrichment(
     object = DA,
     priorKnowledge = priorInfo,
-    enrichmentCol = "Type",
-    namesCol = "newNames",
+    enrichmentCol = "Biosis",
+    namesCol = "Genus",
     slot = "pValMat",
     colName = "adjP",
     type = "pvalue",
@@ -281,7 +294,7 @@ Plot enrichment:
 plotEnrichment(
     enrichment = enrichment, 
     enrichmentCol = "Type",
-    levels_to_plot = c("Aerobic", "Anaerobic", "F Anaerobic")
+    levels_to_plot = c("Aerobic", "Anaerobic", "F_Anaerobic")
 )
 
 ```
@@ -294,8 +307,8 @@ Create table of positives
 positives <- createPositives(
     object = DA, 
     priorKnowledge = priorInfo,
-    enrichmentCol = "Type",
-    namesCol = "newNames",
+    enrichmentCol = "Biosis",
+    namesCol = "Genus",
     slot = "pValMat",
     colName = "rawP",
     type = "pvalue",

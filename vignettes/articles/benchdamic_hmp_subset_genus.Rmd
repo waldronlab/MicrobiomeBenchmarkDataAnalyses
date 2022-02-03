@@ -1,5 +1,5 @@
 ---
-title: "Benchmarking with the HMP_16S_gingival_subset dataset"
+title: "Benchmarking with the HMP_16S_gingival_subset dataset genus level"
 ---
 
 ```{r, include = FALSE}
@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(benchdamic)
 library(phyloseq)
+library(mia)
 library(MicrobiomeBenchmarkData)
 library(MicrobiomeBenchmarkDataAnalyses)
 library(dplyr)
@@ -49,6 +50,10 @@ for benchmarking different differential abundance (DA) methods using the
 
 ```{r prior knowledge}
 priorInfo <- as.data.frame(rowData(tse)[,c("GENUS", "BIOSIS")])
+rownames(priorInfo) <- NULL
+priorInfo <- priorInfo |> 
+  unique()
+rownames(priorInfo) <- 
 priorInfo$newNames <- 
   paste0(rownames(priorInfo), "|", priorInfo$GENUS)
 priorInfo$Type <- 
@@ -63,6 +68,7 @@ head(priorInfo)
 ## priorInfo variable
 ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse)
 ```
+
 
 Set reference:
 ```{r set reference}
