@@ -1,5 +1,5 @@
 ---
-title: "Benchmarking with the HMP_16S_gingival_subset dataset"
+title: "Benchmarking with the Beghini_2019_16S_smoking dataset"
 ---
 
 ```{r, include = FALSE}
