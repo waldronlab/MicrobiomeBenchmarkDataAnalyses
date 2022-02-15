@@ -20,7 +20,11 @@ Imports:
     SummarizedExperiment,
     microbiome,
     stats,
-    ZINQ
+    ZINQ,
+    dplyr,
+    magrittr,
+    phyloseq,
+    ANCOMBC
 Remotes:
     waldronlab/MicrobiomeBenchmarkData,
     wdl2459/ZINQ-v2

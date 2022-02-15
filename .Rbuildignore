@@ -11,3 +11,5 @@
 ^scripts$
 ^misc$
 ^rendered_articles$
+^extra_files$
+^data-raw$
