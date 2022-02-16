@@ -2258,6 +2258,24 @@
         "rngtools"
       ]
     },
+    "downlit": {
+      "Package": "downlit",
+      "Version": "0.4.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ba63dc9ab5a31f3209892437e40c5f60",
+      "Requirements": [
+        "brio",
+        "desc",
+        "digest",
+        "evaluate",
+        "fansi",
+        "memoise",
+        "rlang",
+        "vctrs",
+        "yaml"
+      ]
+    },
     "dplyr": {
       "Package": "dplyr",
       "Version": "1.0.8",
@@ -3849,12 +3867,14 @@
         "crayon",
         "desc",
         "digest",
+        "downlit",
         "fs",
         "httr",
         "jsonlite",
         "magrittr",
         "memoise",
         "purrr",
+        "ragg",
         "rlang",
         "rmarkdown",
         "tibble",
@@ -4076,6 +4096,17 @@
       "Hash": "fa4822bb52e2a6b5a7a6f9611e3a6739",
       "Requirements": [
         "RSpectra"
+      ]
+    },
+    "ragg": {
+      "Package": "ragg",
+      "Version": "1.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "4577b3859de34ffb2938d9a878dcf384",
+      "Requirements": [
+        "systemfonts",
+        "textshaping"
       ]
     },
     "rappdirs": {
@@ -4951,6 +4982,16 @@
       "Hash": "b227d13e29222b4574486cfcbde077fa",
       "Requirements": []
     },
+    "systemfonts": {
+      "Package": "systemfonts",
+      "Version": "1.0.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "90b28393209827327de889f49935140a",
+      "Requirements": [
+        "cpp11"
+      ]
+    },
     "taxize": {
       "Package": "taxize",
       "Version": "0.9.99.947",
@@ -5046,6 +5087,17 @@
         "rlang",
         "waldo",
         "withr"
+      ]
+    },
+    "textshaping": {
+      "Package": "textshaping",
+      "Version": "0.3.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "1ab6223d3670fac7143202cb6a2d43d5",
+      "Requirements": [
+        "cpp11",
+        "systemfonts"
       ]
     },
     "tibble": {
