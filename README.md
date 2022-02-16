@@ -10,5 +10,5 @@ package.
 if (!"BiocManager" %in% installed.packages()[,"Package"])
     install.packages("BiocManager")
 
-BiocManager::install("sdgamboa/MicrobiomeBenchmarkDataAnalyses")
+BiocManager::install("waldronlab/MicrobiomeBenchmarkDataAnalyses")
 ```
