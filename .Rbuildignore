@@ -13,3 +13,4 @@
 ^rendered_articles$
 ^extra_files$
 ^data-raw$
+^_pkgdown\.yml$
