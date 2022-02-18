@@ -1,14 +1,13 @@
-# Analyses using the MicrobiomeBenchmarkData
+# Analyses using MicrobiomeBenchmarkData 
 
-This repository contains benchmarking analyses of differential abundance (DA)
-methods using the datasets included in the 
-[MicrobiomeBenchmarkData](https://github.com/waldronlab/MicrobiomeBenchmarkData)
+This package contains analyses performed on datasets included or under
+consideration to be included in the 
+[MicrobiomeBenchmarkData](https://waldronlab.io/MicrobiomeBenchmarkData)
 package.
 
-
-```
-if (!"BiocManager" %in% installed.packages()[,"Package"])
-    install.packages("BiocManager")
-
+```{r}
+## Package installation
+if (!"BiocManager" %in% install.packages()[,"package"])
+  install.packages("BiocManager")
 BiocManager::install("waldronlab/MicrobiomeBenchmarkDataAnalyses")
 ```
