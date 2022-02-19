@@ -3,6 +3,7 @@
 export(ancombc)
 export(filter_phyloseq)
 export(quiet)
+export(relative_abundance_to_counts)
 export(taxize_classification_to_taxonomy_table)
 export(zinq)
 importFrom(dplyr,bind_rows)

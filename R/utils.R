@@ -79,6 +79,24 @@ filter_phyloseq <- function(ps) {
     ps
 }
 
+#' Convert from relative abundance (100) to counts
+#' 
+#' \code{relative_abundace_to_counts} converts from relative abundance to
+#' counts.
+#'
+#' @param x A matrix. Taxa in rownames. Samples in colnames.
+#' @param total_reads Numeric vector with total reads per sample. It must be in
+#' the same order as in the colnames of the matrix.
+#' @param total_sum Total scaling. Default 100 (percentage).
+#'
+#' @return A matrix of counts
+#' @export
+#'
+relative_abundance_to_counts <- function(x, total_reads, total_sum = 100) {
+    t(apply(x, 1, function(x) round(x * total_reads / total_sum)))
+}
+
+
 #' ANCOMBC
 #' 
 #' \code{ancombc} performs ancombc
