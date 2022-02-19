@@ -1,0 +1,122 @@
+---
+title: "Ravel 2013 - Bacterial vaginosis"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(dplyr)
+library(SummarizedExperiment)
+library(MicrobiomeBenchmarkDataAnalyses)
+```
+
+# Data
+
+Import sample metadata. 
+
+```{r}
+sample_metadata_1_url <- "https://static-content.springer.com/esm/art%3A10.1186%2F2049-2618-1-29/MediaObjects/40168_2013_28_MOESM1_ESM.xlsx"
+sample_metadata_1_file <- tempfile()
+download.file(sample_metadata_1_url, sample_metadata_1_file)
+sample_metadata_1 <- 
+    readxl::read_xlsx(sample_metadata_1_file, range = "Metadata!A4:T1760")
+head(sample_metadata_1)
+```
+
+The table imported above is incomplete. It needs to be combined with a few
+columns from the OTU table file (see below).
+
+Import OTU table and some more sample metadata:
+
+```{r}
+otu_table_url <- "https://static-content.springer.com/esm/art%3A10.1186%2F2049-2618-1-29/MediaObjects/40168_2013_28_MOESM3_ESM.xlsx"
+otu_table_file <- tempfile()
+download.file(otu_table_url, otu_table_file)
+otu_table <- readxl::read_xlsx(otu_table_file, range = "A4:EW1661")
+head(otu_table)
+```
+
+```{r}
+sample_metadata <- sample_metadata_1 %>% 
+    left_join(otu_table[c("sampleID", "Total Reads")], by = "sampleID") %>% 
+    tibble::column_to_rownames(var = "sampleID") %>% 
+    as.data.frame()
+sample_metadata <- sample_metadata[colnames(relative_abundance_matrix), ]
+sample_metadata <- sample_metadata %>% 
+    mutate(
+        Nugent_score_category = case_when(
+            Nugent_Score >= 0 & Nugent_Score <= 3 ~ "low",
+            Nugent_Score >= 4 & Nugent_Score <= 6 ~ "medium",
+            Nugent_Score >= 7 & Nugent_Score >= 10 ~ "high"
+        )
+    )
+
+head(sample_metadata)
+```
+
+```{r}
+table(sample_metadata$Nugent_score_category)
+```
+
+
+```{r}
+filtered_sample_metadata <- sample_metadata %>% 
+    filter(Nugent_score_category %in% c("low", "high"))
+table(filtered_sample_metadata$Nugent_score_category)
+```
+TODO: Apply some more filtereing. By subjects, etc. (explore more of the
+sample metadata),
+
+Can I get some data from the SRA?
+
+```{r}
+relative_abundance_matrix <- otu_table %>% 
+    select(-`Total Reads`) %>% 
+    tibble::column_to_rownames(var = "sampleID") %>% 
+    as.data.frame() %>% 
+    as.matrix() %>% 
+    t()
+relative_abundance_matrix[1:5, 1:5]
+```
+
+```{r}
+summary(colSums(relative_abundance_matrix))
+```
+
+Get counts for abundance matrix
+
+```{r}
+total_reads <- sample_metadata$`Total Reads`
+abundance_matrix <- 
+    relative_abundance_to_counts(relative_abundance_matrix, total_reads)
+abundance_matrix[1:5, 1:5]
+```
+
+Import taxonomy table (this was generated beforehand for convenience):
+
+```{r}
+
+```
+
+Create SummarizedExperiment
+
+```{r}
+se <- SummarizedExperiment(
+    assays = S4Vectors::SimpleList(
+        abundance = abundance_matrix, 
+        relative_abundance = relative_abundance_marix
+    ),
+    colData = S4Vectors::DataFrame(sample_metadata)
+)
+se
+```
+
+
+
+
+
