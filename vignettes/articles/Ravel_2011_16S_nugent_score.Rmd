@@ -203,8 +203,8 @@ Abundance matrix of the original paper is ready.
 ```{r, eval=FALSE, include=FALSE}
 ## Save the abundance matrix
 # write.table(
-#   abundance_matrix, 
-#   file = "/home/samuelgamboa/Projects/MicrobiomeBenchmarkDataAnalyses/MicrobiomeBenchmarkDataAnalyses/inst/extdata/abundance_matrix_bacterial_vaginosis_dataset_1_ravel_2011.tsv",
+#   abundance_matrix,
+#   file = "/home/samuelgamboa/Projects/MicrobiomeBenchmarkDataAnalyses/MicrobiomeBenchmarkDataAnalyses/inst/extdata/Ravel_2011_bv_abundance_matrix.tsv",
 #   sep = "\t", row.names = TRUE, col.names = TRUE
 # )
 ```
@@ -216,7 +216,7 @@ the `taxize` package. So it only needs to be imported.
 
 ```{r}
 fname <- system.file(
-  "extdata/abundance_matrix_bacterial_vaginosis_dataset_1_ravel_2011.tsv",
+  "extdata/Ravel_2011_bv_taxonomy_table.tsv",
   package = "MicrobiomeBenchmarkDataAnalyses"
 )
 taxonomy_table <- read.table(fname, sep = "\t", row.names = 1, header = TRUE)
