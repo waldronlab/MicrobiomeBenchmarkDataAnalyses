@@ -127,7 +127,7 @@
 "Bacteroidetes_7"	"Bacteria"	NA	NA	NA	NA	NA
 "Clostridiales_4"	"Bacteria"	"Clostridia"	"Eubacteriales"	NA	NA	NA
 "Sphingomonas"	"Bacteria"	"Alphaproteobacteria"	"Sphingomonadales"	"Sphingomonadaceae"	"Sphingomonas"	NA
-"TM7_genera_incertae_sedis"	NA	NA	NA	NA	NA	NA
+"TM7_genera_incertae_sedis"	"Bacteria"	NA	NA	NA	NA	NA
 "Collinsella"	"Bacteria"	"Coriobacteriia"	"Coriobacteriales"	"Coriobacteriaceae"	"Collinsella"	NA
 "Erysipelotrichaceae_Incertae_Sedis"	"Bacteria"	"Erysipelotrichia"	"Erysipelotrichales"	"Erysipelotrichaceae"	NA	NA
 "Bacillus_j"	"Bacteria"	"Bacilli"	"Bacillales"	"Bacillaceae"	"Bacillus"	NA

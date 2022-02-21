@@ -1,12 +1,18 @@
+## Code to prepare Ravel_2013_bv_taxonomy_table.tsv
+
 library(MicrobiomeBenchmarkDataAnalyses)
 library(taxize)
 
-## This table was created in of the articles under the
-## vignettes directory
-abundance_matrix <- read.table(
-    file = "inst/extdata/Ravel_2013_bv_abundance_matrix.tsv",
-    sep = "\t", header = TRUE, row.names = 1
+fname <- system.file(
+    ## The code to prepare this file is an article within the vignettes directory.
+    ## Look for the save abundance matrix code chunk in the
+    ## Ravel_2013_16S_nugent_score.Rmd file.
+    "extdata/Ravel_2013_bv_abundance_matrix.tsv",
+    package = "MicrobiomeBenchmarkDataAnalyses"
 )
+
+abundance_matrix <- 
+    read.table(file = fname, sep = "\t", header = TRUE, row.names = 1)
 
 taxa_names_original <- rownames(abundance_matrix)
 

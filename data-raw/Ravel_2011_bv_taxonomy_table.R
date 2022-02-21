@@ -1,12 +1,15 @@
-## code to prepare `abundance_matrix_bacterial_vaginosis_dataset_1_ravel_2011.tsv` dataset goes here
+## Code to prepare Ravel_2011_bv_taxonomy_table.tsv
 
 library(magrittr)
 library(taxize)
-library(MicrobiomeBenchmarkDataAnalyses)
 
 fname <- system.file(
-    "extdata/abundance_matrix_bacterial_vaginosis_dataset_1_ravel_2011.tsv",
-    package = "MicrobiomeBenchmarkDataAnalyses")
+    ## The code to prepare this file is an article within the vignettes directory.
+    ## Look for the save abundance matrix code chunk in the
+    ## Ravel_2011_16S_nugent_score.Rmd file.
+    "extdata/Ravel_2011_bv_abundance_matrix.tsv",
+    package = "MicrobiomeBenchmarkDataAnalyses"
+)
 
 abMat <- read.table(fname, sep = "\t", row.names = 1)
 
@@ -16,7 +19,8 @@ taxa_names <- rownames(abMat) %>%
     sub("_Incertae_Sedis", "", .) %>% 
     sub("_j$", "", .) %>% 
     sub("_c$", "", .) %>% 
-    sub("_genera_incertae_sedis", "", .)
+    sub("_genera_incertae_sedis", "", .) %>% 
+    sub("^TM7$", "Candidatus Saccharibacteria", .)
 
 ## Some taxa are Bacteria incertae sedis, so we have to add that manually
 taxa_names[grepl("dontdelete", taxa_names)] <- "Bacteria incertae sedis"
@@ -27,9 +31,8 @@ taxonomy_table <- taxonomy_table[,-1]
 rownames(taxonomy_table) <- rownames(abMat)
 write.table(
     taxonomy_table,
-    file = "inst/extdata/abundance_matrix_bacterial_vaginosis_dataset_1_ravel_2011.tsv",
+    file = "inst/extdata/Ravel_2011_bv_taxonomy_table.tsv",
     sep = "\t",
-    
 )
 
 

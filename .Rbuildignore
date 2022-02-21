@@ -4,14 +4,7 @@
 ^\.Rproj\.user$
 ^vignettes/articles$
 ^LICENSE\.md$
-^bacterial_vaginosis$
-^benchdamic$
-^rmarkdown$
-^sandbox$
-^scripts$
 ^misc$
-^rendered_articles$
-^extra_files$
 ^data-raw$
 ^_pkgdown\.yml$
 ^docs$
