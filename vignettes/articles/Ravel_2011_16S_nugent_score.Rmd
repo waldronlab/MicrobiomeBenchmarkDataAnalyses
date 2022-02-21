@@ -200,7 +200,7 @@ summary(colSums(abundance_matrix) -sample_metadata$Totalnumberreads)
 
 Abundance matrix of the original paper is ready.
 
-```{r, eval=FALSE, include=FALSE}
+```{r save abundance matrix, eval=FALSE, include=FALSE}
 ## Save the abundance matrix
 # write.table(
 #   abundance_matrix,
