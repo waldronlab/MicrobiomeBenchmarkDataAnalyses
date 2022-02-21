@@ -97,43 +97,20 @@ relative_abundance_to_counts <- function(x, total_reads, total_sum = 100) {
 }
 
 
-#' ANCOMBC
+#' Calculate log Fold Change
 #' 
-#' \code{ancombc} performs ancombc
+#' \code{log_fold_change} calculates log fold change
 #'
-#' @param ps A phyloseq object
-#' @param formula A string.
-#' @param group A string.
+#' @param num vector with numerator
+#' @param denom vector with denominator
 #'
-#' @return ANCOMBC result.
+#' @return data transformed to log2 fold change
 #' @export
 #'
-ancombc <- function(ps, formula, group) {
-    out <- ANCOMBC::ancombc(phyloseq = ps, formula = formula, 
-                            p_adj_method = "bonferroni", zero_cut = 0.90, lib_cut = 1000, 
-                            group = group, struc_zero = TRUE, neg_lb = TRUE, 
-                            tol = 1e-5, max_iter = 100, conserve = TRUE, alpha = 0.05, 
-                            global = TRUE)
-    res <- out$res
-    ### extract important statistics ###
-    vector_of_pval <- res$p_val[[1]] # contains the p-values
-    vector_of_adjusted_pval <- res$q_val[[1]] # contains the adjusted p-values
-    name_of_your_features <- rownames(res$p_val) # contains the OTU, or ASV, or other feature 
-    # names. Usually extracted from the rownames of 
-    # the count data
-    vector_of_logFC <- res$beta[[1]] # logos the logFCs
-    vector_of_statistics <- res$beta[[1]] # contains other statistics
-    
-    ### prepare the output ###
-    pValMat <- data.frame("rawP" = vector_of_pval,
-                          "adjP" = vector_of_adjusted_pval)
-    statInfo <- data.frame("logFC" = vector_of_logFC,
-                           "statistics" = vector_of_statistics) 
-    name <- "ANCOMBC"
-    # Be sure that your method hasn't changed the order of the features. If it 
-    # happens, you'll need to re-establish the original order.
-    rownames(pValMat) <- rownames(statInfo) <- name_of_your_features 
-    
-    # Return the output as a list
-    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+log_fold_change <- function(num, denom) {
+    if (num >= denom) {
+        return(log2(num / denom))
+    } else if (num < denom) {
+        return(-log2(denom / num))
+    }
 }
