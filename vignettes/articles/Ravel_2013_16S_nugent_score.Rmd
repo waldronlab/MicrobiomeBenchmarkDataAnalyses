@@ -1,5 +1,8 @@
 ---
-title: "Ravel 2013 - Bacterial vaginosis"
+title: "Bacterial vaginosis dataset 2 - Ravel 2013"
+output:
+  html_document:
+    toc: yes
 ---
 
 ```{r, include = FALSE}

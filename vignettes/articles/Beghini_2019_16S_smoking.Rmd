@@ -1,5 +1,8 @@
 ---
-title: "Benchmarking with the Beghini_2019_16S_smoking dataset"
+title: "Beghini_2019_16S_smoking"
+output:
+  html_document:
+    toc: yes
 ---
 
 ```{r, include = FALSE}

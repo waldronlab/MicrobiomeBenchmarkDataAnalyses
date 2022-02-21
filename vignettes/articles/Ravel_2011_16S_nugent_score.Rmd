@@ -49,7 +49,10 @@ Data from the NCBI SRA:
 ```{r}
 ## The file containing sample metadata for the SRA accession was downloaded
 ## with E-utilites from the NCBI
-path_to_sra_metadata <- "~/Projects/MicrobiomeBenchmarkDataAnalyses/MicrobiomeBenchmarkDataAnalyses/extra_files/SRA022855_run_metadata.csv"
+path_to_sra_metadata <- system.file(
+  "extdata/SRA022855_run_metadata.csv",
+  package = "MicrobiomeBenchmarkDataAnalyses"
+)
 sra_metadata <- read.csv(path_to_sra_metadata)
 sra_metadata <- sra_metadata %>% 
   select(Run, SampleName, Platform, Model, CenterName)
@@ -730,7 +733,7 @@ Import the aerophilicity dataset from bugphyzz
 
 ```{r}
 fname1 <- system.file(
-  "extdata/aer_bugphyzz.tsv", package = "MicrobiomeBenchmarkDataAnalyses"
+  "extdata/bugphyzz_aerophilicity.tsv", package = "MicrobiomeBenchmarkDataAnalyses"
 )
 aer <- readr::read_tsv(fname1) %>% 
   magrittr::set_colnames(c("Taxon_name", "aerophilicity"))
@@ -748,7 +751,7 @@ Import the gram stain dataset from bugphyzz
 
 ```{r}
 fname2 <- system.file(
-  "extdata/gs_bugphyzz.tsv", package = "MicrobiomeBenchmarkDataAnalyses"
+  "extdata/bugphyzz_gram_stain.tsv", package = "MicrobiomeBenchmarkDataAnalyses"
 )
 gs <- readr::read_tsv(fname2) %>% 
   magrittr::set_colnames(c("Taxon_name", "gram_stain"))
@@ -759,7 +762,7 @@ Import the aerophilicity data from nychanes (biosis):
 
 ```{r}
 fname3 <- system.file(
-  "extdata/biosis.tsv", package = "MicrobiomeBenchmarkDataAnalyses"
+  "extdata/nychanes_biosis.tsv", package = "MicrobiomeBenchmarkDataAnalyses"
 )
 biosis <- readr::read_tsv(fname3)
 head(biosis)

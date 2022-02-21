@@ -1,5 +1,8 @@
 ---
-title: "Benchmarking with the HMP_16S_gingival_subset dataset"
+title: "HMP_16S_gingival_subset"
+output:
+  html_document:
+    toc: yes
 ---
 
 ```{r, include = FALSE}
