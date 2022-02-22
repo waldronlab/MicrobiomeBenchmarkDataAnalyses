@@ -234,7 +234,7 @@ Run ZINQ
 
 ```{r}
 
-my_zinq <-  zinq(x = ps, grp = grp, ref = contrast[2]) |>
+my_zinq <-  zinq(object = ps, grp = grp, ref = contrast[2]) |>
   quiet()
 DA$zinq <- my_zinq
 ```

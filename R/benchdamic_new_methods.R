@@ -9,30 +9,31 @@
 #' association testing for microbiome data via a zero-inflated quantile approach
 #' (ZINQ). Microbiome 9, 181 (2021). https://doi.org/10.1186/s40168-021-01129-3
 #'
-#' @param x A (Tree)SummarizedExperiment or a phyloseq object.
+#' @param object A (Tree)SummarizedExperiment or a phyloseq object.
 #' @param grp The name of the grouping column, which is located in the colData
 #' (SummarizedExperiment) or the sample_data (phyloseq).
 #' @param ref A character string indicating the group that should be used as
 #' reference.
 #' @param pval_type A character string indicating the type of pvalue to use.
 #' Options: Cauchy or MinP. Default: Cauchy.
+#' @param ... Other parameters
 #'
 #' @return
 #' A list in the format used in the benhcdamic pipeline.
 #' 
 #' @export
 #'
-zinq <- function(x, grp, ref = NULL, pval_type = "Cauchy") {
+zinq <- function(object, grp, ref = NULL, pval_type = "Cauchy", ...) {
     tse <- NULL
-    if (class(x) == "phyloseq") {
-        m <- microbiome::abundances(x)
+    if (class(object) == "phyloseq") {
+        m <- microbiome::abundances(object)
         taxa <- rownames(m)
-        metadata <- microbiome::meta(x)
+        metadata <- microbiome::meta(object)
         
-    } else if (class(x) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
-        m <- SummarizedExperiment::assay(tse)
+    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
+        m <- SummarizedExperiment::assay(object)
         taxa <- rownames(m)
-        metadata <- SummarizedExperiment::colData(tse) |>
+        metadata <- SummarizedExperiment::colData(object) |>
             as.data.frame()
     }
     
@@ -109,15 +110,16 @@ zinq <- function(x, grp, ref = NULL, pval_type = "Cauchy") {
 #' 
 #' \code{ancombc} performs ancombc
 #'
-#' @param ps A phyloseq object
+#' @param object A phyloseq object
 #' @param formula A string.
 #' @param group A string.
+#' @param ... Other parameters.
 #'
 #' @return ANCOMBC result.
 #' @export
 #'
-ancombc <- function(ps, formula, group) {
-    out <- ANCOMBC::ancombc(phyloseq = ps, formula = formula, 
+ancombc <- function(object, formula, group, ...) {
+    out <- ANCOMBC::ancombc(phyloseq = object, formula = formula, 
                             p_adj_method = "bonferroni", zero_cut = 0.90, lib_cut = 1000, 
                             group = group, struc_zero = TRUE, neg_lb = TRUE, 
                             tol = 1e-5, max_iter = 100, conserve = TRUE, alpha = 0.05, 
@@ -147,5 +149,163 @@ ancombc <- function(ps, formula, group) {
 }
 
 
+#' Wilcox test
+#' 
+#' \code{wilcox_test} is an adaptation of the wilcox.test function
+#' (stats package) for use with the benchdamic workflow.
+#'
+#' @param object A phyloseq or (Tree)SummairizedExperiment object
+#' @param grp A character string with the column name.
+#' @param ref A character string with the condition used as reference.
+#' @param ... Other paramteres
+#'
+#' @return A list compatibble with the benchdamic workflow.
+#' @export
+#'
+wilcox_test <- function(object, grp, ref = NULL, ...) {
+    
+    if (class(object) == "phyloseq") {
+        m <- microbiome::abundances(object)
+        taxa <- rownames(m)
+        metadata <- microbiome::meta(object)
+        
+    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
+        m <- SummarizedExperiment::assay(object)
+        taxa <- rownames(m)
+        metadata <- SummarizedExperiment::colData(object) |>
+            as.data.frame()
+    }
+    
+    list_of_abundances <- vector("list", length(taxa))
+    names(list_of_abundances) <- taxa
+    
+    for (i in seq_along(taxa)) {
+        abundance <- data.frame(m[taxa[i],])
+        covariates <- metadata[rownames(abundance), grp]
+        df <- cbind(abundance = abundance, covariates)
+        colnames(df) <- c("abundance", "covariate")
+        
+        if (!is.null(ref)) {
+            df[["covariate"]] <- 
+                stats::relevel(factor(df[["covariate"]]), ref = ref)
+        } else {
+            df[["covariate"]] <- factor(df[["covariate"]])
+        }
+        
+        ## Calculate fold change
+        num_lvl <- levels(df[["covariate"]])[1]
+        denom_lvl <- levels(df[["covariate"]])[2]
+        
+        num <- mean(df$abundance[df$covariate == num_lvl])
+        denom <- mean(df$abundance[df$covariate == denom_lvl])
+        
+        
+        if (num >= denom) {
+            log2FoldChange <- log2(num / denom)
+        } else if (num < denom) {
+            log2FoldChange <- -log2(denom / num)
+        }
+        
+        pvalues <- vector("double", 2)
+        names(pvalues) <- c("log2FoldChange", "pvalue")
+        
+        pvalues[["log2FoldChange"]] <- log2FoldChange
+        wi_res <- stats::wilcox.test(formula  = abundance ~ covariate, data = df)
+        pvalues[["pvalue"]] <- wi_res$p.value
+        
+        list_of_abundances[[i]] <- pvalues
+    }
+    
+    output <- do.call("rbind", list_of_abundances) |>
+        as.data.frame()
+    output[["adj_pvalue"]] <- stats::p.adjust(output[["pvalue"]], method = "fdr")
+    # return(output)
+    statInfo <- output
+    pValMat <- output[,c("pvalue", "adj_pvalue")]
+    colnames(pValMat) <- c("rawP", "adjP")
+    name <- "wilcox_test"
+    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+}
+
+#' Wilcox test with clr transformation
+#' 
+#' \code{wilcox_test_clr} is an adaptation of the wilcox.test function
+#' (stats package) for use with the benchdamic workflow. A Centered-log ratio
+#' transformation is applied to the matrix before performing the test.
+#'
+#' @param object A phyloseq or (Tree)SummairizedExperiment object
+#' @param grp A character string with the column name.
+#' @param ref A character string with the condition used as reference.
+#' @param ... Other paramteres
+#'
+#' @return A list compatibble with the benchdamic workflow.
+#' @export
+#'
+wilcox_test_clr <- function(object, grp, ref = NULL, ...) {
+    
+    if (class(object) == "phyloseq") {
+        m <- microbiome::abundances(object)
+        taxa <- rownames(m)
+        metadata <- microbiome::meta(object)
+        
+    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
+        m <- SummarizedExperiment::assay(object)
+        taxa <- rownames(m)
+        metadata <- SummarizedExperiment::colData(object) |>
+            as.data.frame()
+    }
+    
+    m <- apply_clr(m)
+    
+    list_of_abundances <- vector("list", length(taxa))
+    names(list_of_abundances) <- taxa
+    
+    for (i in seq_along(taxa)) {
+        abundance <- data.frame(m[taxa[i],])
+        covariates <- metadata[rownames(abundance), grp]
+        df <- cbind(abundance = abundance, covariates)
+        colnames(df) <- c("abundance", "covariate")
+        
+        if (!is.null(ref)) {
+            df[["covariate"]] <- 
+                stats::relevel(factor(df[["covariate"]]), ref = ref)
+        } else {
+            df[["covariate"]] <- factor(df[["covariate"]])
+        }
+        
+        ## Calculate fold change
+        num_lvl <- levels(df[["covariate"]])[1]
+        denom_lvl <- levels(df[["covariate"]])[2]
+        
+        num <- mean(df$abundance[df$covariate == num_lvl])
+        denom <- mean(df$abundance[df$covariate == denom_lvl])
+        
+        
+        if (num >= denom) {
+            log2FoldChange <- log2(num / denom)
+        } else if (num < denom) {
+            log2FoldChange <- -log2(denom / num)
+        }
+        
+        pvalues <- vector("double", 2)
+        names(pvalues) <- c("log2FoldChange", "pvalue")
+        
+        pvalues[["log2FoldChange"]] <- log2FoldChange
+        wi_res <- stats::wilcox.test(formula  = abundance ~ covariate, data = df)
+        pvalues[["pvalue"]] <- wi_res$p.value
+        
+        list_of_abundances[[i]] <- pvalues
+    }
+    
+    output <- do.call("rbind", list_of_abundances) |>
+        as.data.frame()
+    output[["adj_pvalue"]] <- stats::p.adjust(output[["pvalue"]], method = "fdr")
+    # return(output)
+    statInfo <- output
+    pValMat <- output[,c("pvalue", "adj_pvalue")]
+    colnames(pValMat) <- c("rawP", "adjP")
+    name <- "wilcox_test_clr"
+    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+}
 
 

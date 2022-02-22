@@ -3666,6 +3666,24 @@
       "Hash": "df58958f293b166e4ab885ebcad90e02",
       "Requirements": []
     },
+    "omicidxClientR": {
+      "Package": "omicidxClientR",
+      "Version": "1.0.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "omicidxClientR",
+      "RemoteUsername": "waldronlab",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "2296e785c7acc670d9c7f9821934cbbc80bc2741",
+      "Hash": "48a9018d1e2e864ffb117dabe9a325d5",
+      "Requirements": [
+        "R6",
+        "base64enc",
+        "httr",
+        "jsonlite"
+      ]
+    },
     "openssl": {
       "Package": "openssl",
       "Version": "1.4.6",
@@ -5139,10 +5157,10 @@
     },
     "tidyselect": {
       "Package": "tidyselect",
-      "Version": "1.1.1",
+      "Version": "1.1.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "7243004a708d06d4716717fa1ff5b2fe",
+      "Hash": "17f6da8cfd7002760a859915ce7eef8f",
       "Requirements": [
         "ellipsis",
         "glue",

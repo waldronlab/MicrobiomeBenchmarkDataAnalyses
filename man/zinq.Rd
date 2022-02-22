@@ -4,10 +4,10 @@
 \alias{zinq}
 \title{ZINQ for benchdamic}
 \usage{
-zinq(x, grp, ref = NULL, pval_type = "Cauchy")
+zinq(object, grp, ref = NULL, pval_type = "Cauchy", ...)
 }
 \arguments{
-\item{x}{A (Tree)SummarizedExperiment or a phyloseq object.}
+\item{object}{A (Tree)SummarizedExperiment or a phyloseq object.}
 
 \item{grp}{The name of the grouping column, which is located in the colData
 (SummarizedExperiment) or the sample_data (phyloseq).}
@@ -17,6 +17,8 @@ reference.}
 
 \item{pval_type}{A character string indicating the type of pvalue to use.
 Options: Cauchy or MinP. Default: Cauchy.}
+
+\item{...}{Other parameters}
 }
 \value{
 A list in the format used in the benhcdamic pipeline.

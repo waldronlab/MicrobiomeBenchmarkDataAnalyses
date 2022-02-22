@@ -114,3 +114,36 @@ log_fold_change <- function(num, denom) {
         return(-log2(denom / num))
     }
 }
+
+#' Apply CLR to matrix
+#' 
+#' \code{apply_clr} applies a centered-log ratio transformation to a matrix.
+#' Features (e.g. taxa, OTUs) must be in the rows and samples in the columns.
+#'
+#' @param x A count matrix.
+#' @param pseudocount A pseudocount to add. Default = 1.
+#'
+#' @return A matrix with CLR normalization
+#' @export
+#'
+apply_clr <- function(x, pseudocount = 0) {
+    ## Centered log ratio transformation of a vector
+    ## Sources: 
+    ## + https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6755255/
+    ## + https://www.r-bloggers.com/2021/08/calculate-geometric-mean-in-r/
+    
+    mat <- x + pseudocount
+    
+    if (any(is.na(mat) | any(mat < 0))) {
+        stop("Input vector must not contain NAs, or negative numbers.")
+    } else if (any(mat == 0)) {
+        warning(
+            "0s found in matrix. 1 was added as pseudocount.", call. = FALSE
+        )
+        mat <- mat + 1
+    }
+        
+    apply(mat, 2, function(x) log(x / exp(mean(log(x)))))
+}
+
+

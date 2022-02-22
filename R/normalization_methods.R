@@ -25,7 +25,7 @@ normalization_methods <- tibble::tribble(
 #' @importFrom benchdamic setNormalizations
 #' 
 #' @export
-set_normalizations <- benchdamic::setNormalizations(
+normalization_methods_list <- benchdamic::setNormalizations(
     fun = normalization_methods$fun, 
     method = normalization_methods$method
 )

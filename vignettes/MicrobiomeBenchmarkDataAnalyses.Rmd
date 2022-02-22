@@ -27,7 +27,7 @@ normalization_methods
 
 
 ```{r}
-set_normalizations
+normalization_methods_list
 ```
 
 

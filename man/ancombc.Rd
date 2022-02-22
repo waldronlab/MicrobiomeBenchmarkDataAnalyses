@@ -4,14 +4,16 @@
 \alias{ancombc}
 \title{ANCOMBC}
 \usage{
-ancombc(ps, formula, group)
+ancombc(object, formula, group, ...)
 }
 \arguments{
-\item{ps}{A phyloseq object}
+\item{object}{A phyloseq object}
 
 \item{formula}{A string.}
 
 \item{group}{A string.}
+
+\item{...}{Other parameters.}
 }
 \value{
 ANCOMBC result.
