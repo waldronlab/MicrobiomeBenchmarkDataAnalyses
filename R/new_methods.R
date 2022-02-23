@@ -149,6 +149,141 @@ ancombc <- function(object, formula, group, ...) {
 }
 
 
+#'
+# wilcox_test <- function(object, grp, ref = NULL, ...) {
+#     
+#     if (class(object) == "phyloseq") {
+#         m <- microbiome::abundances(object)
+#         taxa <- rownames(m)
+#         metadata <- microbiome::meta(object)
+#         
+#     } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
+#         m <- SummarizedExperiment::assay(object)
+#         taxa <- rownames(m)
+#         metadata <- SummarizedExperiment::colData(object) |>
+#             as.data.frame()
+#     }
+#     
+#     list_of_abundances <- vector("list", length(taxa))
+#     names(list_of_abundances) <- taxa
+#     
+#     for (i in seq_along(taxa)) {
+#         abundance <- data.frame(m[taxa[i],])
+#         covariates <- metadata[rownames(abundance), grp]
+#         df <- cbind(abundance = abundance, covariates)
+#         colnames(df) <- c("abundance", "covariate")
+#         
+#         if (!is.null(ref)) {
+#             df[["covariate"]] <- 
+#                 stats::relevel(factor(df[["covariate"]]), ref = ref)
+#         } else {
+#             df[["covariate"]] <- factor(df[["covariate"]])
+#         }
+#         
+#         ## Calculate fold change
+#         num_lvl <- levels(df[["covariate"]])[1]
+#         denom_lvl <- levels(df[["covariate"]])[2]
+#         
+#         num <- mean(df$abundance[df$covariate == num_lvl])
+#         denom <- mean(df$abundance[df$covariate == denom_lvl])
+#         
+#         
+#         if (num >= denom) {
+#             log2FoldChange <- log2(num / denom)
+#         } else if (num < denom) {
+#             log2FoldChange <- -log2(denom / num)
+#         }
+#         
+#         pvalues <- vector("double", 2)
+#         names(pvalues) <- c("log2FoldChange", "pvalue")
+#         
+#         pvalues[["log2FoldChange"]] <- log2FoldChange
+#         wi_res <- stats::wilcox.test(formula  = abundance ~ covariate, data = df)
+#         pvalues[["pvalue"]] <- wi_res$p.value
+#         
+#         list_of_abundances[[i]] <- pvalues
+#     }
+#     
+#     output <- do.call("rbind", list_of_abundances) |>
+#         as.data.frame()
+#     output[["adj_pvalue"]] <- stats::p.adjust(output[["pvalue"]], method = "fdr")
+#     # return(output)
+#     statInfo <- output
+#     pValMat <- output[,c("pvalue", "adj_pvalue")]
+#     colnames(pValMat) <- c("rawP", "adjP")
+#     name <- "wilcox_test"
+#     return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+# }
+
+#'
+# wilcox_test_clr <- function(object, grp, ref = NULL, ...) {
+#     
+#     if (class(object) == "phyloseq") {
+#         m <- microbiome::abundances(object)
+#         taxa <- rownames(m)
+#         metadata <- microbiome::meta(object)
+#         
+#     } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
+#         m <- SummarizedExperiment::assay(object)
+#         taxa <- rownames(m)
+#         metadata <- SummarizedExperiment::colData(object) |>
+#             as.data.frame()
+#     }
+#     
+#     m <- apply_clr(m)
+#     
+#     list_of_abundances <- vector("list", length(taxa))
+#     names(list_of_abundances) <- taxa
+#     
+#     for (i in seq_along(taxa)) {
+#         abundance <- data.frame(m[taxa[i],])
+#         covariates <- metadata[rownames(abundance), grp]
+#         df <- cbind(abundance = abundance, covariates)
+#         colnames(df) <- c("abundance", "covariate")
+#         
+#         if (!is.null(ref)) {
+#             df[["covariate"]] <- 
+#                 stats::relevel(factor(df[["covariate"]]), ref = ref)
+#         } else {
+#             df[["covariate"]] <- factor(df[["covariate"]])
+#         }
+#         
+#         ## Calculate fold change
+#         num_lvl <- levels(df[["covariate"]])[1]
+#         denom_lvl <- levels(df[["covariate"]])[2]
+#         
+#         num <- mean(df$abundance[df$covariate == num_lvl])
+#         denom <- mean(df$abundance[df$covariate == denom_lvl])
+#         
+#         
+#         if (num >= denom) {
+#             log2FoldChange <- log2(num / denom)
+#         } else if (num < denom) {
+#             log2FoldChange <- -log2(denom / num)
+#         }
+#         
+#         pvalues <- vector("double", 2)
+#         names(pvalues) <- c("log2FoldChange", "pvalue")
+#         
+#         pvalues[["log2FoldChange"]] <- log2FoldChange
+#         wi_res <- stats::wilcox.test(formula  = abundance ~ covariate, data = df)
+#         pvalues[["pvalue"]] <- wi_res$p.value
+#         
+#         list_of_abundances[[i]] <- pvalues
+#     }
+#     
+#     output <- do.call("rbind", list_of_abundances) |>
+#         as.data.frame()
+#     output[["adj_pvalue"]] <- stats::p.adjust(output[["pvalue"]], method = "fdr")
+#     # return(output)
+#     statInfo <- output
+#     pValMat <- output[,c("pvalue", "adj_pvalue")]
+#     colnames(pValMat) <- c("rawP", "adjP")
+#     name <- "wilcox_test_clr"
+#     return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+# }
+
+
 #' Wilcox test
 #' 
 #' \code{wilcox_test} is an adaptation of the wilcox.test function
@@ -161,8 +296,8 @@ ancombc <- function(object, formula, group, ...) {
 #'
 #' @return A list compatibble with the benchdamic workflow.
 #' @export
-#'
-wilcox_test <- function(object, grp, ref = NULL, ...) {
+#' 
+DA_wilcox_test <- function(object, grp, ref = NULL, ...) {
     
     if (class(object) == "phyloseq") {
         m <- microbiome::abundances(object)
@@ -172,59 +307,37 @@ wilcox_test <- function(object, grp, ref = NULL, ...) {
     } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
         m <- SummarizedExperiment::assay(object)
         taxa <- rownames(m)
-        metadata <- SummarizedExperiment::colData(object) |>
-            as.data.frame()
+        metadata <- as.data.frame(SummarizedExperiment::colData(object))
     }
     
-    list_of_abundances <- vector("list", length(taxa))
-    names(list_of_abundances) <- taxa
+    condition_vector <- metadata[["grp"]]
+    
+    log2FoldChange <- log2_fold_change(m, condition_vector, ref)
+    
+    taxa <- rownames(m)
+    pvalues <- vector("double", length(taxa))
     
     for (i in seq_along(taxa)) {
-        abundance <- data.frame(m[taxa[i],])
-        covariates <- metadata[rownames(abundance), grp]
-        df <- cbind(abundance = abundance, covariates)
-        colnames(df) <- c("abundance", "covariate")
-        
-        if (!is.null(ref)) {
-            df[["covariate"]] <- 
-                stats::relevel(factor(df[["covariate"]]), ref = ref)
-        } else {
-            df[["covariate"]] <- factor(df[["covariate"]])
-        }
-        
-        ## Calculate fold change
-        num_lvl <- levels(df[["covariate"]])[1]
-        denom_lvl <- levels(df[["covariate"]])[2]
-        
-        num <- mean(df$abundance[df$covariate == num_lvl])
-        denom <- mean(df$abundance[df$covariate == denom_lvl])
-        
-        
-        if (num >= denom) {
-            log2FoldChange <- log2(num / denom)
-        } else if (num < denom) {
-            log2FoldChange <- -log2(denom / num)
-        }
-        
-        pvalues <- vector("double", 2)
-        names(pvalues) <- c("log2FoldChange", "pvalue")
-        
-        pvalues[["log2FoldChange"]] <- log2FoldChange
-        wi_res <- stats::wilcox.test(formula  = abundance ~ covariate, data = df)
-        pvalues[["pvalue"]] <- wi_res$p.value
-        
-        list_of_abundances[[i]] <- pvalues
+        df <- as.data.frame(cbind(condition_vector, m[i,]))
+        colnames(df) <- c("condition", "value")
+        wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
+        pvalues[i] <- wi_res$p.value
     }
     
-    output <- do.call("rbind", list_of_abundances) |>
-        as.data.frame()
-    output[["adj_pvalue"]] <- stats::p.adjust(output[["pvalue"]], method = "fdr")
-    # return(output)
-    statInfo <- output
-    pValMat <- output[,c("pvalue", "adj_pvalue")]
-    colnames(pValMat) <- c("rawP", "adjP")
+    adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
+    
+    statInfo <- data.frame(
+        log2FoldChange = log2FoldChange, 
+        rawP = pvalues, 
+        adjP = adj_pvalues
+    )
+    
+    pValMat <- statInfo[, c("rawP", "adjP")]
+    
     name <- "wilcox_test"
+    
     return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+
 }
 
 #' Wilcox test with clr transformation
@@ -236,12 +349,12 @@ wilcox_test <- function(object, grp, ref = NULL, ...) {
 #' @param object A phyloseq or (Tree)SummairizedExperiment object
 #' @param grp A character string with the column name.
 #' @param ref A character string with the condition used as reference.
-#' @param ... Other paramteres
+#' @param ... Other parameters
 #'
-#' @return A list compatibble with the benchdamic workflow.
+#' @return A list compatible with the benchdamic workflow.
 #' @export
-#'
-wilcox_test_clr <- function(object, grp, ref = NULL, ...) {
+#' 
+DA_wilcox_test_clr <- function(object, grp, ref = NULL, ...) {
     
     if (class(object) == "phyloseq") {
         m <- microbiome::abundances(object)
@@ -251,61 +364,36 @@ wilcox_test_clr <- function(object, grp, ref = NULL, ...) {
     } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
         m <- SummarizedExperiment::assay(object)
         taxa <- rownames(m)
-        metadata <- SummarizedExperiment::colData(object) |>
-            as.data.frame()
+        metadata <- as.data.frame(SummarizedExperiment::colData(object))
     }
     
-    m <- apply_clr(m)
+    condition_vector <- metadata[["grp"]]
     
-    list_of_abundances <- vector("list", length(taxa))
-    names(list_of_abundances) <- taxa
+    log2FoldChange <- log2_fold_change(m, condition_vector, ref)
+   
+    m <- apply_clr(m) 
+    taxa <- rownames(m)
+    pvalues <- vector("double", length(taxa))
     
     for (i in seq_along(taxa)) {
-        abundance <- data.frame(m[taxa[i],])
-        covariates <- metadata[rownames(abundance), grp]
-        df <- cbind(abundance = abundance, covariates)
-        colnames(df) <- c("abundance", "covariate")
-        
-        if (!is.null(ref)) {
-            df[["covariate"]] <- 
-                stats::relevel(factor(df[["covariate"]]), ref = ref)
-        } else {
-            df[["covariate"]] <- factor(df[["covariate"]])
-        }
-        
-        ## Calculate fold change
-        num_lvl <- levels(df[["covariate"]])[1]
-        denom_lvl <- levels(df[["covariate"]])[2]
-        
-        num <- mean(df$abundance[df$covariate == num_lvl])
-        denom <- mean(df$abundance[df$covariate == denom_lvl])
-        
-        
-        if (num >= denom) {
-            log2FoldChange <- log2(num / denom)
-        } else if (num < denom) {
-            log2FoldChange <- -log2(denom / num)
-        }
-        
-        pvalues <- vector("double", 2)
-        names(pvalues) <- c("log2FoldChange", "pvalue")
-        
-        pvalues[["log2FoldChange"]] <- log2FoldChange
-        wi_res <- stats::wilcox.test(formula  = abundance ~ covariate, data = df)
-        pvalues[["pvalue"]] <- wi_res$p.value
-        
-        list_of_abundances[[i]] <- pvalues
+        df <- as.data.frame(cbind(condition_vector, m[i,]))
+        colnames(df) <- c("condition", "value")
+        wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
+        pvalues[i] <- wi_res$p.value
     }
     
-    output <- do.call("rbind", list_of_abundances) |>
-        as.data.frame()
-    output[["adj_pvalue"]] <- stats::p.adjust(output[["pvalue"]], method = "fdr")
-    # return(output)
-    statInfo <- output
-    pValMat <- output[,c("pvalue", "adj_pvalue")]
-    colnames(pValMat) <- c("rawP", "adjP")
+    adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
+    
+    statInfo <- data.frame(
+        log2FoldChange = log2FoldChange, 
+        rawP = pvalues, 
+        adjP = adj_pvalues
+    )
+    
+    pValMat <- statInfo[, c("rawP", "adjP")]
+    
     name <- "wilcox_test_clr"
+    
     return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+
 }
-
-

@@ -97,24 +97,6 @@ relative_abundance_to_counts <- function(x, total_reads, total_sum = 100) {
 }
 
 
-#' Calculate log Fold Change
-#' 
-#' \code{log_fold_change} calculates log fold change
-#'
-#' @param num vector with numerator
-#' @param denom vector with denominator
-#'
-#' @return data transformed to log2 fold change
-#' @export
-#'
-log_fold_change <- function(num, denom) {
-    if (num >= denom) {
-        return(log2(num / denom))
-    } else if (num < denom) {
-        return(-log2(denom / num))
-    }
-}
-
 #' Apply CLR to matrix
 #' 
 #' \code{apply_clr} applies a centered-log ratio transformation to a matrix.
@@ -147,3 +129,51 @@ apply_clr <- function(x, pseudocount = 0) {
 }
 
 
+#' Calculate log2 fold change
+#' 
+#' \code{log2_fold_change} calculates the log2 fold change of the features
+#' of a matrix per sample.
+#'
+#' @param mat A matrix. Features in rows and samples in columns.
+#' @param condition_vector A vector or factor with the names of the conditions.
+#' Only two conditions are allowed and must be in the same order as the names
+#' in the samples.
+#' @param ref A reference for calculating the fold change. Default is NULL and
+#' the first level of the factor will be used as reference.
+#'
+#' @return
+#' A named vector of log2 fold changes per feature.
+#'
+log2_fold_change <- function(mat, condition_vector, ref = NULL) {
+    
+    if (!is.null(ref)) {
+        condition_vector <- stats::relevel(factor(condition_vector), ref)
+    } else {
+        condition_vector <- factor(condition_vector)
+    }
+    
+    num_lvl <- levels(condition_vector)[1]
+    denom_lvl <- levels(condition_vector)[2]
+    
+    taxa <- rownames(mat)
+    log2FoldChange <- vector("double", length(taxa))
+    names(log2FoldChange) <- taxa
+    
+    for (i in seq_along(taxa)) {
+        
+        df <- cbind(condition_vector, as.data.frame(mat[i,]))
+        colnames(df) <- c("condition", "value")
+        
+        num <- mean(df$value[df$condition == num_lvl])
+        denom <- mean(df$value[df$condition == denom_lvl])
+        
+        if (num >= denom) {
+            log2FoldChange[i] <- log2(num / denom)
+        } else if (num < denom) {
+            log2FoldChange[i] <- -log2(denom / num)
+        }
+    }
+    
+    log2FoldChange
+    
+}

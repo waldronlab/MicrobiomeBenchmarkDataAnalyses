@@ -78,10 +78,10 @@ set_DA_methods_list <- function(grp, contrast) {
         zinq.1 = list(method = "zinq", grp = grp, ref = contrast[2]),
         ancombc.2 = list(method = "ancombc", formula = grp, group = grp),
         wilcox_test.3 = list(
-            method = "wilcox_test", grp = grp, ref = contrast[2]
+            method = "DA_wilcox_test", grp = grp, ref = contrast[2]
         ),
         wilcox_test_clr.4 = list(
-            method = "wilcox_test_clr", grp = grp, ref = contrast[2]
+            method = "DA_wilcox_test_clr", grp = grp, ref = contrast[2]
         )
     )
     
