@@ -13,248 +13,100 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(benchdamic)
-library(phyloseq)
+# Introduction
+
+Analysis of the `HMP_16S_gingival_subset` dataset.
+
+```{r}
 library(MicrobiomeBenchmarkData)
 library(MicrobiomeBenchmarkDataAnalyses)
-library(dplyr)
+library(mia)
+library(benchdamic)
+library(phyloseq)
 ```
 
 Some useful variables:
 
-```{r useful variables}
-## Name of the column with the conditions to be compared.
-## This column will be added to colData in the code below
+```{r}
 grp <- "grp"
-
-## Name of the conditions to be compared.
-## Reference should be first always.
-contrast <- c("subgingival_plaque", "supragingival_plaque")
+conditions <- c("subgingival_plaque", "supragingival_plaque")
 ```
 
-## Import dataset
+# Import data
 
 ```{r import dataset}
 dataset_name <- "HMP_2012_16S_gingival_V35_subset"
 tse <- getDataset(dataset_name, dryrun = FALSE)[[1]]
-## a grp column is created as a copy of the hmp_body_subsite column
-colData(tse)$grp <- factor(colData(tse)$hmp_body_subsite, levels = contrast)
+colData(tse)$grp <- factor(colData(tse)$hmp_body_subsite, levels = conditions)
+tse
 ```
 
-## benchdamic pipeline
+Get dataset summarized by genus:
 
-In this document, we use the [benchdamic package](https://bioconductor.org/packages/devel/bioc/html/benchdamic.html)
-for benchmarking different differential abundance (DA) methods using the
-`r dataset_name`.
+```{r}
+tse_ranks <- splitByRanks(tse)
+tse_genus <- tse_ranks$GENUS
+tse_genus
+```
 
-### Create prior knowledge information
+# Analysis at the OTU level
+
+## Prior knowledge
 
 ```{r prior knowledge}
 priorInfo <- as.data.frame(rowData(tse)[,c("GENUS", "BIOSIS")])
-priorInfo$newNames <- 
+priorInfo[["newNames"]] <- 
   paste0(rownames(priorInfo), "|", priorInfo$GENUS)
-priorInfo$Type <- 
+priorInfo[["Type"]] <- 
   ifelse(is.na(priorInfo$BIOSIS), "unknown", priorInfo$BIOSIS)
 head(priorInfo)
 ```
 
-### Convert to phyloseq
+## Convert to phyloseq
 
 ```{r convert to phyloseq}
-## Biosis information is lost at this step, but it's already stored in the
-## priorInfo variable
-ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse)
-```
-
-Set reference:
-```{r set reference}
-## Using subgingival plaque as reference (contast[1])
+ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
 sample_data(ps)[[grp]] <- factor(sample_data(ps)[[grp]])
-sample_data(ps)[[grp]] <- relevel(x = sample_data(ps)[[grp]], ref = contrast[1])
+## Reference is subgingival plaque (conditions[1])
+sample_data(ps)[[grp]] <- relevel(sample_data(ps)[[grp]], conditions[1])
+ps
 ```
 
-### Estimate normalization factors (NF) per sample
-
-```{r normalization, message=FALSE}
-## Normalization methods
-norm_pars <- tibble::tribble(
-    ~fun, ~method,
-    "norm_edgeR", "none",
-    "norm_edgeR", "TMM",
-    "norm_DESeq2", "poscounts",
-    "norm_CSS", "median"
-)
-
-## set normalization
-my_norm <- setNormalizations(fun = norm_pars$fun, method = norm_pars$method)
-
-## Run normalization
-ps <- runNormalizations(normalization_list = my_norm, object = ps) |>
-    quiet()
-```
-
-Normalization factors (NFs) have been added as columns to the sample_data.
+## Run DA methods
 
 ```{r}
-sample_data(ps) %>% 
-  data.frame() %>% 
-  select(starts_with("NF")) %>% 
-  head()
+## Add normalization factors
+ps <- quiet(runNormalizations(normalization_methods_list, ps))
+
+## Calculate weights
+zinbweights <- weights_ZINB(ps, design = "~ 1", K = 0)
+
+## Run DA methods
+DA_methods_list <- set_DA_methods_list(grp, conditions)
+DA <- quiet(runDA(DA_methods_list, ps, weights = zinbweights))
+str(DA, max.level = 1)
 ```
 
-### Create matrix with weights
+## Enrichment
 
-```{r create weights}
-zinbweights <- weights_ZINB(
-    object = ps,
-    K = 0,
-    design = "~ 1"
-)
-
-```
-
-### Run DA methods
-
-Prepare DA methods:
-
-```{r prepare DA methods}
-# edgeR
-my_edger <- set_edgeR(
-    group_name = grp,
-    design = as.formula(paste0("~", grp)),
-    norm = "TMM",
-    coef = 2
-)
-
-# DESeq2
-my_deseq2 <- set_DESeq2(
-    contrast = c(grp, "supragingival_plaque", "subgingival_plaque"),
-    design = as.formula(paste0("~", grp)),
-    norm = "poscounts"
-)
-
-# limma 
-my_limma <- set_limma( # I get a warning
-    design = as.formula(paste0("~", grp)),
-    norm = c("TMM", "CSSmedian"),
-    coef = 2
-)
-
-# metagenomeSeq
-my_metagenomeseq <- set_metagenomeSeq(
-    design = as.formula(paste0("~", grp)),
-    norm = "CSSmedian",
-    coef = 2
-)
-
-# ALDEx2
-my_aldex2 <- set_ALDEx2(
-    conditions = grp,
-    test = "t",
-    norm = "none"
-)
-
-# corncob
-my_corncob <- set_corncob(
-    formula = as.formula(paste0("~", grp)),
-    phi.formula = as.formula(paste0("~", grp)),
-    formula_null = ~ 1,
-    phi.formula_null = as.formula(paste0("~", grp)),
-    test = "Wald",
-    coefficient = paste0(grp, contrast[2]),
-    norm = "none"
-)
-
-# MAST
-my_mast <- set_MAST(
-    rescale = "median",
-    design = as.formula(paste0("~", grp)),
-    coefficient = paste0(grp, contrast[2]),
-    norm = "none"
-)
-
-# Seurat
-my_seurat <- set_Seurat(
-    test.use = "wilcox",
-    contrast = c(grp, "supragingival_plaque", "subgingival_plaque"),
-    norm = "none"
-)
-
-my_methods <- c(
-    my_edger, my_deseq2, my_limma, my_metagenomeseq, my_aldex2,
-    my_corncob, my_mast, my_seurat
-)
-```
-
-Run DA methods:
-
-```{r run DA methods}
-DA <- runDA(method_list = my_methods, object = ps, weights = zinbweights) |>
-    quiet()
-```
-
-Run ANCOMBC (separately):
-
-```{r}
-ancombc <- function(ps, formula, group) {
-    out <- ANCOMBC::ancombc(phyloseq = ps, formula = formula, 
-        p_adj_method = "bonferroni", zero_cut = 0.90, lib_cut = 1000, 
-        group = group, struc_zero = TRUE, neg_lb = TRUE, 
-        tol = 1e-5, max_iter = 100, conserve = TRUE, alpha = 0.05, 
-        global = TRUE)
-    res <- out$res
-    ### extract important statistics ###
-    vector_of_pval <- res$p_val[[1]] # contains the p-values
-    vector_of_adjusted_pval <- res$q_val[[1]] # contains the adjusted p-values
-    name_of_your_features <- rownames(res$p_val) # contains the OTU, or ASV, or other feature 
-    # names. Usually extracted from the rownames of 
-    # the count data
-    vector_of_logFC <- res$beta[[1]] # logos the logFCs
-    vector_of_statistics <- res$beta[[1]] # contains other statistics
-    
-    ### prepare the output ###
-    pValMat <- data.frame("rawP" = vector_of_pval,
-        "adjP" = vector_of_adjusted_pval)
-    statInfo <- data.frame("logFC" = vector_of_logFC,
-        "statistics" = vector_of_statistics) 
-    name <- "ANCOMBC"
-    # Be sure that your method hasn't changed the order of the features. If it 
-    # happens, you'll need to re-establish the original order.
-    rownames(pValMat) <- rownames(statInfo) <- name_of_your_features 
-    
-    # Return the output as a list
-    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
-}
-my_ancombc <-  ancombc(ps, grp, grp)
-DA$ancombc <- my_ancombc
-```
-
-Run ZINQ
-
-```{r}
-
-my_zinq <-  zinq(object = ps, grp = grp, ref = contrast[2]) |>
-  quiet()
-DA$zinq <- my_zinq
-```
-### Enrichment
-
-Prepare directions (for enrichment):
+Prepare directions for enrichment:
 
 ```{r direction}
+## This most be in the same order
 direction <- c(
     edgeR.TMM = "logFC", 
     DESeq2.poscounts = "log2FoldChange",
     limma.CSSmedian = "logFC",
     limma.TMM = "logFC",
-    metgenomeSeq.CSSmedian = paste0(grp, contrast[2]),
+    metgenomeSeq.CSSmedian = paste0(grp, conditions[2]),
     ALDEx2.none = "effect",
     corncob.none = "Estimate",
     MAST.none = "logFC",
     Seurat.none = "avg_log2FC",
-    ancombc = "logFC",
-    zinq = "log2FoldChange"
+    ZINQ = "log2FoldChange",
+    ANCOMBC = "logFC",
+    wilcox_test = "log2FoldChange",
+    wilcox_test_clr = "log2FoldChange"
 )
 ```
 
@@ -289,9 +141,7 @@ plotEnrichment(
 
 ```
 
-### TRUE and FALSE positives
-
-Create table of positives
+## Putative true positives - putative false positives
 
 ```{r create positives}
 positives <- createPositives(
