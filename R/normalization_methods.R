@@ -1,9 +1,5 @@
 
 #' Normalization methods
-#' 
-#' @importFrom tibble tribble
-#' 
-#' @export
 normalization_methods <- tibble::tribble(
     ~fun, ~method,
     # "norm_CSS", "default",

@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
 )
 ```
 
@@ -18,16 +20,136 @@ knitr::opts_chunk$set(
 library(MicrobiomeBenchmarkDataAnalyses)
 ```
 
+# Some objects and functions
+
 Normalization methods are already included as an object in this
 package:
 
 ```{r}
-normalization_methods
+## edgeR 'none' means no normalization (multiply by 1)
+str(normalization_methods_list)
 ```
 
+All the methods can be set with the `set_DA_methods_list` function:
 
 ```{r}
-normalization_methods_list
+grp <- "col"
+conditions <- c("condA", "condB")
+DA_methods_list <- set_DA_methods_list(grp = grp, contrast = conditions)
+str(DA_methods_list)
 ```
 
+# How an analysis would look like
+
+## Run DA methods
+
+```{r, eval=FALSE}
+## A putative phyloseq object
+ps 
+## Character string indicating the column with conditions in sample_data
+grp <- "col" 
+## A character vector of length 2 with the comparisons
+conditions <- c("condA", "condB")
+
+
+## Add normalization factors
+ps <- quiet(runNormalizations(normalization_methods_list, ps))
+## Calculate weights
+zinbweights <- weights_ZINB(ps, design = "~ 1", K = 0)
+## Run DA methods
+DA_methods_list <- set_DA_methods_list(grp, conditions)
+DA <- quiet(runDA(DA_methods_list, ps, weights = zinbweights))
+DA # output
+```
+
+## Enrichment
+
+### Pior knowledge
+
+```{r}
+## The way to obtain this data varies
+priorInfo <- "priorInfo"
+```
+
+### Create variable with directions
+
+```{r, eval=FALSE}
+## This most be in the same order
+direction <- c(
+    edgeR.TMM = "logFC", 
+    DESeq2.poscounts = "log2FoldChange",
+    limma.CSSmedian = "logFC",
+    limma.TMM = "logFC",
+    metgenomeSeq.CSSmedian = paste0(grp, conditions[2]),
+    ALDEx2.none = "effect",
+    corncob.none = "Estimate",
+    MAST.none = "logFC",
+    Seurat.none = "avg_log2FC",
+    ZINQ = "log2FoldChange",
+    ANCOMBC = "logFC",
+    wilcox_test = "log2FoldChange",
+    wilcox_test_clr = "log2FoldChange"
+)
+```
+
+### Perform enrichment analysis
+
+```{r, eval=FALSE}
+enrichment <- createEnrichment(
+    object = DA,
+    priorKnowledge = priorInfo,
+    enrichmentCol = "Type",
+    namesCol = "newNames",
+    slot = "pValMat",
+    colName = "adjP",
+    type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL,
+    alternative = "greater",
+    verbose = TRUE
+)
+```
+
+### Plot enrichment
+
+```{r, eval=FALSE}
+plotEnrichment(
+    enrichment = enrichment, 
+    enrichmentCol = "Type",
+    ## Levels vary depending of the prior Info
+    levels_to_plot = c("Aerobic", "Anaerobic", "F Anaerobic")
+)
+```
+
+## Putative true positives - putative false positives 
+
+### Create table of positives
+
+```{r, eval=FALSE}
+positives <- createPositives(
+    object = DA, 
+    priorKnowledge = priorInfo,
+    enrichmentCol = "Type",
+    namesCol = "newNames",
+    slot = "pValMat",
+    colName = "rawP",
+    type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 50, by = 5),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "Anaerobic"), c("UP Abundant", "Aerobic")),
+    FP = list(c("DOWN Abundant", "Aerobic"), c("UP Abundant", "Anaerobic"))
+)
+```
+
+### Plot table of positives
+
+```{r, eval=FALSE}
+ggp <- plotPositives(positives)
+```
 

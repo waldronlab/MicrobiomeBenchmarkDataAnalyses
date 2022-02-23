@@ -13,7 +13,7 @@
 set_DA_methods_list <- function(grp, contrast) {
     
     # edgeR
-    my_edger <- set_edgeR(
+    my_edger <- benchdamic::set_edgeR(
         group_name = grp,
         design = as.formula(paste0("~", grp)),
         norm = "TMM",
@@ -21,35 +21,35 @@ set_DA_methods_list <- function(grp, contrast) {
     )
     
     # DESeq2
-    my_deseq2 <- set_DESeq2(
+    my_deseq2 <- benchdamic::set_DESeq2(
         contrast = c(grp, contrast[2], contrast[1]),
         design = as.formula(paste0("~", grp)),
         norm = "poscounts"
     )
     
     # limma 
-    my_limma <- set_limma( # I get a warning
+    my_limma <- benchdamic::set_limma( # I get a warning
         design = as.formula(paste0("~", grp)),
         norm = c("TMM", "CSSmedian"),
         coef = 2
     )
     
     # metagenomeSeq
-    my_metagenomeseq <- set_metagenomeSeq(
+    my_metagenomeseq <- benchdamic::set_metagenomeSeq(
         design = as.formula(paste0("~", grp)),
         norm = "CSSmedian",
         coef = 2
     )
     
     # ALDEx2
-    my_aldex2 <- set_ALDEx2(
+    my_aldex2 <- benchdamic::set_ALDEx2(
         conditions = grp,
         test = "t",
         norm = "none"
     )
     
     # corncob
-    my_corncob <- set_corncob(
+    my_corncob <- benchdamic::set_corncob(
         formula = as.formula(paste0("~", grp)),
         phi.formula = as.formula(paste0("~", grp)),
         formula_null = ~ 1,
@@ -60,7 +60,7 @@ set_DA_methods_list <- function(grp, contrast) {
     )
     
     # MAST
-    my_mast <- set_MAST(
+    my_mast <- benchdamic::set_MAST(
         rescale = "median",
         design = as.formula(paste0("~", grp)),
         coefficient = paste0(grp, contrast[2]),
@@ -68,7 +68,7 @@ set_DA_methods_list <- function(grp, contrast) {
     )
     
     # Seurat
-    my_seurat <- set_Seurat(
+    my_seurat <- benchdamic::set_Seurat(
         test.use = "wilcox",
         contrast = c(grp, contrast[2], contrast[1]),
         norm = "none"
