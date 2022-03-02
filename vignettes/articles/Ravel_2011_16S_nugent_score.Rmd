@@ -62,9 +62,11 @@ head(sra_metadata)
 Sample metadata provided by the authors:
 
 ```{r}
-supp_tbl_s04_url <- "https://www.pnas.org/highwire/filestream/603190/field_highwire_adjunct_files/4/st04.xlsx"
-supp_tbl_s04_file <- tempfile()
-download.file(url = supp_tbl_s04_url, destfile = supp_tbl_s04_file)
+# supp_tbl_s04_url <- "https://www.pnas.org/highwire/filestream/603190/field_highwire_adjunct_files/4/st04.xlsx"
+# supp_tbl_s04_url <- "https://www.pnas.org/doi/suppl/10.1073/pnas.1002611107/suppl_file/st04.xlsx"
+# supp_tbl_s04_file <- tempfile()
+# download.file(url = supp_tbl_s04_url, destfile = supp_tbl_s04_file)
+supp_tbl_s04_file <- "st04.xlsx"
 supp_tbl_s04 <- readxl::read_xlsx(
   path = supp_tbl_s04_file, sheet = 1, range = "A3:IU397"
 )
@@ -961,6 +963,9 @@ plotPositives(positives_biosis)
 ```
 
 
+```{r}
+
+```
 
 
 

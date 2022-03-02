@@ -79,11 +79,11 @@ ps
 ps <- quiet(runNormalizations(normalization_methods_list, ps))
 
 ## Calculate weights
-zinbweights <- weights_ZINB(ps, design = "~ 1", K = 0)
+# zinbweights <- weights_ZINB(ps, design = "~ 1", K = 0)
 
 ## Run DA methods
 DA_methods_list <- set_DA_methods_list(grp, conditions)
-DA <- quiet(runDA(DA_methods_list, ps, weights = zinbweights))
+DA <- quiet(runDA(DA_methods_list, ps, weights = NULL))
 str(DA, max.level = 1)
 ```
 

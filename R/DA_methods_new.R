@@ -178,13 +178,19 @@ DA_wilcox_test <- function(object, grp, ref = NULL, ...) {
     
     taxa <- rownames(m)
     pvalues <- vector("double", length(taxa))
-    
-    for (i in seq_along(taxa)) {
-        df <- as.data.frame(cbind(condition_vector, m[i,]))
-        colnames(df) <- c("condition", "value")
-        wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
+   
+    for (i in seq_along(pvalues)) {
+        df <- data.frame(condition = condition_vector, value = m[i,])
+        wi_res <- stats::wilcox.test(value ~ condition, data = df)
         pvalues[i] <- wi_res$p.value
     }
+    
+    # for (i in seq_along(taxa)) {
+    #     df <- as.data.frame(cbind(condition_vector, m[i,]))
+    #     colnames(df) <- c("condition", "value")
+    #     wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
+    #     pvalues[i] <- wi_res$p.value
+    # }
     
     adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
     
@@ -237,12 +243,18 @@ DA_wilcox_test_clr <- function(object, grp, ref = NULL, ...) {
     taxa <- rownames(m)
     pvalues <- vector("double", length(taxa))
     
-    for (i in seq_along(taxa)) {
-        df <- as.data.frame(cbind(condition_vector, m[i,]))
-        colnames(df) <- c("condition", "value")
-        wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
+    for (i in seq_along(pvalues)) {
+        df <- data.frame(condition = condition_vector, value = m[i,])
+        wi_res <- stats::wilcox.test(value ~ condition, data = df)
         pvalues[i] <- wi_res$p.value
     }
+    
+    # for (i in seq_along(taxa)) {
+    #     df <- as.data.frame(cbind(condition_vector, m[i,]))
+    #     colnames(df) <- c("condition", "value")
+    #     wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
+    #     pvalues[i] <- wi_res$p.value
+    # }
     
     adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
     
