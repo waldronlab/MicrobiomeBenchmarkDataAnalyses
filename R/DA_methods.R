@@ -82,7 +82,14 @@ set_DA_methods_list <- function(grp, contrast) {
         ),
         wilcox_test_clr.4 = list(
             method = "DA_wilcox_test_clr", grp = grp, ref = contrast[2]
+        ),
+        kruskal_test.5 = list(
+            method = "DA_kruskal_test", grp = grp, ref = contrast[2]
+        ),
+        kruskal_test_clr.6 = list(
+            method = "DA_kruskal_test_clr", grp = grp, ref = contrast[2]
         )
+        
     )
     
     my_methods <- c(

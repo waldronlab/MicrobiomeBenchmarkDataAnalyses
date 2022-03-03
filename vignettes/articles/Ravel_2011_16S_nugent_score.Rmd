@@ -683,6 +683,20 @@ biosis <- readr::read_tsv(fname3)
 head(biosis)
 ```
 
+Import ph annotations from bugphyzz (mean ph per genera)
+
+```{r}
+fname4 <- system.file(
+  "extdata/ph_annotations_bugphyzz.tsv",
+  package = "MicrobiomeBenchmarkDataAnalyses"
+)
+
+ph <- readr::read_tsv(fname4) %>% 
+  magrittr::set_colnames(c("Genus", "pH"))
+head(ph)
+```
+
+
 ## Original article
 
 ### Run DA methods
@@ -754,6 +768,7 @@ taxTable2 <- taxTable %>%
   left_join(biosis, by = c("Taxa" = "genera")) %>% 
   left_join(aer, by = c("Taxa" = "Taxon_name")) %>% 
   left_join(gs, by = c("Taxa" = "Taxon_name")) %>% 
+  left_join(ph, by = c("Taxa" = "Genus")) %>% 
   as.data.frame()
 rownames(taxTable2) <- taxTable2$Taxa
 
@@ -776,7 +791,9 @@ direction <- c(
     ZINQ = "log2FoldChange",
     ANCOMBC = "logFC",
     wilcox_test = "log2FoldChange",
-    wilcox_test_clr = "log2FoldChange"
+    wilcox_test_clr = "log2FoldChange",
+    kruskal_test = "log2FoldChange",
+    kruskal_test_clr = "log2FoldChange"
 )
 ```
 
@@ -962,13 +979,66 @@ Plot positives:
 plotPositives(positives_biosis)
 ```
 
+### pH enrichment (bugphyzz)
+
+Run enrichment (ph):
 
 ```{r}
-
+enrichment_ph <- createEnrichment(
+    object = DA,
+    priorKnowledge = taxTable2,
+    enrichmentCol = "pH",
+    namesCol = "Taxa",
+    slot = "pValMat",
+    colName = "adjP",
+    type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL,
+    alternative = "greater",
+    verbose = TRUE
+)
 ```
 
+Plot enrichment:
 
+```{r}
+plotEnrichment(
+    enrichment = enrichment_ph, 
+    enrichmentCol = "pH",
+    levels_to_plot = c("acidophile", "alkaliphile", "neutrophile")
+)
+```
 
+Create table of positives:
+
+```{r}
+positives_ph <- createPositives(
+    object = DA, 
+    priorKnowledge = taxTable2,
+    enrichmentCol = "pH",
+    namesCol = "Taxa",
+    slot = "pValMat",
+    colName = "rawP",
+    type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 50, by = 5),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "acidophile"), c("UP Abundant", "neutrophile")),
+    FP = list(c("DOWN Abundant", "neutrophile"), c("UP Abundant", "acidophile"))
+)
+head(positives_ph)
+```
+
+Plot positives
+
+```{r}
+plotPositives(positives_ph)
+```
 
 ## gg97
 

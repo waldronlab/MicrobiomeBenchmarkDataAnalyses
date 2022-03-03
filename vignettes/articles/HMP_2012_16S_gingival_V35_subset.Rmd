@@ -106,7 +106,9 @@ direction <- c(
     ZINQ = "log2FoldChange",
     ANCOMBC = "logFC",
     wilcox_test = "log2FoldChange",
-    wilcox_test_clr = "log2FoldChange"
+    wilcox_test_clr = "log2FoldChange",
+    kruskal_test = "log2FoldChange",
+    kruskal_test_clr = "log2FoldChange"
 )
 ```
 

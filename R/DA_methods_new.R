@@ -270,3 +270,107 @@ DA_wilcox_test_clr <- function(object, grp, ref = NULL, ...) {
     
     return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
 }
+
+#' Kruskal
+#' 
+#' @export
+DA_kruskal_test <- function(object, grp, ref = NULL, ...) {
+    
+    if (class(object) == "phyloseq") {
+        m <- microbiome::abundances(object)
+        taxa <- rownames(m)
+        metadata <- microbiome::meta(object)
+        
+    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
+        m <- SummarizedExperiment::assay(object)
+        taxa <- rownames(m)
+        metadata <- as.data.frame(SummarizedExperiment::colData(object))
+    }
+    
+    condition_vector <- metadata[["grp"]]
+    
+    log2FoldChange <- log2_fold_change(m, condition_vector, ref)
+    
+    taxa <- rownames(m)
+    pvalues <- vector("double", length(taxa))
+    
+    for (i in seq_along(pvalues)) {
+        df <- data.frame(condition = condition_vector, value = m[i,])
+        wi_res <- stats::kruskal.test(value ~ condition, data = df)
+        pvalues[i] <- wi_res$p.value
+    }
+    
+    # for (i in seq_along(taxa)) {
+    #     df <- as.data.frame(cbind(condition_vector, m[i,]))
+    #     colnames(df) <- c("condition", "value")
+    #     wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
+    #     pvalues[i] <- wi_res$p.value
+    # }
+    
+    adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
+    
+    statInfo <- data.frame(
+        log2FoldChange = log2FoldChange, 
+        rawP = pvalues, 
+        adjP = adj_pvalues
+    )
+    
+    pValMat <- statInfo[, c("rawP", "adjP")]
+    
+    name <- "kruskal_test"
+    
+    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+    
+}
+
+#' Kruskal test clr
+#' 
+#' @export
+DA_kruskal_test_clr <- function(object, grp, ref = NULL, ...) {
+    
+    if (class(object) == "phyloseq") {
+        m <- microbiome::abundances(object)
+        taxa <- rownames(m)
+        metadata <- microbiome::meta(object)
+        
+    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
+        m <- SummarizedExperiment::assay(object)
+        taxa <- rownames(m)
+        metadata <- as.data.frame(SummarizedExperiment::colData(object))
+    }
+    
+    condition_vector <- metadata[["grp"]]
+    
+    log2FoldChange <- log2_fold_change(m, condition_vector, ref)
+    
+    m <- apply_clr(m) 
+    taxa <- rownames(m)
+    pvalues <- vector("double", length(taxa))
+    
+    for (i in seq_along(pvalues)) {
+        df <- data.frame(condition = condition_vector, value = m[i,])
+        wi_res <- stats::kruskal.test(value ~ condition, data = df)
+        pvalues[i] <- wi_res$p.value
+    }
+    
+    # for (i in seq_along(taxa)) {
+    #     df <- as.data.frame(cbind(condition_vector, m[i,]))
+    #     colnames(df) <- c("condition", "value")
+    #     wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
+    #     pvalues[i] <- wi_res$p.value
+    # }
+    
+    adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
+    
+    statInfo <- data.frame(
+        log2FoldChange = log2FoldChange, 
+        rawP = pvalues, 
+        adjP = adj_pvalues
+    )
+    
+    pValMat <- statInfo[, c("rawP", "adjP")]
+    
+    name <- "kruskal_test_clr"
+    
+    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+}
