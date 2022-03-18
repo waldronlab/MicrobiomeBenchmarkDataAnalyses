@@ -25,7 +25,9 @@ Imports:
     phyloseq,
     ANCOMBC,
     benchdamic,
-    tibble
+    tibble,
+    lefser
 Remotes:
     waldronlab/MicrobiomeBenchmarkData,
-    wdl2459/ZINQ-v2
+    wdl2459/ZINQ-v2,
+    sdgamboa/lefser

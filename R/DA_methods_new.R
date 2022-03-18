@@ -374,3 +374,51 @@ DA_kruskal_test_clr <- function(object, grp, ref = NULL, ...) {
     
     return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
 }
+
+
+
+#' Lefser method
+#' 
+#' \code{DA_lefser} is a modified version of the lefser package, which includes
+#' the pvalues of the Kruskal test.
+#'
+#' @param object A phyloseq or (Tree)SummarizedExperiment object.
+#' @param grp A character string indicating the name of the column in colData
+#' where the conditions are stored.
+#' @param ref A character string indicating which condition should be used as
+#' reference.
+#' @param ... Other parameters passed to benchdamic. 
+#'
+#' @return An object for benchdamic.
+#' @export
+#'
+DA_lefse <- function(object, grp, ref = NULL, ...) {
+    
+    if (class(object) == "phyloseq") {
+        se <- mia::makeTreeSummarizedExperimentFromPhyloseq(object)
+    } else if (any(grepl("SummarizedExperiment", class(object)))) {
+        se <- object
+    }
+    
+    condition_vector <- SummarizedExperiment::colData(se)[[grp]]
+    
+    if (!is.null(ref)) {
+        condition_vector <- stats::relevel(factor(condition_vector), ref)
+    } else {
+        condition_vector <- factor(condition_vector)
+    }
+    
+    SummarizedExperiment::colData(se)[[grp]] <- condition_vector
+    
+    statInfo <- lefser::lefser2(expr = se, groupCol = grp) 
+    statInfo$adj_pval <- stats::p.adjust(statInfo$kw_pvalues, method = "fdr")
+    rownames(statInfo) <- statInfo[["Names"]]
+    colnames(statInfo) <- c("Taxa", "LDA_scores", "rawP", "adjP")
+    
+    name <- "lefse"
+   
+    pValMat <- statInfo[, c("rawP", "adjP")]
+    rownames(pValMat) <- statInfo[["Names"]]
+   
+    list(pValMat, statInfo, name) 
+}

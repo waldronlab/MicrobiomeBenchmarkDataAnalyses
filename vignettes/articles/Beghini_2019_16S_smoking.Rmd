@@ -104,7 +104,7 @@ zinbweights <- weights_ZINB(ps, design = "~ 1", K = 0)
 
 ## Run DA methods
 DA_methods_list <- set_DA_methods_list(grp, conditions)
-DA <- quiet(runDA(DA_methods_list, ps, weights = zinbweights))
+DA <- quiet(runDA(DA_methods_list[1], ps, weights = zinbweights))
 str(DA, max.level = 1)
 ```
 
@@ -126,7 +126,10 @@ direction <- c(
     ZINQ = "log2FoldChange",
     ANCOMBC = "logFC",
     wilcox_test = "log2FoldChange",
-    wilcox_test_clr = "log2FoldChange"
+    wilcox_test_clr = "log2FoldChange",
+    kruskal_test = "log2FoldChange",
+    kruskal_test_clr = "log2FoldChange",
+    lefse = "LDA_scores"
 )
 ```
 

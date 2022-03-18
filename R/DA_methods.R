@@ -88,6 +88,9 @@ set_DA_methods_list <- function(grp, contrast) {
         ),
         kruskal_test_clr.6 = list(
             method = "DA_kruskal_test_clr", grp = grp, ref = contrast[2]
+        ),
+        lefse.7= list(
+            method = "DA_lefse", grp = grp, ref = contrast[1]
         )
         
     )

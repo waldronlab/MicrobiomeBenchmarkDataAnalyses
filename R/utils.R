@@ -92,10 +92,41 @@ filter_phyloseq <- function(ps) {
 #' @return A matrix of counts
 #' @export
 #'
-relative_abundance_to_counts <- function(x, total_reads, total_sum = 100) {
+mat_to_counts <- function(x, total_reads, total_sum = 100) {
     t(apply(x, 1, function(x) round(x * total_reads / total_sum)))
 }
 
+
+#' Convert matrix of counts to relative abundance
+#' 
+#' \code{counts_to_relative_abundance} converts a matrix of counts to
+#' relative abundance
+#'
+#' @param x A numeric matrix of counts. Features in rows and samples in columns.
+#' @param total_reads Optional. A character vector with the total raw reads/sums
+#' of the matrix per column. If not provided (i.e. NULL), the total sum per
+#' column will be used.
+#' @param total_sum The scaling factor. Default 100 (percent).
+#'
+#' @return A matrix of relative abundance.
+#' @export
+#'
+mat_to_relab <- function(x, total_reads = NULL, total_sum = 100) {
+    
+    if (!is.null(total_reads)) {
+        
+        if (ncol(x) != length(total_reads))
+            stop(
+                "Lengt of total reads and number of columns must be the same",
+                 call. = FALSE
+            )
+        t(apply(t(x), 2, function(.x) .x / total_reads) * total_sum) 
+        
+    } else {
+        
+        apply(x, 2, function(.x) .x / sum(.x) * total_sum)
+    }
+}
 
 #' Apply CLR to matrix
 #' 

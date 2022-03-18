@@ -2,10 +2,12 @@
 
 export(DA_kruskal_test)
 export(DA_kruskal_test_clr)
+export(DA_lefse)
 export(DA_wilcox_test)
 export(DA_wilcox_test_clr)
 export(ancombc)
 export(apply_clr)
+export(counts_to_relative_abundance)
 export(filter_phyloseq)
 export(normalization_methods_list)
 export(quiet)
