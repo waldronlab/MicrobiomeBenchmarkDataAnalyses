@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
+library(MicrobiomeBenchmarkDataAnalyses)
 library(phyloseq)
 library(mia)
 library(benchdamic)
@@ -78,6 +79,24 @@ ps <-
 
 colnames(sample_data(ps))
 ```
+
+
+## Get TSS and CLR normalization
+
+TSS normalization
+
+
+```{r}
+counts <- as(otu_table(ps), 'matrix')
+counts_tss <- (apply(counts, 2, function(x) {
+   x / sum(x) * 1e6
+}))
+summary(colSums(counts_tss))
+```
+
+
+
+
 
 
 ## Estimate matrix of weights
@@ -163,7 +182,29 @@ output_aldex2_wilcox <- DA_ALDEx2(
 ```
 
 
+### MetagenomeSeq
 
+```{r}
+# output_metagenomeseq <- DA_metagenomeSeq(
+    # object = ps, design = grp, coef = 2, norm = "CSSmedian",
+    # verbose = FALSE
+# )
+```
+### Wilcox
+
+```{r, warning=FALSE}
+output_wilcox_none <- DA_wilcox(
+    object = ps, norm = 'none', design = grp, denom = conditions[1]
+)
+
+output_wilcox_clr <- DA_wilcox(
+    object = ps, norm = 'CLR', design = grp, denom = conditions[1]
+)
+
+output_wilcox_tss <- DA_wilcox(
+    object = ps, norm = 'TSS', design = grp, denom = conditions[1]
+)
+```
 
 
 
@@ -180,7 +221,10 @@ DA_results <- list(
     output_limma,
     output_limma_zinbweights,
     output_aldex2_t,
-    output_aldex2_wilcox
+    output_aldex2_wilcox,
+    output_wilcox_none,
+    output_wilcox_clr,
+    output_wilcox_tss
 )
 names(DA_results) <- map_chr(DA_results, ~ .x$name)
 
@@ -199,7 +243,10 @@ direction <- c(
     limma.TMM = "logFC",
     limma.TMM.weighted = "logFC",
     output_aldex2_t = "effect",
-    output_aldex2_wilcox = "effect"
+    output_aldex2_wilcox = "effect",
+    output_wilcox_none = "log2FoldChange",
+    output_wilcox_clr = "log2FoldChange",
+    output_wilcox_tss = "log2FoldChange"
 )
 
 ```

@@ -146,237 +146,6 @@ ancombc <- function(object, formula, group, ...) {
     return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
 }
 
-#' Wilcox test
-#' 
-#' \code{wilcox_test} is an adaptation of the wilcox.test function
-#' (stats package) for use with the benchdamic workflow.
-#'
-#' @param object A phyloseq or (Tree)SummairizedExperiment object
-#' @param grp A character string with the column name.
-#' @param ref A character string with the condition used as reference.
-#' @param ... Other paramteres
-#'
-#' @return A list compatibble with the benchdamic workflow.
-#' @export
-#' 
-DA_wilcox_test <- function(object, grp, ref = NULL, ...) {
-    
-    if (class(object) == "phyloseq") {
-        m <- microbiome::abundances(object)
-        taxa <- rownames(m)
-        metadata <- microbiome::meta(object)
-        
-    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
-        m <- SummarizedExperiment::assay(object)
-        taxa <- rownames(m)
-        metadata <- as.data.frame(SummarizedExperiment::colData(object))
-    }
-    
-    condition_vector <- metadata[["grp"]]
-    
-    log2FoldChange <- log2_fold_change(m, condition_vector, ref)
-    
-    taxa <- rownames(m)
-    pvalues <- vector("double", length(taxa))
-   
-    for (i in seq_along(pvalues)) {
-        df <- data.frame(condition = condition_vector, value = m[i,])
-        wi_res <- stats::wilcox.test(value ~ condition, data = df)
-        pvalues[i] <- wi_res$p.value
-    }
-    
-    # for (i in seq_along(taxa)) {
-    #     df <- as.data.frame(cbind(condition_vector, m[i,]))
-    #     colnames(df) <- c("condition", "value")
-    #     wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
-    #     pvalues[i] <- wi_res$p.value
-    # }
-    
-    adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
-    
-    statInfo <- data.frame(
-        log2FoldChange = log2FoldChange, 
-        rawP = pvalues, 
-        adjP = adj_pvalues
-    )
-    
-    pValMat <- statInfo[, c("rawP", "adjP")]
-    
-    name <- "wilcox_test"
-    
-    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
-
-}
-
-#' Wilcox test with clr transformation
-#' 
-#' \code{wilcox_test_clr} is an adaptation of the wilcox.test function
-#' (stats package) for use with the benchdamic workflow. A Centered-log ratio
-#' transformation is applied to the matrix before performing the test.
-#'
-#' @param object A phyloseq or (Tree)SummairizedExperiment object
-#' @param grp A character string with the column name.
-#' @param ref A character string with the condition used as reference.
-#' @param ... Other parameters
-#'
-#' @return A list compatible with the benchdamic workflow.
-#' @export
-#' 
-DA_wilcox_test_clr <- function(object, grp, ref = NULL, ...) {
-    
-    if (class(object) == "phyloseq") {
-        m <- microbiome::abundances(object)
-        taxa <- rownames(m)
-        metadata <- microbiome::meta(object)
-        
-    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
-        m <- SummarizedExperiment::assay(object)
-        taxa <- rownames(m)
-        metadata <- as.data.frame(SummarizedExperiment::colData(object))
-    }
-    
-    condition_vector <- metadata[["grp"]]
-    
-    log2FoldChange <- log2_fold_change(m, condition_vector, ref)
-   
-    m <- apply_clr(m) 
-    taxa <- rownames(m)
-    pvalues <- vector("double", length(taxa))
-    
-    for (i in seq_along(pvalues)) {
-        df <- data.frame(condition = condition_vector, value = m[i,])
-        wi_res <- stats::wilcox.test(value ~ condition, data = df)
-        pvalues[i] <- wi_res$p.value
-    }
-    
-    # for (i in seq_along(taxa)) {
-    #     df <- as.data.frame(cbind(condition_vector, m[i,]))
-    #     colnames(df) <- c("condition", "value")
-    #     wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
-    #     pvalues[i] <- wi_res$p.value
-    # }
-    
-    adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
-    
-    statInfo <- data.frame(
-        log2FoldChange = log2FoldChange, 
-        rawP = pvalues, 
-        adjP = adj_pvalues
-    )
-    
-    pValMat <- statInfo[, c("rawP", "adjP")]
-    
-    name <- "wilcox_test_clr"
-    
-    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
-}
-
-#' Kruskal
-#' 
-#' @export
-DA_kruskal_test <- function(object, grp, ref = NULL, ...) {
-    
-    if (class(object) == "phyloseq") {
-        m <- microbiome::abundances(object)
-        taxa <- rownames(m)
-        metadata <- microbiome::meta(object)
-        
-    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
-        m <- SummarizedExperiment::assay(object)
-        taxa <- rownames(m)
-        metadata <- as.data.frame(SummarizedExperiment::colData(object))
-    }
-    
-    condition_vector <- metadata[["grp"]]
-    
-    log2FoldChange <- log2_fold_change(m, condition_vector, ref)
-    
-    taxa <- rownames(m)
-    pvalues <- vector("double", length(taxa))
-    
-    for (i in seq_along(pvalues)) {
-        df <- data.frame(condition = condition_vector, value = m[i,])
-        wi_res <- stats::kruskal.test(value ~ condition, data = df)
-        pvalues[i] <- wi_res$p.value
-    }
-    
-    # for (i in seq_along(taxa)) {
-    #     df <- as.data.frame(cbind(condition_vector, m[i,]))
-    #     colnames(df) <- c("condition", "value")
-    #     wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
-    #     pvalues[i] <- wi_res$p.value
-    # }
-    
-    adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
-    
-    statInfo <- data.frame(
-        log2FoldChange = log2FoldChange, 
-        rawP = pvalues, 
-        adjP = adj_pvalues
-    )
-    
-    pValMat <- statInfo[, c("rawP", "adjP")]
-    
-    name <- "kruskal_test"
-    
-    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
-    
-}
-
-#' Kruskal test clr
-#' 
-#' @export
-DA_kruskal_test_clr <- function(object, grp, ref = NULL, ...) {
-    
-    if (class(object) == "phyloseq") {
-        m <- microbiome::abundances(object)
-        taxa <- rownames(m)
-        metadata <- microbiome::meta(object)
-        
-    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
-        m <- SummarizedExperiment::assay(object)
-        taxa <- rownames(m)
-        metadata <- as.data.frame(SummarizedExperiment::colData(object))
-    }
-    
-    condition_vector <- metadata[["grp"]]
-    
-    log2FoldChange <- log2_fold_change(m, condition_vector, ref)
-    
-    m <- apply_clr(m) 
-    taxa <- rownames(m)
-    pvalues <- vector("double", length(taxa))
-    
-    for (i in seq_along(pvalues)) {
-        df <- data.frame(condition = condition_vector, value = m[i,])
-        wi_res <- stats::kruskal.test(value ~ condition, data = df)
-        pvalues[i] <- wi_res$p.value
-    }
-    
-    # for (i in seq_along(taxa)) {
-    #     df <- as.data.frame(cbind(condition_vector, m[i,]))
-    #     colnames(df) <- c("condition", "value")
-    #     wi_res <- stats::wilcox.test(formula  = value ~ condition, data = df)
-    #     pvalues[i] <- wi_res$p.value
-    # }
-    
-    adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
-    
-    statInfo <- data.frame(
-        log2FoldChange = log2FoldChange, 
-        rawP = pvalues, 
-        adjP = adj_pvalues
-    )
-    
-    pValMat <- statInfo[, c("rawP", "adjP")]
-    
-    name <- "kruskal_test_clr"
-    
-    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
-}
-
-
-
 #' Lefser method
 #' 
 #' \code{DA_lefser} is a modified version of the lefser package, which includes
@@ -422,3 +191,95 @@ DA_lefse <- function(object, grp, ref = NULL, ...) {
    
     list(pValMat, statInfo, name) 
 }
+
+
+#' Wilcox test for differential abundance
+#' 
+#' \code{DA_wilcox} performs Wilcoxon test on a phyloseq object.
+#'
+#' @param object A phyloseq object or (Tree)SummarizedExperiment
+#' @param norm String character. Choose between three normalization methods: 
+#' 'none', 'CLR', or 'TSS'.
+#' @param design String character.
+#' The name of the column in sample data with the conditions.
+#' @param denom The sample that will be used as denominator to calcluate 
+#' log2FoldChange. Usually, the 'treated' sample is used here.
+#' @param verbose Print messages or not, Default is FALSE.
+#'
+#' @return A list with outputs compatible with the benchdamic framework/package.
+#' @export
+#'
+DA_wilcox <- 
+    function(
+        object, norm = 'none', design, denom = NULL, pseudocount = NULL,
+        verbose = FALSE
+    ) {
+        
+        ## Extract components 
+        if (class(object) == "phyloseq") {
+            m <- microbiome::abundances(object)
+            taxa <- rownames(m)
+            metadata <- microbiome::meta(object)
+            
+        } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
+            m <- SummarizedExperiment::assay(object)
+            taxa <- rownames(m)
+            metadata <- as.data.frame(SummarizedExperiment::colData(object))
+        }
+        
+        ## Normalize data 
+        if (norm == 'none') {
+            if (verbose)
+                message('No normalization applied.')
+            m <- m
+        } else if (norm == 'CLR') {
+            if (verbose)
+                message('Applying CLR normalization')
+            m <- norm_CLR(m)
+        } else if (norm == 'TSS') {
+            if (verbose)
+                message('Applying TSS normalization')
+            m <- norm_TSS(m)
+        }
+        
+        ## Calculate log2 fold change
+        condition_vector <- metadata[[design]]
+        
+        if (norm == 'CLR') {
+            log2FoldChange <- 
+                log2_fold_change(m, condition_vector, denom, log = TRUE)
+            
+        } else {
+            log2FoldChange <- log2_fold_change(m, condition_vector, denom)
+        }
+        
+        ## Perfrom Wilcox test 
+        taxa <- rownames(m)
+        pvalues <- vector("double", length(taxa))
+        
+        for (i in seq_along(pvalues)) {
+            df <- data.frame(condition = condition_vector, value = m[i,])
+            wi_res <- stats::wilcox.test(value ~ condition, data = df)
+            pvalues[i] <- wi_res$p.value
+        }
+        
+        adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
+       
+        ## Combine all outputs 
+        statInfo <- data.frame(
+            log2FoldChange = log2FoldChange, 
+            rawP = pvalues, 
+            adjP = adj_pvalues
+        )
+        
+        pValMat <- statInfo[, c("rawP", "adjP")]
+        
+        name <- paste("wilcox", norm, sep = ".")
+        
+        return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+
+}
+
+
+
+

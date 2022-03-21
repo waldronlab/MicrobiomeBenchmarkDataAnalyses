@@ -137,9 +137,8 @@ mat_to_relab <- function(x, total_reads = NULL, total_sum = 100) {
 #' @param pseudocount A pseudocount to add. Default = 1.
 #'
 #' @return A matrix with CLR normalization
-#' @export
 #'
-apply_clr <- function(x, pseudocount = 0) {
+norm_CLR <- function(x, pseudocount = 0) {
     ## Centered log ratio transformation of a vector
     ## Sources: 
     ## + https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6755255/
@@ -156,35 +155,42 @@ apply_clr <- function(x, pseudocount = 0) {
         mat <- mat + 1
     }
         
-    apply(mat, 2, function(x) log(x / exp(mean(log(x)))))
+    apply(mat, 2, function(x) log(x / exp(mean(log(x))))) # exp(mean(log(x))) is the geometric mean
 }
 
 
 #' Calculate log2 fold change
 #' 
 #' \code{log2_fold_change} calculates the log2 fold change of the features
-#' of a matrix per sample.
+#' of a matrix per sample. Denom is usually the treated condition.
 #'
 #' @param mat A matrix. Features in rows and samples in columns.
 #' @param condition_vector A vector or factor with the names of the conditions.
 #' Only two conditions are allowed and must be in the same order as the names
 #' in the samples.
-#' @param ref A reference for calculating the fold change. Default is NULL and
-#' the first level of the factor will be used as reference.
+#' @param denom Condition used as reference. E.g. control condition.
+#' @param log If log is TRUE, it's assumed that the matrix is already log
+#' transoformed.
 #'
 #' @return
 #' A named vector of log2 fold changes per feature.
 #'
-log2_fold_change <- function(mat, condition_vector, ref = NULL) {
+log2_fold_change <- function(mat, condition_vector, denom = NULL, log = FALSE) {
     
-    if (!is.null(ref)) {
-        condition_vector <- stats::relevel(factor(condition_vector), ref)
+    condition_vector <- as.factor(condition_vector)
+    conditions <- levels(condition_vector)
+    
+    if (length(conditions) != 2)
+        stop('Two and only two levels are needed.', call. = FALSE)
+    
+    if (!is.null(denom)) {
+        num_lvl <- conditions[conditions != denom] # treated
+        denom_lvl <- conditions[conditions == denom] # control
+        
     } else {
-        condition_vector <- factor(condition_vector)
+        num_lvl <- levels(condition_vector)[2] # treated
+        denom_lvl <- levels(condition_vector)[1] # control
     }
-    
-    num_lvl <- levels(condition_vector)[1]
-    denom_lvl <- levels(condition_vector)[2]
     
     taxa <- rownames(mat)
     log2FoldChange <- vector("double", length(taxa))
@@ -198,13 +204,38 @@ log2_fold_change <- function(mat, condition_vector, ref = NULL) {
         num <- mean(df$value[df$condition == num_lvl])
         denom <- mean(df$value[df$condition == denom_lvl])
         
-        if (num >= denom) {
-            log2FoldChange[i] <- log2(num / denom)
-        } else if (num < denom) {
-            log2FoldChange[i] <- -log2(denom / num)
+        if (log) {
+            log2FoldChange[i] <- num - denom  # treated - control
+        } else {
+            if (num >= denom) {
+                log2FoldChange[i] <- log2(num / denom) # treated / control
+                
+            } else if (num < denom) {
+                log2FoldChange[i] <- -log2(denom / num) # treated / control
+            }
         }
+            
     }
     
     log2FoldChange
     
 }
+
+
+#' TSS normalization of matrix
+#' 
+#' \code{norm_TSS} Applies TSS normalization to a matrix of count data.
+#' @param mat A numeric matrix.
+#'
+#' @return A TSS-normalized matrix
+#'
+norm_TSS <- function(mat) {
+    apply(mat, 2, function(x) x / sum(x) * 1e6)
+}
+
+
+
+
+
+
+

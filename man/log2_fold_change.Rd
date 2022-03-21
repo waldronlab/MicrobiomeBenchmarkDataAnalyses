@@ -4,7 +4,7 @@
 \alias{log2_fold_change}
 \title{Calculate log2 fold change}
 \usage{
-log2_fold_change(mat, condition_vector, ref = NULL)
+log2_fold_change(mat, condition_vector, denom = NULL, log = FALSE)
 }
 \arguments{
 \item{mat}{A matrix. Features in rows and samples in columns.}
@@ -13,13 +13,15 @@ log2_fold_change(mat, condition_vector, ref = NULL)
 Only two conditions are allowed and must be in the same order as the names
 in the samples.}
 
-\item{ref}{A reference for calculating the fold change. Default is NULL and
-the first level of the factor will be used as reference.}
+\item{denom}{Condition used as reference. E.g. control condition.}
+
+\item{log}{If log is TRUE, it's assumed that the matrix is already log
+transoformed.}
 }
 \value{
 A named vector of log2 fold changes per feature.
 }
 \description{
 \code{log2_fold_change} calculates the log2 fold change of the features
-of a matrix per sample.
+of a matrix per sample. Denom is usually the treated condition.
 }
