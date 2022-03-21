@@ -156,11 +156,18 @@ output_aldex2_t <- DA_ALDEx2(
 
 output_aldex2_wilcox <- DA_ALDEx2(
     object = ps, pseudo_count = FALSE, conditions = grp,
-    test = "kw", denom = "iqlr", norm = "none",
+    test = "wilcox", denom = "iqlr", norm = "none",
     verbose = FALSE
 )
 
 ```
+
+
+
+
+
+
+
 
 ### Combine DA results
 
@@ -190,7 +197,9 @@ direction <- c(
     edgeR.TMM = "logFC",
     edgeR.TMM.weighted = "logFC",
     limma.TMM = "logFC",
-    limma.TMM.weighted = "logFC"
+    limma.TMM.weighted = "logFC",
+    output_aldex2_t = "effect",
+    output_aldex2_wilcox = "effect"
 )
 
 ```
