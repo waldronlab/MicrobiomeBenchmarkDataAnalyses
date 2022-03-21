@@ -1,19 +1,40 @@
+---
+title: "Analysis of the Cagaro dataset"
+output: 
+    html_document:
+        toc: true
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
 library(phyloseq)
 library(mia)
 library(benchdamic)
 library(purrr)
+```
 
-# Import data -------------------------------------------------------------
+# Import data
 
+Dataset
+
+```{r}
 tse <- getDataset("HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
 
+## define helpful variables
 grp <- "hmp_body_subsite"
 conditions <- c("subgingival_plaque", "supragingival_plaque")
+```
 
-# prior knowledge (biological info) ---------------------------------------
+# Analysis at the OTU level
 
+Get prior knowledge (biological truth)
+
+```{r}
 row_data <- as.data.frame(rowData(tse))
 taxaNames <- rownames(row_data)
 newNames <- paste0(taxaNames, "|", row_data$GENUS) 
@@ -25,23 +46,28 @@ priorInfo <- data.frame(
 )
 
 rownames(priorInfo) <- taxaNames
+```
 
-# Convert to phyloseq -----------------------------------------------------
+Convert to phyloseq
 
+```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
 
 ## This step places the first condition as reference
 sample_data(ps)[[grp]] <- factor(
     sample_data(ps)[[grp]], levels = conditions
 )
+ps
+```
 
-# Normalization -----------------------------------------------------------
+## Add normalization factors
+
+```{r}
 norm_par <- tibble::tribble(
     ~ fun, ~ method,
     "norm_edgeR", "TMM",
     "norm_edgeR", "none",
     "norm_DESeq2", "poscounts",
-    "norm_TSS", "TSS",
     "norm_CSS", "median"
 )
 
@@ -50,16 +76,27 @@ norms <- setNormalizations(fun = norm_par$fun, method = norm_par$method)
 ps <- 
     runNormalizations(normalization_list = norms, object = ps, verbose = FALSE)
 
+colnames(sample_data(ps))
+```
 
-# Estimate weights --------------------------------------------------------
 
-## This section is only for DESeq2, edgeR, and limma-voom
-## Calculate zinbwave weights
+## Estimate matrix of weights
+
+This weights are only usedd by DESeq2, edgeR, and limma-voom to make them
+compatible with scRNA-seq analysis.
+
+```{r}
+
 zinbWeights <- weights_ZINB(object = ps, design = grp)
+dim(zinbWeights)
+```
 
 
-# DESEq2 ------------------------------------------------------------------
+## Run DA methods
 
+### DESeq2
+
+```{r}
 output_DESeq2 <- DA_DESeq2(
     object = ps, pseudo_count = FALSE, 
     design = as.formula(paste0("~", grp)),
@@ -75,9 +112,11 @@ output_DESeq2_zinbweights <- DA_DESeq2(
     norm = "poscounts", weights = zinbWeights,
     verbose = FALSE
 )
+```
 
-# edgeR -------------------------------------------------------------------
+### edgeR
 
+```{r}
 output_edgeR <- DA_edgeR(
     object = ps, pseudo_count = FALSE, group_name = grp,
     design = as.formula(paste0("~", grp)), norm = "TMM",
@@ -90,9 +129,11 @@ output_edgeR_zinbweihgts <- DA_edgeR(
     weights = zinbWeights,
     verbose = FALSE
 )
+```
 
-# limma benchdamic ---------------------------------------------------------
+### limma
 
+```{r}
 output_limma <- DA_limma(
     object = ps, pseudo_count = FALSE, design = grp, norm = "TMM",
     verbose = FALSE,
@@ -102,24 +143,47 @@ output_limma_zinbweights <- DA_limma(
    object = ps, pseudo_count = FALSE, design = grp, norm = "TMM" ,
    weights = zinbWeights, verbose = FALSE 
 )
+```
 
+### ALDEx2
 
-# Combine results in single object ----------------------------------------
+```{r}
+output_aldex2_t <- DA_ALDEx2(
+    object = ps, pseudo_count = FALSE, conditions = grp,
+    test = "t", denom = "iqlr", norm = "none",
+    verbose = FALSE
+)
 
+output_aldex2_wilcox <- DA_ALDEx2(
+    object = ps, pseudo_count = FALSE, conditions = grp,
+    test = "kw", denom = "iqlr", norm = "none",
+    verbose = FALSE
+)
+
+```
+
+### Combine DA results
+
+```{r}
 DA_results <- list(
     output_DESeq2,
     output_DESeq2_zinbweights,
     output_edgeR,
     output_edgeR_zinbweihgts,
     output_limma,
-    output_limma_zinbweights
+    output_limma_zinbweights,
+    output_aldex2_t,
+    output_aldex2_wilcox
 )
 names(DA_results) <- map_chr(DA_results, ~ .x$name)
 
+```
 
+## Enrichment
 
-# Direction ---------------------------------------------------------------
+### Direction
 
+```{r}
 direction <- c(
     DESeq2.poscounts = "log2FoldChange",
     DESeq2.poscounts.weighted = "log2FoldChange",
@@ -129,8 +193,11 @@ direction <- c(
     limma.TMM.weighted = "logFC"
 )
 
-# Enrichment --------------------------------------------------------------
+```
 
+### Calculate enrichment
+
+```{r}
 enrichment <- createEnrichment(
     object = DA_results,
     priorKnowledge = priorInfo,
@@ -145,12 +212,49 @@ enrichment <- createEnrichment(
     verbose = FALSE 
 )
 
+```
 
-plotEnrichment(
+
+### Plot enrichment
+
+```{r}
+enrich_plot <- plotEnrichment(
     enrichment = enrichment, 
     enrichmentCol = "type",
     levels_to_plot = c("Aerobic", "Anaerobic", "F Anaerobic")
 )
+enrich_plot
+
+```
+
+## Putative positives ratio
+
+### Create table of putative positives
+
+```{r}
+positives <- createPositives(
+    object = DA_results, 
+    priorKnowledge = priorInfo, enrichmentCol = "type", namesCol = "newNames",
+    slot = "pValMat", colName = "rawP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 50, by = 5),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "Anaerobic"), c("UP Abundant", "Aerobic")),
+    FP = list(c("DOWN Abundant", "Aerobic"), c("UP Abundant", "Anaerobic"))
+)
+```
+
+
+### Plot table of putative positives
+
+```{r}
+pos_plot <- plotPositives(positives)
+pos_plot
+```
+
 
 
 
