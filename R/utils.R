@@ -198,7 +198,7 @@ norm_TSS <- function(mat) {
 #' @export
 #' 
 plot_enrichment <- function(
-    enrichment, enrichment_col, levels_to_plot, conditions
+    enrichment, enrichment_col, levels_to_plot = NULL, conditions
 ) {
     
     enrichment_col_var <- rlang::sym(enrichment_col)
@@ -206,8 +206,14 @@ plot_enrichment <- function(
     if (length(conditions) != 2 || !is.character(conditions))
         stop("The conditions argument should be a character vector of length 2.", call. = FALSE)
     
-    ## Create summary table
-    summary_tbl <- purrr::map(enrichment, ~ {
+    if (!all(names(conditions) == c("condB", "condA")))
+        stop(paste0(
+            "The conditions vector must be named. condB first (control, reference)",
+            " and condA second (treatment, target)."
+        ), call. = FALSE)
+    
+    ## Create summary table 1 - Number of features
+    summary_tbl_1 <- purrr::map(enrichment, ~ {
         df <- .x$data
         df <- df %>%
             dplyr::filter(DA != "non-DA") %>% 
@@ -224,31 +230,152 @@ plot_enrichment <- function(
         df
     }) %>%  
         dplyr::bind_rows(.id = "method")
+   
+
+    ## Create summary table 2 - with p values of the fischer test
+    summary_tbl_2 <- purrr::map(enrichment, ~ {
+       
+       my_grid <- expand.grid(
+           c("DOWN Abundant", "UP Abundant"), levels_to_plot
+       )
+       
+       colnames(my_grid) <- c("DA", enrichment_col)
+       
+       list_vct <- .x$tests
+       
+       if (!length(list_vct)) {
+           my_grid[["pval"]] <- NA 
+           return(my_grid)
+       } else {
+           df <- tibble::tibble(names(list_vct), unlist(list_vct)) %>% 
+               magrittr::set_colnames(c("names", "pval")) %>% 
+               tidyr::separate(col = "names", into = c("DA", enrichment_col), sep = '-')
+           df <- dplyr::left_join(my_grid, df)
+           return(df)
+       }
+   }) %>% 
+       dplyr::bind_rows(.id = "method")
+
+    ## Merge the two tables
+    summary_tbl <- dplyr::left_join(
+       summary_tbl_1, summary_tbl_2 
+    )
     
     ## Change factors
     levels <- c("DOWN Abundant", "UP Abundant")
     names(levels) <- conditions
     summary_tbl[["DA"]] <- forcats::fct_recode(summary_tbl[["DA"]], !!!levels)
     
+    ## Select annotations to display
+    if (!is.null(levels_to_plot)) {
+        summary_tbl <- summary_tbl[summary_tbl[[enrichment_col]] %in% levels_to_plot, ]
+    }
+    
+    ## Add text for the pval
+    
+    condB <- conditions[["condB"]]
+    condA <- conditions[["condA"]]
+    
+    summary_tbl <- summary_tbl %>% 
+        dplyr::mutate(
+            symb = dplyr::case_when(
+                pval <= 0.01 & pval > 0.05 ~ "+",
+                pval <= 0.05 & pval > 0.01 ~ "*",
+                pval <= 0.01 & pval > 0.001 ~ "**",
+                pval <= 0.001 ~ "***"
+            ),
+            ypos = dplyr::case_when(
+                DA == condB ~ n - 4,
+                DA == condA ~ n + 4
+            )
+    )
+    
+    ## Add classification of methods
+    
+    summary_tbl <- dplyr::left_join(summary_tbl, method_classification())
+    
     ## Make plot
+    
+    max_DA <- max(abs(summary_tbl$n))
+    
     summary_tbl %>% ggplot2::ggplot(
         mapping = ggplot2::aes(x = method, y = n)
     ) +
         ggplot2::geom_col(
-            mapping = ggplot2::aes(fill = type),
+            mapping = ggplot2::aes(fill = !!enrichment_col_var),
             position = ggplot2::position_dodge(0.9, preserve = "single")
         ) +
-        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
-        ggplot2::scale_fill_discrete(na.translate = F) +
-        ggplot2::scale_y_continuous(labels = abs) +
+        ggplot2::geom_text(
+            mapping = ggplot2::aes(x = method, y = ypos, label = symb, color = !!enrichment_col_var),
+            position = ggplot2::position_dodge(0.9, preserve = "single")
+        ) +
+        ggplot2::geom_hline(yintercept = 0) +
+        ggplot2::scale_fill_brewer(type = 'qual', palette = "Set2", na.translate = FALSE ) +
+        ggplot2::scale_color_brewer(type = 'qual', palette = "Set2") +
+        ggplot2::scale_y_continuous(
+            labels = abs,
+            limits = c(-max_DA, max_DA),
+            sec.axis = ggplot2::sec_axis(
+                trans = ~ . / max(abs(summary_tbl$n)),
+                breaks = c(-0.5, 0.5),
+                labels = c(condB, condA)
+            )
+        ) +
         ggplot2::labs(
             y = "Number of features", x = "DA methods"
         ) +
+        # ggplot2::geom_text(
+            # data = annotation_table(condB, condA), 
+            # mapping = ggplot2::aes(
+                # x = x, y = y, hjust = hjust, vjust = vjust, label = text
+            # )
+        # ) +
+        ggplot2::facet_wrap(~method_class, nrow = 1, scales = "free_x") +
         ggplot2::theme_bw() +
         ggplot2::theme(
-            axis.text.x = ggplot2::element_text(hjust = 1, angle = 45)
-        )
+            axis.text.x = ggplot2::element_text(hjust = 1, angle = 45),
+            legend.position = "bottom",
+            legend.title = ggplot2::element_blank(),
+            axis.text.y.right = ggplot2::element_text(angle = 270, hjust = 0.5),
+            axis.ticks.y.right = ggplot2::element_blank()
+        ) 
 }
+
+
+# annotation_table <- function(condB, condA) {
+#     tibble::tribble(
+#         ~x, ~y, ~text, ~hjust, ~vjust,
+#         Inf, -Inf, condB, 1.05, -1,
+#         Inf, Inf, condA, 1.05, 1.5
+#     )
+# }
+
+annotation_table <- function(condB, condA) {
+    tibble::tribble(
+        ~x, ~y, ~text, ~hjust, ~vjust,
+        Inf, -Inf, condB, 1.05, -1,
+        Inf, Inf, condA, 1.05, 1.5
+    )
+}
+
+
+method_classification <- function() {
+    tibble::tribble(
+        ~ method, ~ method_class,
+        "ALDEx2.none.iqlr.wilcox", "Compositional",
+        "DESeq2.poscounts", "RNA-Seq",
+        "DESeq2.poscounts.weighted", "scRNA-Seq",
+        "edgeR.TMM", "RNA-Seq",
+        "edgeR.TMM.weighted", "scRNA-Seq",
+        "limma.TMM", "RNA-Seq",
+        "limma.TMM.weighted", "scRNA-Seq",
+        "wilcox.CLR", "Compositional",
+        "wilcox.none", "Classical",
+        "wilcox.TSS", "Classical"
+        
+    )
+}
+
 
 
 

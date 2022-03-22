@@ -36,8 +36,10 @@ df %>%
     )
 ```
 
-```{r}
-my_plot <- plot_enrichment(enrichment, enrichment_col = "type", conditions = conditions)
+```{r, message=FALSE, warning=FALSE}
+my_plot <- plot_enrichment(
+    enrichment, enrichment_col = "type", conditions = conditions,
+    levels_to_plot = c("Aerobic", "Anaerobic", "F Anaerobic"))
 my_plot
 ```
 
