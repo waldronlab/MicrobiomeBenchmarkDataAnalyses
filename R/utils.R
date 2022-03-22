@@ -79,55 +79,6 @@ filter_phyloseq <- function(ps) {
     ps
 }
 
-#' Convert from relative abundance (100) to counts
-#' 
-#' \code{relative_abundace_to_counts} converts from relative abundance to
-#' counts.
-#'
-#' @param x A matrix. Taxa in rownames. Samples in colnames.
-#' @param total_reads Numeric vector with total reads per sample. It must be in
-#' the same order as in the colnames of the matrix.
-#' @param total_sum Total scaling. Default 100 (percentage).
-#'
-#' @return A matrix of counts
-#' @export
-#'
-mat_to_counts <- function(x, total_reads, total_sum = 100) {
-    t(apply(x, 1, function(x) round(x * total_reads / total_sum)))
-}
-
-
-#' Convert matrix of counts to relative abundance
-#' 
-#' \code{counts_to_relative_abundance} converts a matrix of counts to
-#' relative abundance
-#'
-#' @param x A numeric matrix of counts. Features in rows and samples in columns.
-#' @param total_reads Optional. A character vector with the total raw reads/sums
-#' of the matrix per column. If not provided (i.e. NULL), the total sum per
-#' column will be used.
-#' @param total_sum The scaling factor. Default 100 (percent).
-#'
-#' @return A matrix of relative abundance.
-#' @export
-#'
-mat_to_relab <- function(x, total_reads = NULL, total_sum = 100) {
-    
-    if (!is.null(total_reads)) {
-        
-        if (ncol(x) != length(total_reads))
-            stop(
-                "Lengt of total reads and number of columns must be the same",
-                 call. = FALSE
-            )
-        t(apply(t(x), 2, function(.x) .x / total_reads) * total_sum) 
-        
-    } else {
-        
-        apply(x, 2, function(.x) .x / sum(.x) * total_sum)
-    }
-}
-
 #' Apply CLR to matrix
 #' 
 #' \code{apply_clr} applies a centered-log ratio transformation to a matrix.
@@ -234,8 +185,70 @@ norm_TSS <- function(mat) {
 }
 
 
-
-
+#' Plot enrichment object
+#' 
+#' \code{plot_enrichment} make plot from enrichment object.
+#'
+#' @param enrichment Enrichment object from benchdamic.
+#' @param enrichment_col Column with enrichmnet annotations.
+#' @param levels_to_plot Labels used for plotting. Default all.
+#' @param conditions Named vector. condB first (i.e., reference, control).
+#'
+#' @return A ggplot object
+#' @export
+#' 
+plot_enrichment <- function(
+    enrichment, enrichment_col, levels_to_plot, conditions
+) {
+    
+    enrichment_col_var <- rlang::sym(enrichment_col)
+    
+    if (length(conditions) != 2 || !is.character(conditions))
+        stop("The conditions argument should be a character vector of length 2.", call. = FALSE)
+    
+    ## Create summary table
+    summary_tbl <- purrr::map(enrichment, ~ {
+        df <- .x$data
+        df <- df %>%
+            dplyr::filter(DA != "non-DA") %>% 
+            dplyr::count(DA, !! enrichment_col_var) %>% 
+            dplyr::filter(dplyr::if_all(.cols = dplyr::everything(), .fns = ~ !is.na(.x))) %>% 
+            dplyr::mutate(
+                n = ifelse(grepl("DOWN", DA), -n, n)
+            )
+        if (nrow(df) == 0) { # Thi is an empty dataframe
+            df[1,] <- c("UP Abundant", NA, 0)
+            df[2,] <- c("DOWN Abundant", NA, 0)
+            df[[3]] <- as.numeric(df[[3]])
+        }
+        df
+    }) %>%  
+        dplyr::bind_rows(.id = "method")
+    
+    ## Change factors
+    levels <- c("DOWN Abundant", "UP Abundant")
+    names(levels) <- conditions
+    summary_tbl[["DA"]] <- forcats::fct_recode(summary_tbl[["DA"]], !!!levels)
+    
+    ## Make plot
+    summary_tbl %>% ggplot2::ggplot(
+        mapping = ggplot2::aes(x = method, y = n)
+    ) +
+        ggplot2::geom_col(
+            mapping = ggplot2::aes(fill = type),
+            position = ggplot2::position_dodge(0.9, preserve = "single")
+        ) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+        ggplot2::scale_fill_discrete(na.translate = F) +
+        ggplot2::scale_y_continuous(labels = abs) +
+        ggplot2::labs(
+            y = "Number of features", x = "DA methods"
+        ) +
+        ggplot2::theme_bw() +
+        ggplot2::theme(
+            axis.text.x = ggplot2::element_text(hjust = 1, angle = 45)
+        )
+}
 
 
 

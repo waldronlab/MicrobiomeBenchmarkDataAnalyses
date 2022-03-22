@@ -28,7 +28,7 @@ tse <- getDataset("HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
 
 ## define helpful variables
 grp <- "hmp_body_subsite"
-conditions <- c("subgingival_plaque", "supragingival_plaque")
+conditions <- c(condB = "subgingival_plaque", condA = "supragingival_plaque")
 ```
 
 # Analysis at the OTU level

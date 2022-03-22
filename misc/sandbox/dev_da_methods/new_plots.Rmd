@@ -1,0 +1,72 @@
+---
+title: "new_plot"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(purrr)
+library(dplyr)
+```
+
+
+
+Run individual tests first
+
+```{r}
+str(enrichment, max.level = 1)
+```
+
+```{r}
+df <- enrichment$DESeq2.poscounts$data
+head(df)
+```
+
+```{r}
+DA <- type <- NULL
+df %>%
+    dplyr::filter(DA != "non-DA") %>% 
+    dplyr::count(DA, type) %>% 
+    dplyr::filter(dplyr::if_all(.cols = dplyr::everything(), .fns = ~ !is.na(.x))) %>% 
+    dplyr::mutate(
+        n = ifelse(grepl("DOWN", DA), -n, n)
+    )
+```
+
+```{r}
+my_plot <- plot_enrichment(enrichment, enrichment_col = "type", conditions = conditions)
+my_plot
+```
+
+
+```{r}
+# method <- NULL
+my_plot %>% 
+    ggplot2::ggplot(
+        mapping = ggplot2::aes(x = method, y = n)
+    ) +
+    ggplot2::geom_col(
+        mapping = ggplot2::aes(fill = type),
+        position = ggplot2::position_dodge(0.9, preserve = "single")
+    ) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+    ggplot2::scale_fill_discrete(na.translate = F) +
+    ggplot2::labs(
+        y = "Number of features", x = "DA methods"
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+        axis.text.x = ggplot2::element_text(hjust = 1, angle = 45)
+    )
+```
+
+
+
+
+
+
+
+
