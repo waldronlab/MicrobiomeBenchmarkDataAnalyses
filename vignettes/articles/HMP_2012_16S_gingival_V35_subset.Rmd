@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
-# library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkDataAnalyses)
 library(phyloseq)
 library(mia)
 library(benchdamic)
@@ -118,13 +118,13 @@ output_deseq2_zinbweights <- DA_DESeq2(
 ### edgeR
 
 ```{r}
-output_edgeR <- DA_edgeR(
+output_edger <- DA_edgeR(
     object = ps, pseudo_count = FALSE, group_name = grp,
     design = as.formula(paste0("~", grp)), norm = "TMM",
     verbose = FALSE
 )
 
-output_edgeR_zinbweihgts <- DA_edgeR(
+output_edger_zinbweihgts <- DA_edgeR(
     object = ps, pseudo_count = FALSE, group_name = grp,
     design = as.formula(paste0("~", grp)), norm = "TMM",
     weights = zinbWeights,
@@ -194,7 +194,7 @@ output_corncob <- DA_corncob(
 ```
 
 
-## MAST
+### MAST
 
 ```{r}
 output_mast <- DA_MAST(
@@ -207,7 +207,7 @@ output_mast <- DA_MAST(
 )
 ```
 
-## Seurat
+### Seurat
 
 ```{r}
 output_seurat <- DA_Seurat(
@@ -234,20 +234,20 @@ output_wilcox_tss <- DA_wilcox(
 )
 ```
 
-## ZINQ
+### ZINQ
 
 ```{r, message=FALSE, warning=FALSE}
 output_zinq <- zinq(object = ps, grp = grp, conditions[2])
 ```
 
 
-## ANCOMBC
+### ANCOMBC
 
 ```{r}
 output_ancombc <- ancombc(object = ps, formula = grp, group = grp)
 ```
 
-## LEFSE
+### LEFSE
 
 ```{r}
 
@@ -258,10 +258,10 @@ output_ancombc <- ancombc(object = ps, formula = grp, group = grp)
 
 ```{r}
 DA_results <- list(
-    output_DESeq2,
-    output_DESeq2_zinbweights,
-    output_edgeR,
-    output_edgeR_zinbweihgts,
+    output_deseq2,
+    output_deseq2_zinbweights,
+    output_edger,
+    output_edger_zinbweihgts,
     output_limma,
     output_limma_zinbweights,
     output_aldex2_t,
