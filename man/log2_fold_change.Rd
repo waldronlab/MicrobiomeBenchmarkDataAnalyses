@@ -4,24 +4,30 @@
 \alias{log2_fold_change}
 \title{Calculate log2 fold change}
 \usage{
-log2_fold_change(mat, condition_vector, denom = NULL, log = FALSE)
+log2_fold_change(
+  mat,
+  condition_vector,
+  condB = NULL,
+  log = FALSE,
+  pseudocount = 0
+)
 }
 \arguments{
 \item{mat}{A matrix. Features in rows and samples in columns.}
 
-\item{condition_vector}{A vector or factor with the names of the conditions.
-Only two conditions are allowed and must be in the same order as the names
-in the samples.}
+\item{condition_vector}{A character vector or factor with the names of the
+conditions. The conditions must correspond to the samples, i.e. the exact
+same order. Two and only two conditions (levels) are needed.}
 
-\item{denom}{Condition used as reference. E.g. control condition.}
+\item{condB}{Condition used as reference. E.g. control condition.}
 
 \item{log}{If log is TRUE, it's assumed that the matrix is already log
-transoformed.}
+transformed.}
 }
 \value{
 A named vector of log2 fold changes per feature.
 }
 \description{
-\code{log2_fold_change} calculates the log2 fold change of the features
-of a matrix per sample. Denom is usually the treated condition.
+\code{log2_fold_change} calculates the log2 fold change of a matrix with
+features in the rows and samples in the columns.
 }

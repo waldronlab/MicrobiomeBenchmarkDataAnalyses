@@ -79,7 +79,22 @@ filter_phyloseq <- function(ps) {
     ps
 }
 
-#' Apply CLR to matrix
+# Normalization -----------------------------------------------------------
+
+#' TSS normalization
+#' 
+#' \code{norm_TSS} Applies TSS normalization to a matrix of count data.
+#' 
+#' @param mat A numeric matrix of counts.
+#' @param total_sum The tolal sum of the scaling, e.g. 100 or 1e.
+#' 
+#' @return A TSS-normalized matrix,
+#'
+norm_TSS <- function(mat, total_sum = 1e6) {
+    apply(mat, 2, function(x) x / sum(x) * total_sum)
+}
+
+#' CLR normalization
 #' 
 #' \code{apply_clr} applies a centered-log ratio transformation to a matrix.
 #' Features (e.g. taxa, OTUs) must be in the rows and samples in the columns.
@@ -89,17 +104,18 @@ filter_phyloseq <- function(ps) {
 #'
 #' @return A matrix with CLR normalization
 #'
-norm_CLR <- function(x, pseudocount = 0) {
+norm_CLR <- function(mat, pseudocount = 0) {
     ## Centered log ratio transformation of a vector
     ## Sources: 
     ## + https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6755255/
     ## + https://www.r-bloggers.com/2021/08/calculate-geometric-mean-in-r/
-    
-    mat <- x + pseudocount
-    
-    if (any(is.na(mat) | any(mat < 0))) {
+   
+    if (any(is.na(mat) | any(mat < 0))) 
         stop("Input vector must not contain NAs, or negative numbers.")
-    } else if (any(mat == 0)) {
+    
+    mat <- mat + pseudocount
+    
+    if (any(mat == 0)) {
         warning(
             "0s found in matrix. 1 was added as pseudocount.", call. = FALSE
         )
@@ -110,90 +126,83 @@ norm_CLR <- function(x, pseudocount = 0) {
 }
 
 
+# Calculations ------------------------------------------------------------
+
 #' Calculate log2 fold change
 #' 
-#' \code{log2_fold_change} calculates the log2 fold change of the features
-#' of a matrix per sample. Denom is usually the treated condition.
+#' \code{log2_fold_change} calculates the log2 fold change of a matrix with
+#' features in the rows and samples in the columns.
 #'
 #' @param mat A matrix. Features in rows and samples in columns.
-#' @param condition_vector A vector or factor with the names of the conditions.
-#' Only two conditions are allowed and must be in the same order as the names
-#' in the samples.
-#' @param denom Condition used as reference. E.g. control condition.
+#' @param condition_vector A character vector or factor with the names of the 
+#' conditions. The conditions must correspond to the samples, i.e. the exact
+#' same order. Two and only two conditions (levels) are needed.
+#' @param condB Condition used as reference. E.g. control condition.
 #' @param log If log is TRUE, it's assumed that the matrix is already log
-#' transoformed.
+#' transformed.
 #'
 #' @return
 #' A named vector of log2 fold changes per feature.
-#'
-log2_fold_change <- function(mat, condition_vector, denom = NULL, log = FALSE) {
+log2_fold_change <- function(
+    mat, condition_vector, condB = NULL, log = FALSE, pseudocount = 0
+) {
+    ## condB is control; condA is treated
     
     condition_vector <- as.factor(condition_vector)
     conditions <- levels(condition_vector)
     
     if (length(conditions) != 2)
-        stop('Two and only two levels are needed.', call. = FALSE)
+        stop('Two and only two conditions are needed.', call. = FALSE)
     
-    if (!is.null(denom)) {
-        num_lvl <- conditions[conditions != denom] # treated
-        denom_lvl <- conditions[conditions == denom] # control
-        
+    if (!is.null(condB)) {
+        condA <- conditions[conditions != condB] # treated
+    
     } else {
-        num_lvl <- levels(condition_vector)[2] # treated
-        denom_lvl <- levels(condition_vector)[1] # control
+        condB <- conditions[1]
+        condA <- conditions[2]
     }
     
-    taxa <- rownames(mat)
-    log2FoldChange <- vector("double", length(taxa))
-    names(log2FoldChange) <- taxa
+    mat <- mat + pseudocount
     
-    for (i in seq_along(taxa)) {
+    features <- rownames(mat)
+    log2FoldChange <- vector("double", length(features))
+    names(log2FoldChange) <- features 
+    
+    for (i in seq_along(features)) {
         
-        df <- cbind(condition_vector, as.data.frame(mat[i,]))
-        colnames(df) <- c("condition", "value")
-        
-        num <- mean(df$value[df$condition == num_lvl])
-        denom <- mean(df$value[df$condition == denom_lvl])
+        mean_condB <- mean(mat[features[i], condition_vector == condB])
+        mean_condA <- mean(mat[features[i], condition_vector == condA])
         
         if (log) {
-            log2FoldChange[i] <- num - denom  # treated - control
+            log2FoldChange[i] <- mean_condA - mean_condB
+            
         } else {
-            if (num >= denom) {
-                log2FoldChange[i] <- log2(num / denom) # treated / control
+            if (mean_condA >= mean_condB) {
+                log2FoldChange[i] <- log2(mean_condA / mean_condB)
                 
-            } else if (num < denom) {
-                log2FoldChange[i] <- -log2(denom / num) # treated / control
+            } else if (mean_condA < mean_condB) {
+                log2FoldChange[i] <- -log2(mean_condB / mean_condA)
             }
         }
             
     }
     
     log2FoldChange
-    
 }
 
 
-#' TSS normalization of matrix
-#' 
-#' \code{norm_TSS} Applies TSS normalization to a matrix of count data.
-#' @param mat A numeric matrix.
-#'
-#' @return A TSS-normalized matrix
-#'
-norm_TSS <- function(mat) {
-    apply(mat, 2, function(x) x / sum(x) * 1e6)
-}
-
+# Plotting ----------------------------------------------------------------
 
 #' Plot enrichment object
 #' 
-#' \code{plot_enrichment} make plot from enrichment object.
+#' \code{plot_enrichment} make plot from benchdamic enrichment object.
 #'
-#' @param enrichment Enrichment object from benchdamic.
-#' @param enrichment_col Column with enrichmnet annotations.
-#' @param levels_to_plot Labels used for plotting. Default all.
-#' @param conditions Named vector. condB first (i.e., reference, control).
-#'
+#' @param enrichment Enrichment output from benchdamic.
+#' @param enrichment_col Column with enrichment annotations.
+#' @param levels_to_plot Levels used for plotting. Default all.
+#' @param conditions Named vector. The names must be condB and condA. Example:
+#' c(condB = 'control', condA = 'treatment')
+#' 
 #' @return A ggplot object
 #' @export
 #' 
@@ -206,10 +215,10 @@ plot_enrichment <- function(
     if (length(conditions) != 2 || !is.character(conditions))
         stop("The conditions argument should be a character vector of length 2.", call. = FALSE)
     
-    if (!all(names(conditions) == c("condB", "condA")))
+    if (is.null(names(conditions)) || !all(names(conditions) == c("condB", "condA")))
         stop(paste0(
-            "The conditions vector must be named. condB first (control, reference)",
-            " and condA second (treatment, target)."
+            "The conditions vector must be named. condB first,",
+            "Example: c(condB = 'control', condA = 'treatment')"
         ), call. = FALSE)
     
     ## Create summary table 1 - Number of features
@@ -232,7 +241,7 @@ plot_enrichment <- function(
         dplyr::bind_rows(.id = "method")
    
 
-    ## Create summary table 2 - with p values of the fischer test
+    ## Create summary table 2 - p values of the fischer test
     summary_tbl_2 <- purrr::map(enrichment, ~ {
        
        my_grid <- expand.grid(
@@ -297,6 +306,7 @@ plot_enrichment <- function(
     ## Make plot
     
     max_DA <- max(abs(summary_tbl$n))
+    max_DA <- max_DA + 10
     
     summary_tbl %>% ggplot2::ggplot(
         mapping = ggplot2::aes(x = method, y = n)
@@ -341,24 +351,6 @@ plot_enrichment <- function(
         ) 
 }
 
-
-# annotation_table <- function(condB, condA) {
-#     tibble::tribble(
-#         ~x, ~y, ~text, ~hjust, ~vjust,
-#         Inf, -Inf, condB, 1.05, -1,
-#         Inf, Inf, condA, 1.05, 1.5
-#     )
-# }
-
-annotation_table <- function(condB, condA) {
-    tibble::tribble(
-        ~x, ~y, ~text, ~hjust, ~vjust,
-        Inf, -Inf, condB, 1.05, -1,
-        Inf, Inf, condA, 1.05, 1.5
-    )
-}
-
-
 method_classification <- function() {
     tibble::tribble(
         ~ method, ~ method_class,
@@ -371,7 +363,14 @@ method_classification <- function() {
         "limma.TMM.weighted", "scRNA-Seq",
         "wilcox.CLR", "Compositional",
         "wilcox.none", "Classical",
-        "wilcox.TSS", "Classical"
+        "wilcox.TSS", "Classical",
+        "metagenomeSeq.CSSmedian", "Metagenomics",
+        "corncob.none.Wald", "Metagenomics",
+        "MAST.none.median", "scRNA-Seq",
+        "Seurat.none.wilcox", "scRNA-Seq",
+        "ZINQ", "Metagenomics",
+        "ANCOMBC", "Metagenomics",
+        "metagenomeSeq.CSSdefault", "Metagenomics"
         
     )
 }

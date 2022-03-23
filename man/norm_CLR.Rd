@@ -2,14 +2,14 @@
 % Please edit documentation in R/utils.R
 \name{norm_CLR}
 \alias{norm_CLR}
-\title{Apply CLR to matrix}
+\title{CLR normalization}
 \usage{
-norm_CLR(x, pseudocount = 0)
+norm_CLR(mat, pseudocount = 0)
 }
 \arguments{
-\item{x}{A count matrix.}
-
 \item{pseudocount}{A pseudocount to add. Default = 1.}
+
+\item{x}{A count matrix.}
 }
 \value{
 A matrix with CLR normalization

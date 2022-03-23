@@ -2,15 +2,17 @@
 % Please edit documentation in R/utils.R
 \name{norm_TSS}
 \alias{norm_TSS}
-\title{TSS normalization of matrix}
+\title{TSS normalization}
 \usage{
-norm_TSS(mat)
+norm_TSS(mat, total_sum = 1e+06)
 }
 \arguments{
-\item{mat}{A numeric matrix.}
+\item{mat}{A numeric matrix of counts.}
+
+\item{total_sum}{The tolal sum of the scaling, e.g. 100 or 1e.}
 }
 \value{
-A TSS-normalized matrix
+A TSS-normalized matrix,
 }
 \description{
 \code{norm_TSS} Applies TSS normalization to a matrix of count data.
