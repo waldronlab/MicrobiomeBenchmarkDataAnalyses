@@ -299,25 +299,33 @@ plot_enrichment <- function(
             )
     )
     
-    ## Add classification of methods
+    ## This step is necessary to include all of the methods
+    meth_class <- method_classification()
+    summary_tbl$method <- factor(
+        summary_tbl$method, levels = as.character(meth_class$method)
+    )
     
-    summary_tbl <- dplyr::left_join(summary_tbl, method_classification())
+    ## Add classification of methods
+    summary_tbl <- dplyr::left_join(summary_tbl, meth_class)
     
     ## Make plot
     
     max_DA <- max(abs(summary_tbl$n))
     max_DA <- max_DA + 10
-    
+   
     summary_tbl %>% ggplot2::ggplot(
         mapping = ggplot2::aes(x = method, y = n)
     ) +
         ggplot2::geom_col(
             mapping = ggplot2::aes(fill = !!enrichment_col_var),
-            position = ggplot2::position_dodge(0.9, preserve = "single")
+            position = ggplot2::position_dodge(preserve = "single")
         ) +
         ggplot2::geom_text(
-            mapping = ggplot2::aes(x = method, y = ypos, label = symb, color = !!enrichment_col_var),
-            position = ggplot2::position_dodge(0.9, preserve = "single")
+            mapping = ggplot2::aes(
+                x = method, y = ypos, label = symb, 
+                color = !!enrichment_col_var, #group = !!enrichment_col_var
+            ),
+            position = ggplot2::position_dodge(width = 0.9, preserve = "single") 
         ) +
         ggplot2::geom_hline(yintercept = 0) +
         ggplot2::scale_fill_brewer(type = 'qual', palette = "Set2", na.translate = FALSE ) +
@@ -340,7 +348,9 @@ plot_enrichment <- function(
                 # x = x, y = y, hjust = hjust, vjust = vjust, label = text
             # )
         # ) +
-        ggplot2::facet_wrap(~method_class, nrow = 1, scales = "free_x") +
+        ggplot2::facet_grid(
+            . ~method_class, scales = "free_x", space = "free_x"
+        ) +
         ggplot2::theme_bw() +
         ggplot2::theme(
             axis.text.x = ggplot2::element_text(hjust = 1, angle = 45),
@@ -355,6 +365,7 @@ method_classification <- function() {
     tibble::tribble(
         ~ method, ~ method_class,
         "ALDEx2.none.iqlr.wilcox", "Compositional",
+        "ALDEx2.none.iqlr.t", "Compositional",
         "DESeq2.poscounts", "RNA-Seq",
         "DESeq2.poscounts.weighted", "scRNA-Seq",
         "edgeR.TMM", "RNA-Seq",

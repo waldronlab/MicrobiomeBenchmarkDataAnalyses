@@ -1,5 +1,5 @@
 ---
-title: "Analysis of the Cagaro dataset"
+title: "Analysis of the HMP_2012_16S_gingival_V35_subset dataset"
 output: 
     html_document:
         toc: true
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
-library(MicrobiomeBenchmarkDataAnalyses)
+# library(MicrobiomeBenchmarkDataAnalyses)
 library(phyloseq)
 library(mia)
 library(benchdamic)
