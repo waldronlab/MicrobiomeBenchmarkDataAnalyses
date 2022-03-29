@@ -4,7 +4,7 @@
 \alias{DA_lefse}
 \title{Lefser method}
 \usage{
-DA_lefse(object, grp, ref = NULL, ...)
+DA_lefse(object, grp, ref = NULL, norm = "none", ...)
 }
 \arguments{
 \item{object}{A phyloseq or (Tree)SummarizedExperiment object.}
@@ -14,6 +14,8 @@ where the conditions are stored.}
 
 \item{ref}{A character string indicating which condition should be used as
 reference.}
+
+\item{norm}{Normalization method. Options: CLR and norm.}
 
 \item{...}{Other parameters passed to benchdamic.}
 }
