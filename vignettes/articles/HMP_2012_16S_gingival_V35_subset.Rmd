@@ -405,7 +405,7 @@ positives2 <- positives2 %>%
 ```
 
 
-```{r}
+```{r, fig.width=10}
 
 n_meth <- length(unique(positives2$method))
 
@@ -426,9 +426,9 @@ p1 <- positives2 %>%
     scale_color_manual(values = distinctColorPalette(n_meth)) +
     scale_linetype_discrete(guide = "none") +
     scale_shape_discrete(guide = 'none') +
-    facet_wrap(~method_class, nrow = 1) +
+    facet_wrap(~method_class) +
     theme_bw() +
-    theme(legend.position = "bottom")
+    theme(legend.title = element_blank())
 
 p1
 
