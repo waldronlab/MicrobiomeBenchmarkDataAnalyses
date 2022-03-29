@@ -354,7 +354,7 @@ enrichment <- createEnrichment(
 
 ### Plot enrichment
 
-```{r, warning=FALSE, message=FALSE, fig.width=10}
+```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
 enrich_plot <- plot_enrichment(
     enrichment = enrichment, 
     enrichment_col = "type",
@@ -405,7 +405,7 @@ positives2 <- positives2 %>%
 ```
 
 
-```{r, fig.width=10}
+```{r, fig.height=6, fig.width=10}
 
 n_meth <- length(unique(positives2$method))
 
@@ -428,7 +428,9 @@ p1 <- positives2 %>%
     scale_shape_discrete(guide = 'none') +
     facet_wrap(~method_class) +
     theme_bw() +
-    theme(legend.title = element_blank())
+    theme(
+        legend.title = element_blank()
+    )
 
 p1
 
