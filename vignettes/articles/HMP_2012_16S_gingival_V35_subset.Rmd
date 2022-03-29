@@ -12,11 +12,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
-# library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkDataAnalyses)
 library(phyloseq)
 library(mia)
 library(benchdamic)
 library(purrr)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(randomcoloR)
 ```
 
 # Import data
@@ -250,11 +254,25 @@ output_ancombc <- ancombc(object = ps, formula = grp, group = grp)
 ### LEFSE
 
 ```{r}
+output_lefse_none <- DA_lefse(
+    object = ps, grp = grp, ref = conditions[["condB"]],
+    kruskal.threshold = 1,
+    wilcox.threshold = 1,
+    lda.threshold = 0,
+    norm = 'none'
+)
 
+output_lefse_clr <- DA_lefse(
+    object = ps, grp = grp, ref = conditions[["condB"]],
+    kruskal.threshold = 1,
+    wilcox.threshold = 1,
+    lda.threshold = 0,
+    norm = "CLR"
+)
 ```
 
 
-### Combine DA results
+## Combine DA results
 
 ```{r}
 DA_results <- list(
@@ -275,7 +293,9 @@ DA_results <- list(
     output_wilcox_clr,
     output_wilcox_tss,
     output_zinq,
-    output_ancombc
+    output_ancombc,
+    output_lefse_none,
+    output_lefse_clr
 )
 names(DA_results) <- map_chr(DA_results, ~ .x$name)
 str(DA_results, max.level = 1)
@@ -305,7 +325,9 @@ direction <- c(
     output_wilcox_clr = "log2FoldChange",
     output_wilcox_tss = "log2FoldChange",
     output_zinq = "log2FoldChange",
-    output_ancombc = "logFC"
+    output_ancombc = "logFC",
+    output_lefse_none = "LDA_scores",
+    output_lefse_clr = "LDA_scores"
 )
 
 ```
@@ -318,9 +340,9 @@ enrichment <- createEnrichment(
     priorKnowledge = priorInfo,
     enrichmentCol = "type",
     namesCol = "newNames",
-    slot = "pValMat", colName = "adjP", type = "pvalue",
+    slot = "pValMat", colName = "rawP", type = "pvalue",
     direction = direction,
-    threshold_pvalue = 0.1,
+    threshold_pvalue = 0.05,
     threshold_logfc = 0,
     top = NULL,
     alternative = "greater",
@@ -332,7 +354,7 @@ enrichment <- createEnrichment(
 
 ### Plot enrichment
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, fig.width=10}
 enrich_plot <- plot_enrichment(
     enrichment = enrichment, 
     enrichment_col = "type",
@@ -367,12 +389,49 @@ positives <- createPositives(
 ### Plot table of putative positives
 
 ```{r}
-pos_plot <- plotPositives(positives)
-pos_plot
+# pos_plot <- plotPositives(positives)
+# pos_plot
 ```
 
 
+```{r}
+meth_class <- method_classification()
+positives2 <- left_join(meth_class, positives, by = 'method') %>% 
+    relocate(method_class)
+positives2 <- positives2 %>% 
+    mutate(
+        base_method = sub("\\..*", "", method)
+    )
+```
 
 
+```{r}
+
+n_meth <- length(unique(positives2$method))
+
+p1 <- positives2 %>%    
+    mutate(
+        method = paste0(method_class, "--", method)
+    ) %>% 
+    ggplot(
+        aes(x = top, y = TP - FP)
+    ) +
+    geom_path(
+        aes(linetype = method_class, color = method)
+    ) +
+    geom_point(
+        aes(shape = method_class, color = method)
+    ) +
+    labs(x = "Top") +
+    scale_color_manual(values = distinctColorPalette(n_meth)) +
+    scale_linetype_discrete(guide = "none") +
+    scale_shape_discrete(guide = 'none') +
+    facet_wrap(~method_class, nrow = 1) +
+    theme_bw() +
+    theme(legend.position = "bottom")
+
+p1
+
+```
 
 

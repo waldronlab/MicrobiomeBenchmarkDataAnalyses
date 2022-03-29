@@ -361,6 +361,14 @@ plot_enrichment <- function(
         ) 
 }
 
+#' Methods classification
+#' 
+#' \code{method_classification} returns a tibble of the methods and their
+#' classification.
+#'
+#' @return A tibble.
+#' @export
+#'
 method_classification <- function() {
     tibble::tribble(
         ~ method, ~ method_class,
@@ -381,7 +389,9 @@ method_classification <- function() {
         "Seurat.none.wilcox", "scRNA-Seq",
         "ZINQ", "Metagenomics",
         "ANCOMBC", "Metagenomics",
-        "metagenomeSeq.CSSdefault", "Metagenomics"
+        "metagenomeSeq.CSSdefault", "Metagenomics",
+        "lefse.none", "Classical", 
+        "lefse.CLR", "Compositional" 
         
     )
 }

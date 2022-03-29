@@ -156,12 +156,13 @@ ancombc <- function(object, formula, group, ...) {
 #' where the conditions are stored.
 #' @param ref A character string indicating which condition should be used as
 #' reference.
+#' @param norm Normalization method. Options: CLR and norm.
 #' @param ... Other parameters passed to benchdamic. 
 #'
 #' @return An object for benchdamic.
 #' @export
 #'
-DA_lefse <- function(object, grp, ref = NULL, ...) {
+DA_lefse <- function(object, grp, ref = NULL, norm = 'none', ...) {
     
     if (class(object) == "phyloseq") {
         se <- mia::makeTreeSummarizedExperimentFromPhyloseq(object)
@@ -179,17 +180,25 @@ DA_lefse <- function(object, grp, ref = NULL, ...) {
     
     SummarizedExperiment::colData(se)[[grp]] <- condition_vector
     
-    statInfo <- lefser::lefser2(expr = se, groupCol = grp) 
+    
+    if (norm == 'CLR') {
+        name <- 'lefse.CLR'
+        SummarizedExperiment::assay(se) <- 
+            norm_CLR(SummarizedExperiment::assay(se))
+    } else {
+        name <- 'lefse.none'
+    }
+    
+    statInfo <- lefser::lefser2(expr = se, groupCol = grp, ...) 
     statInfo$adj_pval <- stats::p.adjust(statInfo$kw_pvalues, method = "fdr")
     rownames(statInfo) <- statInfo[["Names"]]
     colnames(statInfo) <- c("Taxa", "LDA_scores", "rawP", "adjP")
     
-    name <- "lefse"
    
     pValMat <- statInfo[, c("rawP", "adjP")]
-    rownames(pValMat) <- statInfo[["Names"]]
+    rownames(pValMat) <- statInfo[["Taxa"]]
    
-    list(pValMat, statInfo, name) 
+    list(pValMat = pValMat, statInfo = statInfo, name = name) 
 }
 
 
