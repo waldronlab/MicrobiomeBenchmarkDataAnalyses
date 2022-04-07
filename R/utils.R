@@ -370,32 +370,112 @@ plot_enrichment <- function(
 #' @export
 #'
 method_classification <- function() {
-    tibble::tribble(
-        ~ method, ~ method_class,
-        "ALDEx2.none.iqlr.wilcox", "Compositional",
-        "ALDEx2.none.iqlr.t", "Compositional",
-        "DESeq2.poscounts", "RNA-Seq",
-        "DESeq2.poscounts.weighted", "scRNA-Seq",
-        "edgeR.TMM", "RNA-Seq",
-        "edgeR.TMM.weighted", "scRNA-Seq",
-        "limma.TMM", "RNA-Seq",
-        "limma.TMM.weighted", "scRNA-Seq",
-        "wilcox.CLR", "Compositional",
-        "wilcox.none", "Classical",
-        "wilcox.TSS", "Classical",
-        "metagenomeSeq.CSSmedian", "Metagenomics",
-        "corncob.none.Wald", "Metagenomics",
-        "MAST.none.median", "scRNA-Seq",
-        "Seurat.none.wilcox", "scRNA-Seq",
-        "ZINQ", "Metagenomics",
-        "ANCOMBC", "Metagenomics",
-        "metagenomeSeq.CSSdefault", "Metagenomics",
-        "lefse.none", "Classical", 
-        "lefse.CLR", "Compositional" 
+    
+    tbl <- tibble::tribble(
+        ~ method, ~ method_class, ~base_method, ~norm,
+        "ALDEx2.none.iqlr.wilcox", "Compositional", "ALDEx2_t-test", "none",
+        "ALDEx2.none.iqlr.t", "Compositional", "ALDEx2_wilcox", "none",
+        "DESeq2.poscounts", "RNA-Seq", "DESeq2", "poscounts",
+        "DESeq2.poscounts.weighted", "scRNA-Seq", "DESeq2", "poscounts",
+        "edgeR.TMM", "RNA-Seq", "edgeR", "TMM",
+        "edgeR.TMM.weighted", "scRNA-Seq", "edgeR", "TMM",
+        "limma.TMM", "RNA-Seq", "limma", "TMM",
+        "limma.TMM.weighted", "scRNA-Seq", "limma", "TMM",
+        "wilcox.CLR", "Compositional", "wilcox", "CLR",
+        "wilcox.none", "Classical", "wilcox", "none",
+        "wilcox.TSS", "Classical", "wilcox", "TSS",
+        "metagenomeSeq.CSSmedian", "Metagenomics", "metagenomeSeq","CSSmedian",
+        "corncob.none.Wald", "Metagenomics", "corncob", "none",
+        "MAST.none.median", "scRNA-Seq", "MAST", "none",
+        "Seurat.none.wilcox", "scRNA-Seq", "Seurat", "none",
+        "ZINQ", "Metagenomics", "ZINQ", "none",
+        "ANCOMBC", "Metagenomics", "ANCOMBC", "none",
+        "metagenomeSeq.CSSdefault", "Metagenomics", "metagenomeSeq", "CSSdefault",
+        "lefse.none", "Classical", "lefse", "none", 
+        "lefse.CLR", "Compositional", "lefse", "CLR"
         
-    )
+    ) %>% 
+        dplyr::relocate(method_class, base_method, method) %>% 
+        dplyr::arrange(method_class, base_method, method)
+    
+    ## create mappings for color
+    base_methods <- sort(unique(tbl$base_method))
+    set.seed(1234)
+    colors <- randomcoloR::distinctColorPalette(length(base_methods))
+    base_methods_colors <- 
+        tibble::tibble(base_method = base_methods, color = colors)
+    
+    ## Create mappings for shape
+    norm <- sort(unique(tbl$norm))
+    shapes <- seq_along(norm)
+    norm_shapes <- 
+        tibble::tibble(norm = norm, shape = shapes)
+    
+   dplyr::left_join(tbl, base_methods_colors, by = 'base_method') %>% 
+       dplyr::left_join(norm_shapes, by = 'norm')
+    
 }
 
 
-
+#' Plot positives
+#' 
+#' \code{plot_positives} is a version of plotPositives
+#'
+#' @param x A dataframe
+#'
+#' @return List of plots
+#' @export
+#'
+plot_positives <- function(x) {
+    
+    max_top <- max(x$TP - x$FP)
+    min_top <- min(x$TP - x$FP)
+    
+    list_of_tables <- split(x, x$method_class)
+    
+    list_of_plots <- purrr::map(list_of_tables, ~ {
+        df <- .x %>% 
+            mutate(
+                across(.cols = where(is.character), .fns = ~ forcats::fct_inorder(.x)),
+                shape = forcats::fct_inorder(as.character(shape))
+            )
+        p1 <- df %>%
+            ggplot2::ggplot(ggplot2::aes(x = top, y = TP - FP)) +
+            ggplot2::geom_path(
+                ggplot2::aes(color = color, group = method, linetype = norm)
+            ) +
+            ggplot2::geom_point(
+                ggplot2::aes(color = color, shape = norm),
+                size = 3
+            ) +
+            ggplot2::facet_wrap(.~ method_class) +
+            ggplot2::scale_y_continuous(
+                limits = c(min_top - 3, max_top + 3)
+            ) +
+            ggplot2::scale_color_manual(
+                values = levels(df$color), labels = levels(df$base_method)
+                
+            ) +
+            ggplot2::scale_shape_manual(
+                values = as.integer(levels(df$shape)), labels = levels(df$norm)
+            ) +
+            ggplot2::scale_linetype_manual(
+                values = as.integer(levels(df$shape)), labels = levels(df$norm)
+            ) +
+            ggplot2::labs(
+                x = 'Top', y = 'TP - FP'
+            ) +
+            ggplot2::theme_bw() +
+            ggplot2::theme(
+                legend.position = c(0.01, 0.97),
+                legend.justification = c("left", "top"),
+                # legend.title = ggplot2::element_blank(),
+                legend.box.background = element_rect(
+                    size = 2, color = "white", fill = 'white'
+                )
+            )
+        p1
+    })
+    list_of_plots
+}
 
