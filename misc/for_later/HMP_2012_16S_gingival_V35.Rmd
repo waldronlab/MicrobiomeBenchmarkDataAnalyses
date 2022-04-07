@@ -1,5 +1,5 @@
 ---
-title: "Analysis of the HMP_2012_WMS_gingiva dataset"
+title: "Analysis of the HMP_2012_16S_gingival_V35 dataset"
 output: 
     html_document:
         toc: true
@@ -28,19 +28,19 @@ library(randomcoloR)
 Dataset
 
 ```{r}
-x <- getDataset(dryrun = FALSE)
-tse <- getDataset("HMP_2012_WMS_gingival", dryrun = FALSE)[[1]]
-rownames(tse) <- sub("^.*s__", "", rownames(tse))
+tse <- getDataset("HMP_2012_16S_gingival_V35", dryrun = FALSE)[[1]]
 
-grp <- "body_subsite"
+grp <- "hmp_body_subsite"
 
 ## subgingival will be used as 'control'
 conditions <- c(condB = "subgingival_plaque", condA = "supragingival_plaque")
 ```
 
-# Analysis at the species level
+# Analysis at the OTU level
 
-Import biosis annotations:
+Get prior knowledge (biological truth)
+
+Download biosis (not yet added to the row_data)
 
 ```{r}
 biosis_file <- system.file(
@@ -50,16 +50,26 @@ biosis_file <- system.file(
 biosis <- read.table(biosis_file, header = TRUE, sep = "\t")
 ```
 
-Create priorKnowledge
+
 
 
 ```{r}
 row_data <- as.data.frame(rowData(tse))
-priorInfo <- left_join(row_data, biosis, by = c("genus" = "genera")) %>% 
-    select(species, biosis) 
-rownames(priorInfo) <- rownames(row_data)
-colnames(priorInfo) <- c("taxaNames", "type")
-priorInfo$newNames <- rownames(priorInfo)
+x <- left_join(row_data, biosis, by = c("GENUS" = "genera")) %>% 
+    select(GENUS, biosis)
+rownames(x) <- rownames(row_data)
+row_data <- x
+taxaNames <- rownames(row_data)
+newNames <- paste0(taxaNames, "|", row_data$GENUS) 
+priorInfo <- data.frame(
+    taxaNames = taxaNames,
+    genus = row_data$GENUS,
+    newNames = newNames
+    # type = row_data$BIOSIS 
+)
+
+rownames(priorInfo) <- taxaNames
+head(priorInfo)
 ```
 
 Convert to phyloseq
@@ -91,7 +101,7 @@ norms <- setNormalizations(fun = norm_pars$fun, method = norm_pars$method)
 ps <- 
     runNormalizations(normalization_list = norms, object = ps, verbose = FALSE)
 
-grep("^NF\\.", colnames(sample_data(ps)), value = TRUE)
+colnames(sample_data(ps))
 ```
 
 ## Estimate matrix of weights

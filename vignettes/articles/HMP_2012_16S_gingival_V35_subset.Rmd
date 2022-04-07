@@ -375,7 +375,7 @@ positives <- createPositives(
     priorKnowledge = priorInfo, enrichmentCol = "type", namesCol = "newNames",
     slot = "pValMat", colName = "rawP", type = "pvalue",
     direction = direction,
-    threshold_pvalue = 1,
+    threshold_pvalue = 0.05,
     threshold_logfc = 0,
     top = seq.int(from = 0, to = 50, by = 5),
     alternative = "greater",
