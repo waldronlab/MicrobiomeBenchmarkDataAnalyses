@@ -14,7 +14,6 @@ Suggests:
     gridExtra,
     knitr,
     MicrobiomeBenchmarkData,
-    randomcoloR,
     rmarkdown
 VignetteBuilder: knitr
 Imports: 
@@ -32,9 +31,10 @@ Imports:
     ggplot2,
     forcats,
     purrr,
-    rlang
+    rlang,
+    randomcoloR
 Remotes:
     waldronlab/MicrobiomeBenchmarkData,
     wdl2459/ZINQ-v2,
     sdgamboa/lefser,
-    sdgamboa/benchdamic
+    mcalgaro93/benchdamic

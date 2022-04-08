@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
-library(MicrobiomeBenchmarkDataAnalyses)
+# library(MicrobiomeBenchmarkDataAnalyses)
 library(phyloseq)
 library(mia)
 library(benchdamic)
@@ -67,160 +67,26 @@ sample_data(ps)[[grp]] <- factor(
 ps
 ```
 
-## Add normalization factors (benchdamic)
-
-```{r}
-norm_pars <- tibble::tribble(
-    ~ fun, ~ method,
-    "norm_edgeR", "TMM",
-    "norm_edgeR", "none",
-    "norm_DESeq2", "poscounts",
-    "norm_CSS", "median",
-    "norm_CSS", "default"
-)
-
-norms <- setNormalizations(fun = norm_pars$fun, method = norm_pars$method)
-
-ps <- 
-    runNormalizations(normalization_list = norms, object = ps, verbose = FALSE)
-
-colnames(sample_data(ps))
-```
-
-## Estimate matrix of weights
-
-These weights are only used by DESeq2, edgeR, and limma-voom to make them
-compatible with scRNA-seq analysis.
-
-```{r}
-zinbWeights <- weights_ZINB(object = ps, design = grp)
-```
-
-
 ## Run DA methods
 
-### DESeq2
-
 ```{r}
-output_deseq2 <- DA_DESeq2(
-    object = ps, pseudo_count = FALSE, 
-    design = as.formula(paste0("~", grp)),
-    contrast = c(grp, conditions["condA"], conditions["condB"]), 
-    norm = "poscounts", 
-    verbose = FALSE
+## Add predefined normalization factors (as implemented in benchdamic)
+ps <- runNormalizations(
+    normalization_list = set_norm_list(), object = ps, verbose = FALSE
 )
 
-output_deseq2_zinbweights <- DA_DESeq2(
-    object = ps, pseudo_count = FALSE,
-    design = as.formula(paste0("~", grp)),
-    contrast = c(grp, conditions["condA"], conditions["condB"]), 
-    norm = "poscounts", weights = zinbWeights,
-    verbose = FALSE
-)
-```
+## Create matrix of weights (for edgeR, DESeq2, and limma only)
+zinbWeights <- weights_ZINB(object = ps, design = grp)
 
-### edgeR
-
-```{r}
-output_edger <- DA_edgeR(
-    object = ps, pseudo_count = FALSE, group_name = grp,
-    design = as.formula(paste0("~", grp)), norm = "TMM",
-    verbose = FALSE
-)
-
-output_edger_zinbweihgts <- DA_edgeR(
-    object = ps, pseudo_count = FALSE, group_name = grp,
-    design = as.formula(paste0("~", grp)), norm = "TMM",
-    weights = zinbWeights,
-    verbose = FALSE
-)
-```
-
-### limma
-
-```{r}
-output_limma <- DA_limma(
-    object = ps, pseudo_count = FALSE, design = grp, norm = "TMM",
-    verbose = FALSE,
-)
-
-output_limma_zinbweights <- DA_limma(
-   object = ps, pseudo_count = FALSE, design = grp, norm = "TMM" ,
-   weights = zinbWeights, verbose = FALSE 
-)
-```
-
-### ALDEx2
-
-```{r}
-output_aldex2_t <- DA_ALDEx2(
-    object = ps, pseudo_count = FALSE, conditions = grp,
-    test = "t", denom = "iqlr", norm = "none",
-    verbose = FALSE
-)
-
-output_aldex2_wilcox <- DA_ALDEx2(
-    object = ps, pseudo_count = FALSE, conditions = grp,
-    test = "wilcox", denom = "iqlr", norm = "none",
-    verbose = FALSE
-)
-
-```
-
-### MetagenomeSeq
-
-```{r}
-output_metagenomeseq_default <- DA_metagenomeSeq(
-    object = ps, design = grp, coef = 2, norm = "CSSdefault",
-    verbose = FALSE
-)
-
-output_metagenomeseq_median <- DA_metagenomeSeq(
-    object = ps, design = grp, coef = 2, norm = "CSSmedian",
-    verbose = FALSE
-)
-
-```
-
-### Corncob
-
-```{r}
-output_corncob <- DA_corncob(
-    object = ps, pseudo_count = FALSE, formula = as.formula(paste0("~", grp)),
-    phi.formula = as.formula(paste0("~", grp)),
-    formula_null = ~ 1,
-    phi.formula_null = as.formula(paste0("~", grp)),
-    test = "Wald",
-    coefficient = paste0(grp, conditions["condA"]),
-    norm = "none",
+## Run predefined DA methods (both in benchdamic and new)
+DA_methods <- set_DA_methods_list(grp, conditions)
+DA_result <- runDA(
+    method_list = DA_methods, object = ps, weights = zinbWeights,
     verbose = FALSE
 )
 ```
 
 
-### MAST
-
-```{r}
-output_mast <- DA_MAST(
-    object = ps, pseudo_count = FALSE, 
-    rescale = "median",
-    design = as.formula(paste0("~", grp)),
-    coefficient = paste0(grp, conditions["condA"]),
-    norm = "none",
-    verbose = FALSE
-)
-```
-
-### Seurat
-
-```{r}
-output_seurat <- DA_Seurat(
-    object = ps, test.use = "wilcox",
-    contrast = c(grp, conditions["condA"], conditions["condB"]),
-    norm = "none",
-    verbose = FALSE
-)
-```
 
 ### Wilcox
 
