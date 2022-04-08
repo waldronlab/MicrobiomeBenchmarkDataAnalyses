@@ -405,42 +405,46 @@ positives <- createPositives(
 meth_class <- method_classification()
 positives2 <- left_join(meth_class, positives, by = 'method') %>% 
     relocate(method_class)
-positives2 <- positives2 %>% 
-    mutate(
-        base_method = sub("\\..*", "", method)
-    )
+# positives2 <- positives2 %>% 
+#     mutate(
+#         base_method = sub("\\..*", "", method)
+#     )
 ```
 
 
 ```{r, fig.height=6, fig.width=10}
 
-n_meth <- length(unique(positives2$method))
+# n_meth <- length(unique(positives2$method))
 
-p1 <- positives2 %>%    
-    mutate(
-        method = paste0(method_class, "--", method)
-    ) %>% 
-    ggplot(
-        aes(x = top, y = TP - FP)
-    ) +
-    geom_path(
-        aes(linetype = method_class, color = method)
-    ) +
-    geom_point(
-        aes(shape = method_class, color = method)
-    ) +
-    labs(x = "Top") +
-    scale_color_manual(values = distinctColorPalette(n_meth)) +
-    scale_linetype_discrete(guide = "none") +
-    scale_shape_discrete(guide = 'none') +
-    facet_wrap(~method_class) +
-    theme_bw() +
-    theme(
-        legend.title = element_blank()
-    )
+# p1 <- positives2 %>%    
+#     mutate(
+#         method = paste0(method_class, "--", method)
+#     ) %>% 
+#     ggplot(
+#         aes(x = top, y = TP - FP)
+#     ) +
+#     geom_path(
+#         aes(linetype = method_class, color = method)
+#     ) +
+#     geom_point(
+#         aes(shape = method_class, color = method)
+#     ) +
+#     labs(x = "Top") +
+#     scale_color_manual(values = distinctColorPalette(n_meth)) +
+#     scale_linetype_discrete(guide = "none") +
+#     scale_shape_discrete(guide = 'none') +
+#     facet_wrap(~method_class) +
+#     theme_bw() +
+#     theme(
+#         legend.title = element_blank()
+#     )
+# 
+# p1
 
-p1
-
+```
+```{r, fig.height = 12, fig.width=10}
+plots <- plot_positives(positives2)
+grid.arrange(grobs = plots, ncol = 2)
 ```
 
 

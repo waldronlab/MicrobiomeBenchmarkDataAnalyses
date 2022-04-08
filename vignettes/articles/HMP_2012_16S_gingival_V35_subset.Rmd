@@ -511,7 +511,7 @@ plots <- plot_positives(positives2)
 # 
 # plots2 <- c(first_plot, other_plots)
 
-grid.arrange(grobs = plots2, ncol = 2)
+grid.arrange(grobs = plots, ncol = 2)
 
 
 ```
