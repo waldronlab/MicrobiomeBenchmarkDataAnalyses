@@ -290,5 +290,10 @@ DA_wilcox <-
 }
 
 
-
+DA_ancombc <- function(
+    object, pseudocount = FALSE, norm = 'none', verbose = TRUE, ...
+) {
+    
+    
+}
 

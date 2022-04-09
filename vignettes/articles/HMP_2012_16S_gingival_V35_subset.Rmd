@@ -78,12 +78,17 @@ ps <- runNormalizations(
 ## Create matrix of weights (for edgeR, DESeq2, and limma only)
 zinbWeights <- weights_ZINB(object = ps, design = grp)
 
-## Run predefined DA methods (both in benchdamic and new)
+## Run predefined DA methods (both implemented in benchdamic and added)
 DA_methods <- set_DA_methods_list(grp, conditions)
 DA_result <- runDA(
     method_list = DA_methods, object = ps, weights = zinbWeights,
     verbose = FALSE
 )
+```
+
+
+```{r}
+DA_output <- run_DA(object = ps, conditions_col = grp, conditions = conditions)
 ```
 
 
