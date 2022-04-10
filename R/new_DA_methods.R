@@ -289,11 +289,82 @@ DA_wilcox <-
 
 }
 
-
+#' DA_ancombc
+#' 
+#' \code{DA_ancombc} is an adaptation of the \code{\link[ANCOMBC]{ancombc}}
+#' function for integration in the benchdamic framework.
+#'
+#' @param object A phyloseq object.
+#' @param pseudocount Logical. Whether inlucde a pseudocount of 1 or not.
+#' Default is FALSE.
+#' @param norm Character string indicating the normalization to use.
+#' Options: 'none' and 'TSS'. Default is 'none'.
+#' @param conditions A named character vector of length 2 indicating the names
+#' of the conditions to be compared. The names must be 'condB' for the reference
+#' and 'condA' for the target, in that order. For example:
+#' `c(condB = 'control', condA = 'treatment')`.
+#' @param verbose Logical. If TRUE messages at each step are printed on screen.
+#' Default is FALSE.
+#' @param ... Parameters passed to the \code{\link[ANCOMBC]{ancombc}} function.
+#'
+#' @return A list with results of the analysis ready to be integrated in the
+#' benchadmic framework.
+#' @export
+#' 
+#' @seealso 
+#' \code{\link[ANCOMBC]{ancombc}}
+#'
 DA_ancombc <- function(
-    object, pseudocount = FALSE, norm = 'none', verbose = TRUE, ...
+    object, pseudocount = FALSE, norm = 'none', conditions, verbose = TRUE, ...
 ) {
     
+    name <- 'ancombc'
+    
+    if (!phyloseq::taxa_are_rows(object)) {
+        object <- t(object)
+    }
+    
+    counts <- microbiome::abundances(object)
+    sample_metadata <- microbiome::meta(object)
+    
+    ## Check and set conditions for 'control' and 'treatment'
+    if (
+        !length(names(conditions)) || any(names(conditions) != c('condB', 'condA'))
+    ) {
+        stop(
+            'Condtions must be a named character vector with "condB"',
+            ' and "condA" as names. For example:',
+            ' `c(condB = "control", condA = "Treatment")`'
+        )
+    }
+    
+    ## Pseudocount
+    if (any(counts == 0) && pseudocount) {
+        if (vervose)
+            message('A pseudocount of 1 was added to the abundance matrix.')
+        counts <- counts + 1
+    }
+    
+    ## Normalization
+    if (!norm %in% c('none', 'TSS'))
+        stop('Normalization must be either `none` or `TSS`.')
+    
+    if (norm == 'none') {
+        if (verbose)
+            message('No normalization was applied.')
+        name <- paste0(name, '.none')
+        
+    } else if (norm == 'TSS') {
+        if (verbose)
+            message('TSS normalization applied.')
+        # TODO apply norm_tss to counts matrix
+        name <- paste0(name, '.TSS')
+    }
+    
+    ## Perform analysis
+    phyloseq::otu_table(object) <- counts
+    phyloseq::sample_data(object) <- sample_metadata
+    res <- ANCOMBC::ancombc(phyloseq = object, ...)[['res']]
     
 }
 
