@@ -114,7 +114,20 @@ set_DA_methods_list <- function(conditions_col, conditions) {
             test.use = "wilcox",
             contrast = c(conditions_col, conditions['condA'], conditions['condB']),
             norm = "none"
+        ),
+        
+        new_methods <- list(
+            ancombc.1 = list(
+               method = 'DA_ancombc',
+               conditions = conditions,
+               group = condtions_col,
+               formula = conditions_col,
+               norm = 'none',
+               p_adj_method = 'fdr',
+               verbose = FALSE
+            )
         )
+        
         
         # my_new_methods <- list(
         #     zinq.1 = list(method = "zinq", grp = grp, ref = contrast[2]),

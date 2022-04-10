@@ -6,7 +6,7 @@
 \usage{
 DA_ancombc(
   object,
-  pseudocount = FALSE,
+  pseudo_count = FALSE,
   norm = "none",
   conditions,
   verbose = TRUE,
@@ -18,7 +18,7 @@ DA_ancombc(
 \arguments{
 \item{object}{A phyloseq object.}
 
-\item{pseudocount}{Logical. Whether inlucde a pseudocount of 1 or not.
+\item{pseudo_count}{Logical. Whether inlucde a pseudocount of 1 or not.
 Default is FALSE.}
 
 \item{norm}{Character string indicating the normalization to use.

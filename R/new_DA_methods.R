@@ -253,7 +253,7 @@ DA_wilcox <-
 #' function for integration in the benchdamic framework.
 #'
 #' @param object A phyloseq object.
-#' @param pseudocount Logical. Whether inlucde a pseudocount of 1 or not.
+#' @param pseudo_count Logical. Whether inlucde a pseudocount of 1 or not.
 #' Default is FALSE.
 #' @param norm Character string indicating the normalization to use.
 #' Options: 'none' and 'TSS'. Default is 'none'.
@@ -279,7 +279,7 @@ DA_wilcox <-
 #' \code{\link[ANCOMBC]{ancombc}}
 #'
 DA_ancombc <- function(
-    object, pseudocount = FALSE, norm = 'none', conditions, 
+    object, pseudo_count = FALSE, norm = 'none', conditions, 
     verbose = TRUE, group, formula, ...
 ) {
     
@@ -328,7 +328,7 @@ DA_ancombc <- function(
         # factor(sample_metadata[[group]], levels = conditions)
     
     ## Pseudocount
-    if (any(counts == 0) && pseudocount) {
+    if (any(counts == 0) && pseudo_count) {
         if (vervose)
             message('A pseudocount of 1 was added to the abundance matrix.')
         counts <- counts + 1
