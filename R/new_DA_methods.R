@@ -347,7 +347,6 @@ DA_ancombc <- function(
     } else if (norm == 'TSS') {
         if (verbose)
             message('TSS normalization applied.')
-        # TODO apply norm_tss to counts matrix
         name <- paste0(name, '.TSS')
         counts <- norm_tss(counts)
     }
@@ -358,7 +357,7 @@ DA_ancombc <- function(
         phyloseq = object, group = group, formula = formula, ...
     )[['res']]
     
-    # Create pValMat and # statInfo
+    # Create pValMat and statInfo
     
     features_names <- rownames(res$p_val) # names are the same for all outputs
     

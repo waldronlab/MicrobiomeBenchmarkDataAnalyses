@@ -120,14 +120,12 @@ set_DA_methods_list <- function(conditions_col, conditions) {
             ancombc.1 = list(
                method = 'DA_ancombc',
                conditions = conditions,
-               group = condtions_col,
+               group = conditions_col,
                formula = conditions_col,
                norm = 'none',
-               p_adj_method = 'fdr',
-               verbose = FALSE
+               p_adj_method = 'fdr'
             )
         )
-        
         
         # my_new_methods <- list(
         #     zinq.1 = list(method = "zinq", grp = grp, ref = contrast[2]),
