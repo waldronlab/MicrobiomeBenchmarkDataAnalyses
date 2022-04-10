@@ -10,6 +10,8 @@ DA_ancombc(
   norm = "none",
   conditions,
   verbose = TRUE,
+  group,
+  formula,
   ...
 )
 }
@@ -29,6 +31,14 @@ and 'condA' for the target, in that order. For example:
 
 \item{verbose}{Logical. If TRUE messages at each step are printed on screen.
 Default is FALSE.}
+
+\item{group}{Name of column with conditions/group information.
+Same argument as in \code{\link[ANCOMBC]{ancombc}}. Check the original
+function for more information.}
+
+\item{formula}{Name of column with conditions/group information.
+Same argument as in \code{\link[ANCOMBC]{ancombc}}. Check the original
+function for more information.}
 
 \item{...}{Parameters passed to the \code{\link[ANCOMBC]{ancombc}} function.}
 }

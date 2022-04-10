@@ -90,7 +90,7 @@ filter_phyloseq <- function(ps) {
 #' 
 #' @return A TSS-normalized matrix,
 #'
-norm_TSS <- function(mat, total_sum = 1e6) {
+norm_tss <- function(mat, total_sum = 1e6) {
     apply(mat, 2, function(x) x / sum(x) * total_sum)
 }
 
@@ -104,7 +104,7 @@ norm_TSS <- function(mat, total_sum = 1e6) {
 #'
 #' @return A matrix with CLR normalization
 #'
-norm_CLR <- function(mat, pseudocount = 0) {
+norm_clr <- function(mat, pseudocount = 0) {
     ## Centered log ratio transformation of a vector
     ## Sources: 
     ## + https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6755255/

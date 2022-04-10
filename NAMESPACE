@@ -3,7 +3,6 @@
 export(DA_ancombc)
 export(DA_lefse)
 export(DA_wilcox)
-export(ancombc)
 export(filter_phyloseq)
 export(method_classification)
 export(plot_enrichment)

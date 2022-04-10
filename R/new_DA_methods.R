@@ -104,48 +104,6 @@ zinq <- function(object, grp, ref = NULL, pval_type = "Cauchy", ...) {
     return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
 }
 
-#' ANCOMBC
-#' 
-#' \code{ancombc} performs ancombc
-#'
-#' @param object A phyloseq object
-#' @param formula A string.
-#' @param group A string.
-#' @param ... Other parameters.
-#'
-#' @return ANCOMBC result.
-#' @export
-#'
-ancombc <- function(object, formula, group, ...) {
-    out <- ANCOMBC::ancombc(phyloseq = object, formula = formula, 
-                            p_adj_method = "bonferroni", zero_cut = 0.90, lib_cut = 1000, 
-                            group = group, struc_zero = TRUE, neg_lb = TRUE, 
-                            tol = 1e-5, max_iter = 100, conserve = TRUE, alpha = 0.05, 
-                            global = TRUE)
-    res <- out$res
-    ### extract important statistics ###
-    vector_of_pval <- res$p_val[[1]] # contains the p-values
-    vector_of_adjusted_pval <- res$q_val[[1]] # contains the adjusted p-values
-    name_of_your_features <- rownames(res$p_val) # contains the OTU, or ASV, or other feature 
-    # names. Usually extracted from the rownames of 
-    # the count data
-    vector_of_logFC <- res$beta[[1]] # logos the logFCs
-    vector_of_statistics <- res$beta[[1]] # contains other statistics
-    
-    ### prepare the output ###
-    pValMat <- data.frame("rawP" = vector_of_pval,
-                          "adjP" = vector_of_adjusted_pval)
-    statInfo <- data.frame("logFC" = vector_of_logFC,
-                           "statistics" = vector_of_statistics) 
-    name <- "ANCOMBC"
-    # Be sure that your method hasn't changed the order of the features. If it 
-    # happens, you'll need to re-establish the original order.
-    rownames(pValMat) <- rownames(statInfo) <- name_of_your_features 
-    
-    # Return the output as a list
-    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
-}
-
 #' Lefser method
 #' 
 #' \code{DA_lefser} is a modified version of the lefser package, which includes
@@ -184,7 +142,7 @@ DA_lefse <- function(object, grp, ref = NULL, norm = 'none', ...) {
     if (norm == 'CLR') {
         name <- 'lefse.CLR'
         SummarizedExperiment::assay(se) <- 
-            norm_CLR(SummarizedExperiment::assay(se))
+            norm_clr(SummarizedExperiment::assay(se))
     } else {
         name <- 'lefse.none'
     }
@@ -244,11 +202,11 @@ DA_wilcox <-
         } else if (norm == 'CLR') {
             if (verbose)
                 message('Applying CLR normalization')
-            m <- norm_CLR(m)
+            m <- norm_clr(m)
         } else if (norm == 'TSS') {
             if (verbose)
                 message('Applying TSS normalization')
-            m <- norm_TSS(m)
+            m <- norm_tss(m)
         }
         
         ## Calculate log2 fold change
@@ -305,6 +263,12 @@ DA_wilcox <-
 #' `c(condB = 'control', condA = 'treatment')`.
 #' @param verbose Logical. If TRUE messages at each step are printed on screen.
 #' Default is FALSE.
+#' @param group Name of column with conditions/group information.
+#' Same argument as in \code{\link[ANCOMBC]{ancombc}}. Check the original
+#' function for more information.
+#' @param formula Name of column with conditions/group information.
+#' Same argument as in \code{\link[ANCOMBC]{ancombc}}. Check the original
+#' function for more information.
 #' @param ... Parameters passed to the \code{\link[ANCOMBC]{ancombc}} function.
 #'
 #' @return A list with results of the analysis ready to be integrated in the
@@ -315,7 +279,8 @@ DA_wilcox <-
 #' \code{\link[ANCOMBC]{ancombc}}
 #'
 DA_ancombc <- function(
-    object, pseudocount = FALSE, norm = 'none', conditions, verbose = TRUE, ...
+    object, pseudocount = FALSE, norm = 'none', conditions, 
+    verbose = TRUE, group, formula, ...
 ) {
     
     name <- 'ancombc'
@@ -324,8 +289,7 @@ DA_ancombc <- function(
         object <- t(object)
     }
     
-    counts <- microbiome::abundances(object)
-    sample_metadata <- microbiome::meta(object)
+    counts <- phyloseq::otu_table(object)
     
     ## Check and set conditions for 'control' and 'treatment'
     if (
@@ -337,6 +301,31 @@ DA_ancombc <- function(
             ' `c(condB = "control", condA = "Treatment")`'
         )
     }
+    
+    conditions_col <- as.factor(phyloseq::sample_data(object)[[group]])
+    
+    if (length(levels(conditions_col)) != 2)
+        stop(
+            'Two and only two conditions must be present in the conditions',
+            ' column of sample (meta)data.'
+        )
+    
+    if (!any(conditions %in% as.character(conditions_col)))
+        stop(
+            'Conditions are not present in sample metadata. Check the right',
+            ' column and conditions levels.'
+        )
+    
+    if (verbose)
+        message(
+            paste0(conditions[['condB']], ' will be used as reference.')
+        )
+    
+    phyloseq::sample_data(object)[[group]] <- 
+        factor(conditions_col, levels = conditions)
+    
+    # phyloseq::sample_data(obsample_metadata[[group]] <- 
+        # factor(sample_metadata[[group]], levels = conditions)
     
     ## Pseudocount
     if (any(counts == 0) && pseudocount) {
@@ -353,18 +342,32 @@ DA_ancombc <- function(
         if (verbose)
             message('No normalization was applied.')
         name <- paste0(name, '.none')
+        ## Nothing is done on the otu_table
         
     } else if (norm == 'TSS') {
         if (verbose)
             message('TSS normalization applied.')
         # TODO apply norm_tss to counts matrix
         name <- paste0(name, '.TSS')
+        counts <- norm_tss(counts)
     }
     
-    ## Perform analysis
-    phyloseq::otu_table(object) <- counts
-    phyloseq::sample_data(object) <- sample_metadata
-    res <- ANCOMBC::ancombc(phyloseq = object, ...)[['res']]
+    ## Perform analysis with ancombc
+    phyloseq::otu_table(object) <- counts ## replace otu table 
+    res <- ANCOMBC::ancombc(
+        phyloseq = object, group = group, formula = formula, ...
+    )[['res']]
     
+    # Create pValMat and # statInfo
+    
+    features_names <- rownames(res$p_val) # names are the same for all outputs
+    
+    pValMat <- data.frame(rawP = res$p_val[[1]], adjP = res$q_val[[1]])
+    rownames(pValMat) <- features_names
+   
+    statInfo <- do.call('cbind', lapply(res, function(x) x[[1]]))
+    rownames(statInfo) <- features_names
+    
+    list(pValMat = pValMat, statInfo = statInfo, name = name)
 }
 
