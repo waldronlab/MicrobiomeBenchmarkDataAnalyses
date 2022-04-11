@@ -23,18 +23,86 @@
 #' 
 #' @export
 #'
-zinq <- function(object, grp, ref = NULL, pval_type = "Cauchy", ...) {
-    tse <- NULL
-    if (class(object) == "phyloseq") {
-        m <- microbiome::abundances(object)
-        taxa <- rownames(m)
-        metadata <- microbiome::meta(object)
-        
-    } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
-        m <- SummarizedExperiment::assay(object)
-        taxa <- rownames(m)
-        metadata <- as.data.frame(SummarizedExperiment::colData(object))
+DA_zinq <- function(
+    object, pseudo_count = FALSE, conditions_col, conditions, 
+    norm = 'none', pval_method = NULL, verbose = FALSE, 
+) {
+    
+    if (class(object) != 'phyloseq')
+        stop(
+            '`object` argumnet must be a phyloseq object.',
+            call. = FALSE
+        )
+    
+    name <- "ZINQ"
+    
+    abundances <- microbiome::abundances(object)
+    taxa <- microbiome::taxa(object)
+    sample_metadata <- microbiome::meta(object)
+    
+    sample_metadata[[conditions_col]] <- 
+        factor(sample_metadata[[conditions_col]], levels = conditions)
+    
+    ## Pseudocount or not
+    if (pseudo_count) {
+        if (verbose)
+            message(
+                'A pseudocount of 1 was added to the abundance matrix.',
+                ' for ZINQ test.'
+            )
+        abundances <- abundances + 1
     }
+    
+    ## Normalize data 
+    
+    if (
+        !length(names(conditions)) ||
+        any(names(conditions) != c('condB', 'condA'))
+    ) {
+        stop(
+            'Condtions must be a named character vector with "condB"',
+            ' and "condA" as names. For example:',
+            ' `c(condB = "control", condA = "Treatment")`'
+        )
+    }
+    
+    if (length(norm) != 1 || !is.character(norm))
+        stop(
+            '`norm` must be a single character string. Valid options:',
+            ' none, TSS, or CLR.',
+            call. = FALSE
+        )
+    
+    if (norm == 'none') {
+        if (verbose)
+            message('No normalization applied for ZINQ.')
+        name <- paste0(name, '.none')
+    } else if (norm == 'CLR') {
+        if (verbose)
+            message('Applying CLR normalization for ZINQ.')
+        name <- paste0(name, '.CLR')
+        abundances <- norm_clr(abundances)
+    } else if (norm == 'TSS') {
+        if (verbose)
+            message('Applying TSS normalization for ZINQ.')
+        name <- paste0(name, '.TSS')
+        abundances <- norm_tss(abundances)
+    }
+    
+    ## Calculate log2 fold change
+    condition_vector <- sample_metadata[[conditions_col]]
+    denom <- conditions[['condB']]
+    
+    if (norm == 'CLR') {
+        log2FoldChange <- 
+            log2_fold_change(abundances, condition_vector, denom, log = TRUE)
+        
+    } else {
+        log2FoldChange <- log2_fold_change(abundances, condition_vector, denom)
+    }
+    
+    
+
     
     list_of_abundances <- vector("list", length(taxa))
     names(list_of_abundances) <- taxa
@@ -194,6 +262,8 @@ DA_wilcox <-
         taxa <- microbiome::taxa(object)
         sample_metadata <- microbiome::meta(object)
         
+        sample_metadata[[conditions_col]] <- 
+            factor(sample_metadata[[conditions_col]], level = conditions)
         
         if (pseudo_count) {
             if (verbose)
@@ -205,6 +275,17 @@ DA_wilcox <-
         }
         
         ## Normalize data 
+        
+        if (
+            !length(names(conditions)) ||
+            any(names(conditions) != c('condB', 'condA'))
+        ) {
+            stop(
+                'Condtions must be a named character vector with "condB"',
+                ' and "condA" as names. For example:',
+                ' `c(condB = "control", condA = "Treatment")`'
+            )
+        }
         
         if (length(norm) != 1 || !is.character(norm))
             stop(
