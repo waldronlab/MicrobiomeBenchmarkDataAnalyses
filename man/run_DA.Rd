@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_DA.R
 \name{run_DA}
 \alias{run_DA}
-\title{Run differential abundant methods}
+\title{Run differential abundance methods}
 \usage{
 run_DA(object, conditions_col, conditions, verbose = FALSE)
 }
@@ -12,16 +12,12 @@ run_DA(object, conditions_col, conditions, verbose = FALSE)
 \item{conditions_col}{A character string indicating the name of the column in
 sample_metadata that contains the conditions to be compared.}
 
-\item{conditions}{A named character vector of length 2. The names must be
-condB for the control/reference and condA for the treatment/targed.
-For example, \code{c(condB = 'control', condA = 'treatment')}.}
-
 \item{verbose}{This argument is passed to the
 \code{\link[benchdamic]{runNormalizations}} and
 \code{\link[benchdamic]{runDA}} functions.}
 }
 \value{
-A list containing the result of the DA methods. The output is
+A list containing the results of the DA methods. The output is
 compatible with the benchdamic framework.
 }
 \description{

@@ -164,86 +164,108 @@ DA_lefse <- function(object, grp, ref = NULL, norm = 'none', ...) {
 #' 
 #' \code{DA_wilcox} performs Wilcoxon test on a phyloseq object.
 #'
-#' @param object A phyloseq object or (Tree)SummarizedExperiment
+#' @param object A phyloseq object.
 #' @param norm String character. Choose between three normalization methods: 
 #' 'none', 'CLR', or 'TSS'.
-#' @param design String character.
+#' @param conditions_col String character.
 #' The name of the column in sample data with the conditions.
-#' @param denom The sample that will be used as denominator to calcluate 
-#' log2FoldChange. Usually, the 'treated' sample is used here.
+#' @inheritParams set_DA_methods_list
 #' @param verbose Print messages or not, Default is FALSE.
 #'
-#' @return A list with outputs compatible with the benchdamic framework/package.
+#' @return A list with outputs compatible with the benchdamic framework.
 #' @export
 #'
 DA_wilcox <- 
     function(
-        object, norm = 'none', design, denom = NULL, pseudocount = NULL,
+        object, pseudo_count = FALSE, norm = 'none', 
+        conditions_col, conditions, 
         verbose = FALSE
     ) {
         
-        ## Extract components 
-        if (class(object) == "phyloseq") {
-            m <- microbiome::abundances(object)
-            taxa <- rownames(m)
-            metadata <- microbiome::meta(object)
-            
-        } else if (class(object) %in% c("SummarizedExperiment", "TreeSummarizedExperiment")) {
-            m <- SummarizedExperiment::assay(object)
-            taxa <- rownames(m)
-            metadata <- as.data.frame(SummarizedExperiment::colData(object))
+        if(class(object) != 'phyloseq')
+            stop(
+                'Object must be phyloseq.',
+                call. = FALSE
+            )
+        
+        name <- "wilcox"
+        
+        abundances <- microbiome::abundances(object)
+        taxa <- microbiome::taxa(object)
+        sample_metadata <- microbiome::meta(object)
+        
+        
+        if (pseudo_count) {
+            if (verbose)
+                message(
+                    'A pseudocount of 1 was added to the abundance matrix.',
+                    ' for wilcox test.'
+                )
+            abundances <- abundances + 1
         }
         
         ## Normalize data 
+        
+        if (length(norm) != 1 || !is.character(norm))
+            stop(
+                '`norm` must be a single character string. Valid options:',
+                ' none, TSS, or CLR.',
+                call. = FALSE
+            )
+        
         if (norm == 'none') {
             if (verbose)
-                message('No normalization applied.')
-            m <- m
+                message('No normalization applied for wilcox test.')
+            name <- paste0(name, '.none')
         } else if (norm == 'CLR') {
             if (verbose)
-                message('Applying CLR normalization')
-            m <- norm_clr(m)
+                message('Applying CLR normalization for wilcox test.')
+            name <- paste0(name, '.CLR')
+            abundances <- norm_clr(abundances)
         } else if (norm == 'TSS') {
             if (verbose)
-                message('Applying TSS normalization')
-            m <- norm_tss(m)
+                message('Applying TSS normalization for wilcox test.')
+            name <- paste0(name, '.TSS')
+            abundances <- norm_tss(abundances)
         }
         
         ## Calculate log2 fold change
-        condition_vector <- metadata[[design]]
+        condition_vector <- sample_metadata[[conditions_col]]
+        denom <- conditions[['condB']]
         
         if (norm == 'CLR') {
             log2FoldChange <- 
-                log2_fold_change(m, condition_vector, denom, log = TRUE)
+                log2_fold_change(abundances, condition_vector, denom, log = TRUE)
             
         } else {
-            log2FoldChange <- log2_fold_change(m, condition_vector, denom)
+            log2FoldChange <- log2_fold_change(abundances, condition_vector, denom)
         }
         
-        ## Perfrom Wilcox test 
-        taxa <- rownames(m)
+        ## Perform Wilcox test 
         pvalues <- vector("double", length(taxa))
         
         for (i in seq_along(pvalues)) {
-            df <- data.frame(condition = condition_vector, value = m[i,])
+            df <- data.frame(
+                condition = condition_vector, value = abundances[i,]
+            )
             wi_res <- stats::wilcox.test(value ~ condition, data = df)
             pvalues[i] <- wi_res$p.value
         }
         
         adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
        
-        ## Combine all outputs 
+        ## Combine result and return output 
         statInfo <- data.frame(
             log2FoldChange = log2FoldChange, 
             rawP = pvalues, 
             adjP = adj_pvalues
         )
+        rownames(statInfo) <- taxa
         
         pValMat <- statInfo[, c("rawP", "adjP")]
+        rownames(pValMat) <- taxa
         
-        name <- paste("wilcox", norm, sep = ".")
-        
-        return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+        list(pValMat = pValMat, statInfo = statInfo, name = name)
 
 }
 

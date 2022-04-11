@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
-library(MicrobiomeBenchmarkDataAnalyses)
+# library(MicrobiomeBenchmarkDataAnalyses)
 library(phyloseq)
 library(mia)
 library(benchdamic)
@@ -23,22 +23,15 @@ library(gridExtra)
 library(randomcoloR)
 ```
 
-# Import data
-
-Dataset
+# Import Data
 
 ```{r}
 tse <- getDataset("HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
-
 grp <- "hmp_body_subsite"
-
-## subgingival will be used as 'control'
 conditions <- c(condB = "subgingival_plaque", condA = "supragingival_plaque")
 ```
 
-# Analysis at the OTU level
-
-Get prior knowledge (biological truth)
+# Get prior knowledge (biological truth)
 
 ```{r}
 row_data <- as.data.frame(rowData(tse))
@@ -50,64 +43,43 @@ priorInfo <- data.frame(
     newNames = newNames,
     type = row_data$BIOSIS 
 )
-
 rownames(priorInfo) <- taxaNames
-head(priorInfo)
 ```
 
-Convert to phyloseq
+# Convert to phyloseq
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
 
-## This step places the first condition as reference
+## This step places the first condition ('condB') as reference/denominator
 sample_data(ps)[[grp]] <- factor(
     sample_data(ps)[[grp]], levels = conditions
 )
-ps
 ```
 
-## Run DA methods
+# Run DA methods
 
-```{r}
-## Add predefined normalization factors (as implemented in benchdamic)
-ps <- runNormalizations(
-    normalization_list = set_norm_list(), object = ps, verbose = FALSE
-)
-
-## Create matrix of weights (for edgeR, DESeq2, and limma only)
-zinbWeights <- weights_ZINB(object = ps, design = grp)
-
-## Run predefined DA methods (both implemented in benchdamic and added)
-DA_methods <- set_DA_methods_list(grp, conditions)
-DA_result <- runDA(
-    method_list = DA_methods, object = ps, weights = zinbWeights,
-    verbose = FALSE
-)
+```{r warning=FALSE, message=FALSE}
+DA_output <- 
+    run_DA(object = ps, conditions_col = grp, conditions = conditions)
 ```
 
 
-```{r}
-DA_output <- run_DA(object = ps, conditions_col = grp, conditions = conditions)
-```
+# Enrichment
+
+## Creaate enrichment object
+
+## Plot enrichment
+
+
+# Putative true positives - putative false positives
+
+## Create enrichment object
+
+## Plot enrichment
 
 
 
-### Wilcox
-
-```{r, warning=FALSE}
-output_wilcox_none <- DA_wilcox(
-    object = ps, norm = 'none', design = grp, denom = conditions["condB"]
-)
-
-output_wilcox_clr <- DA_wilcox(
-    object = ps, norm = 'CLR', design = grp, denom = conditions["condB"]
-)
-
-output_wilcox_tss <- DA_wilcox(
-    object = ps, norm = 'TSS', design = grp, denom = conditions["condB"]
-)
-```
 
 ### ZINQ
 
@@ -115,12 +87,6 @@ output_wilcox_tss <- DA_wilcox(
 output_zinq <- zinq(object = ps, grp = grp, conditions[2])
 ```
 
-
-### ANCOMBC
-
-```{r}
-output_ancombc <- ancombc(object = ps, formula = grp, group = grp)
-```
 
 ### LEFSE
 
@@ -142,38 +108,6 @@ output_lefse_clr <- DA_lefse(
 )
 ```
 
-
-## Combine DA results
-
-```{r}
-DA_results <- list(
-    output_deseq2,
-    output_deseq2_zinbweights,
-    output_edger,
-    output_edger_zinbweihgts,
-    output_limma,
-    output_limma_zinbweights,
-    output_aldex2_t,
-    output_aldex2_wilcox,
-    output_metagenomeseq_median,
-    output_metagenomeseq_default,
-    output_corncob,
-    output_mast,
-    output_seurat,
-    output_wilcox_none,
-    output_wilcox_clr,
-    output_wilcox_tss,
-    output_zinq,
-    output_ancombc,
-    output_lefse_none,
-    output_lefse_clr
-)
-names(DA_results) <- map_chr(DA_results, ~ .x$name)
-str(DA_results, max.level = 1)
-
-```
-
-## Enrichment
 
 ### Direction
 
@@ -202,6 +136,13 @@ direction <- c(
 )
 
 ```
+
+
+
+
+
+
+
 
 ### Calculate enrichment
 

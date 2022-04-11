@@ -2,15 +2,12 @@
 #' Set list of DA methods
 #' 
 #' \code{set_DA_methods_list} creates a predefined list of methods for the
-#' benchdamic workflow. This should be input to the
+#' benchdamic framework. The output of this function should input for the
 #' \code{\link[benchdamic]{runDA}} function.
 #'
 #' @param conditions_col Character string indicating the name of the column
 #' containing the conditions of the samples in sample_metadata/colData. 
-#' 
-#' @param conditions A named character vector with names condB and condA. 
-#' Reference is condB. For example, `c(condB = 'control', condA = 'treatment')`.
-#'
+#' @inheritParams set_DA_methods_list
 #' @return A list of DA methods for benchdamic.
 #' @export
 #'
@@ -117,6 +114,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         ),
         
         new_methods <- list(
+            ## ANCOMB-BC
             ancombc.1 = list(
                method = 'DA_ancombc',
                conditions = conditions,
@@ -124,6 +122,25 @@ set_DA_methods_list <- function(conditions_col, conditions) {
                formula = conditions_col,
                norm = 'none',
                p_adj_method = 'fdr'
+            ),
+            ## Wilcox
+            wilcox.2 = list(
+                method = 'DA_wilcox',
+                norm = 'none',
+                conditions_col = conditions_col,
+                conditions = conditions
+            ),
+            wilcox.3 = list(
+                method = 'DA_wilcox',
+                norm = 'TSS',
+                conditions_col = conditions_col,
+                conditions = conditions
+            ),
+            wilcox.4 = list(
+                method = 'DA_wilcox',
+                norm = 'CLR',
+                conditions_col = conditions_col,
+                conditions = conditions
             )
         )
         

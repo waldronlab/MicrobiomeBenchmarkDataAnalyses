@@ -6,29 +6,26 @@
 \usage{
 DA_wilcox(
   object,
+  pseudo_count = FALSE,
   norm = "none",
-  design,
-  denom = NULL,
-  pseudocount = NULL,
+  conditions_col,
+  conditions,
   verbose = FALSE
 )
 }
 \arguments{
-\item{object}{A phyloseq object or (Tree)SummarizedExperiment}
+\item{object}{A phyloseq object.}
 
 \item{norm}{String character. Choose between three normalization methods:
 'none', 'CLR', or 'TSS'.}
 
-\item{design}{String character.
+\item{conditions_col}{String character.
 The name of the column in sample data with the conditions.}
-
-\item{denom}{The sample that will be used as denominator to calcluate
-log2FoldChange. Usually, the 'treated' sample is used here.}
 
 \item{verbose}{Print messages or not, Default is FALSE.}
 }
 \value{
-A list with outputs compatible with the benchdamic framework/package.
+A list with outputs compatible with the benchdamic framework.
 }
 \description{
 \code{DA_wilcox} performs Wilcoxon test on a phyloseq object.

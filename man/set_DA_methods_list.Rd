@@ -9,15 +9,12 @@ set_DA_methods_list(conditions_col, conditions)
 \arguments{
 \item{conditions_col}{Character string indicating the name of the column
 containing the conditions of the samples in sample_metadata/colData.}
-
-\item{conditions}{A named character vector with names condB and condA.
-Reference is condB. For example, \code{c(condB = 'control', condA = 'treatment')}.}
 }
 \value{
 A list of DA methods for benchdamic.
 }
 \description{
 \code{set_DA_methods_list} creates a predefined list of methods for the
-benchdamic workflow. This should be input to the
+benchdamic framework. The output of this function should input for the
 \code{\link[benchdamic]{runDA}} function.
 }
