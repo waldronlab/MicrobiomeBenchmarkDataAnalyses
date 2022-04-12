@@ -80,14 +80,6 @@ DA_output <-
 
 
 
-
-### ZINQ
-
-```{r, message=FALSE, warning=FALSE}
-output_zinq <- zinq(object = ps, grp = grp, conditions[2])
-```
-
-
 ### LEFSE
 
 ```{r}

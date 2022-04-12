@@ -141,24 +141,46 @@ set_DA_methods_list <- function(conditions_col, conditions) {
                 norm = 'CLR',
                 conditions_col = conditions_col,
                 conditions = conditions
+            ),
+            ## ZINQ
+            ZINQ.5 = list(
+                method = 'DA_ZINQ',
+                conditions_col = conditions_col,
+                conditions = conditions, 
+                norm = 'none', pval_method = 'MinP', y_CorD = 'D'
+            ),
+            ZINQ.6 = list(
+                method = 'DA_ZINQ',
+                conditions_col = conditions_col,
+                conditions = conditions, 
+                norm = 'TSS', pval_method = 'MinP', y_CorD = 'C'
+            ),
+            ZINQ.7 = list(
+                method = 'DA_ZINQ',
+                conditions_col = conditions_col,
+                conditions = conditions, 
+                norm = 'CLR', pval_method = 'MinP', y_CorD = 'C'
+            ),
+            ZINQ.8 = list(
+                method = 'DA_ZINQ',
+                conditions_col = conditions_col,
+                conditions = conditions, 
+                norm = 'none', pval_method = 'Cauchy', y_CorD = 'D'
+            ),
+            ZINQ.9 = list(
+                method = 'DA_ZINQ',
+                conditions_col = conditions_col,
+                conditions = conditions, 
+                norm = 'TSS', pval_method = 'Cauchy', y_CorD = 'C'
+            ),
+            ZINQ.10 = list(
+                method = 'DA_ZINQ',
+                conditions_col = conditions_col,
+                conditions = conditions, 
+                norm = 'CLR', pval_method = 'Cauchy', y_CorD = 'C'
             )
         )
         
-        # my_new_methods <- list(
-        #     zinq.1 = list(method = "zinq", grp = grp, ref = contrast[2]),
-        #     ancombc.2 = list(method = "ancombc", formula = grp, group = grp),
-        #     wilcox_test.3 = list(
-        #         method = "DA_wilcox_test", grp = grp, ref = contrast[2]
-        #     ),
-        #     wilcox_test_clr.4 = list(
-        #         method = "DA_wilcox_test_clr", grp = grp, ref = contrast[2]
-        #     ),
-        #     kruskal_test.5 = list(
-        #         method = "DA_kruskal_test", grp = grp, ref = contrast[2]
-        #     ),
-        #     kruskal_test_clr.6 = list(
-        #         method = "DA_kruskal_test_clr", grp = grp, ref = contrast[2]
-        #     ),
         #     lefse.7= list(
         #         method = "DA_lefse", grp = grp, ref = contrast[1]
         #     )

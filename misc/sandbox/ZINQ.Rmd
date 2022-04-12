@@ -16,9 +16,85 @@ library(MicrobiomeBenchmarkData)
 
 ```{r}
 tse <- getDataset("HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
+ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse)
+
+conditions_col <- 'hmp_body_subsite'
+conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
+
 ```
 
 ```{r}
+abundances <- microbiome::abundances(ps)
+taxa <- microbiome::taxa(ps)
+sample_metadata <- microbiome::meta(ps)
+```
+
+
+```{r}
+abundances_t <- as.data.frame(t(abundances))
+taxa1 <- abundances_t[1]
+sample_metadata$hmp_body_subsite <- 
+    factor(sample_metadata$hmp_body_subsite, levels = conditions, labels = c(0,1))
+```
+
+```{r}
+df <- data.frame(
+    X = taxa1$OTU_97.31247,
+    Y = sample_metadata$hmp_body_subsite
+)
+
+
+my_form <- as.formula(paste0('X ~ Y'))
+
+output <- ZINQ::ZINQ_tests(
+    formula.logistic = my_form, formula.quantile = my_form, y_CorD = "D",
+    data = df, C = 'Y'
+)
+
+
 
 ```
+
+
+```{r}
+abundances <- microbiome::abundances(ps)
+taxa <- microbiome::taxa(ps)
+sample_metadata <- microbiome::meta(ps)
+
+sample_metadata[[conditions_col]] <- factor(
+    sample_metadata[[conditions_col]], levels = conditions, labels = c(0,1)
+)
+
+abundances_t <- as.data.frame(t(abundances))
+
+pvalues <- vector("list", ncol(abundances_t))
+names(pvalues) <- colnames(abundances_t)
+form <- as.formula('X ~ Y')
+
+
+for (i in seq_along(pvalues)) {
+    
+    df <- data.frame(
+        X = abundances_t[[i]], 
+        Y = sample_metadata[[conditions_col]]
+    )
+    
+    res <- tryCatch(
+        error = function(e) NULL, {
+            ZINQ::ZINQ_tests(
+                formula.logistic = form,
+                formula.quantile = form,
+                C = "Y", y_CorD = "D", data = df
+            )
+        })
+    
+    pvalues[[i]] <- ZINQ::ZINQ_combination(res, method = 'MinP') 
+
+    
+}
+
+
+```
+
+
 

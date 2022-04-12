@@ -14,23 +14,23 @@
 #' (SummarizedExperiment) or the sample_data (phyloseq).
 #' @param ref A character string indicating the group that should be used as
 #' reference.
-#' @param pval_type A character string indicating the type of pvalue to use.
+#' @param pval_method A character string indicating the type of pvalue to use.
 #' Options: Cauchy or MinP. Default: Cauchy.
-#' @param ... Other parameters
+#' @inheritParams ZINQ::ZINQ_tests
 #'
 #' @return
 #' A list in the format used in the benhcdamic pipeline.
 #' 
 #' @export
 #'
-DA_zinq <- function(
+DA_ZINQ <- function(
     object, pseudo_count = FALSE, conditions_col, conditions, 
-    norm = 'none', pval_method = NULL, verbose = FALSE, 
+    norm = 'none', pval_method, y_CorD, verbose = FALSE 
 ) {
     
     if (class(object) != 'phyloseq')
         stop(
-            '`object` argumnet must be a phyloseq object.',
+            'The `object` argument must be a phyloseq object.',
             call. = FALSE
         )
     
@@ -40,10 +40,7 @@ DA_zinq <- function(
     taxa <- microbiome::taxa(object)
     sample_metadata <- microbiome::meta(object)
     
-    sample_metadata[[conditions_col]] <- 
-        factor(sample_metadata[[conditions_col]], levels = conditions)
-    
-    ## Pseudocount or not
+    ## Pseudo count or not
     if (pseudo_count) {
         if (verbose)
             message(
@@ -102,74 +99,56 @@ DA_zinq <- function(
     }
     
     
+    ## Sanity check from ZINQ. If there are any warnings they should be
+    ## Captured and reported if verbose
+    ## TODO
+    
+    sample_metadata[[conditions_col]] <- factor(
+        ## ZINQ::ZINQ_check requires a factor with 0 and 1.
+        sample_metadata[[conditions_col]], levels = conditions, labels = c(0,1)
+    )
 
+    abundances_t <- as.data.frame(t(abundances))
     
-    list_of_abundances <- vector("list", length(taxa))
-    names(list_of_abundances) <- taxa
+    rawP <- vector("list", ncol(abundances_t))
+    names(rawP) <- colnames(abundances_t)
     
-    for (i in seq_along(taxa)) {
-        abundance <- data.frame(m[taxa[i],])
-        covariates <- metadata[rownames(abundance), grp]
-        df <- cbind(abundance = abundance, covariates)
-        colnames(df) <- c("abundance", "covariate")
-        
-        if (!is.null(ref)) {
-            df[["covariate"]] <- 
-                stats::relevel(factor(df[["covariate"]]), ref = ref)
-        } else {
-            df[["covariate"]] <- factor(df[["covariate"]])
-        }
-        
-        ## Calculate fold change
-        num_lvl <- levels(df[["covariate"]])[1]
-        denom_lvl <- levels(df[["covariate"]])[2]
-        
-        num <- mean(df$abundance[df$covariate == num_lvl])
-        denom <- mean(df$abundance[df$covariate == denom_lvl])
+    form <- as.formula('X ~ Y')
     
+    for (i in seq_along(rawP)) {
         
-        if (num >= denom) {
-            log2FoldChange <- log2(num / denom)
-        } else if (num < denom) {
-            log2FoldChange <- -log2(denom / num)
-        }
+        df <- data.frame(
+            X = abundances_t[[i]], 
+            Y = sample_metadata[[conditions_col]]
+        )
         
-        output <- tryCatch(
+        res <- tryCatch(
             error = function(e) NULL, {
-                
                 ZINQ::ZINQ_tests(
-                    formula.logistic = abundance ~ covariate, 
-                    formula.quantile = abundance ~ covariate, 
-                    C = "covariate", y_CorD = "D", data = df
+                    formula.logistic = form,
+                    formula.quantile = form,
+                    C = "Y", y_CorD = y_CorD, data = df
                 )
             })
         
-            pvalues <- vector("double", 3)
-            names(pvalues) <- c("log2FoldChange", "Cauchy", "MinP")
-            
-        if ( !is.null(output)) {
-            pvalues[["log2FoldChange"]] <- log2FoldChange
-            pvalues[["Cauchy"]] <- ZINQ::ZINQ_combination(output, method="Cauchy")
-            pvalues[["MinP"]] <- ZINQ::ZINQ_combination(output, method="MinP")
-            
-        } else {
-            pvalues[["log2FoldChange"]] <- log2FoldChange
-            pvalues[["Cauchy"]] <- NA
-            pvalues[["MinP"]] <- NA
-        }
+        rawP[[i]] <- ZINQ::ZINQ_combination(res, method = pval_method) 
         
-            list_of_abundances[[i]] <- pvalues
     }
     
-    output <- as.data.frame(do.call("rbind", list_of_abundances))
-    output[["adj_Cauchy"]] <- stats::p.adjust(output[["Cauchy"]], method = "fdr")
-    output[["adj_MinP"]] <- stats::p.adjust(output[["MinP"]], method = "fdr")
-    # return(output)
-    statInfo <- output
-    pValMat <- output[,c("Cauchy", "adj_Cauchy")]
-    colnames(pValMat) <- c("rawP", "adjP")
-    name <- "ZINQ"
-    return(list("pValMat" = pValMat, "statInfo" = statInfo, "name" = name))
+    name <- paste0(name, '.', pval_method)
+    
+    adjP <- stats::p.adjust(rawP, method = 'fdr')
+    
+    pValMat <- data.frame(rawP = rawP, adjP = adjP)
+    rownames(pValMat) <- taxa
+    
+    statInfo <- data.frame(
+        log2FoldChange = log2FoldChange,
+        rawP = rawP,
+        adjP = adjP
+    )
+    
+    list(pValMat = pValMat, statInfo = statInfo, name = name)
 }
 
 #' Lefser method
