@@ -80,8 +80,50 @@ filter_phyloseq <- function(ps) {
 }
 
 
-get_direction_cols <- function(x) {
+#' Get direction columns
+#' 
+#' \code{get_direction_cols} gets the names of the columns with the
+#' effect sizes for each DA method. The output is suitable for
+#' enrichment analyses with benchdamic.
+#'
+#' @param x Output of \code{\link{run_DA}}.
+#' @inheritParams set_DA_methods_list
+#'
+#' @return A named vector ready to be used with the 
+#' \code{\link[benchdamic]{createEnrichment}} and
+#' \code{\link[benchdamic]{createPositives}} functions.
+#' @export
+#'
+#' @examples
+get_direction_cols <- function(x, conditions_col, conditions) {
     
+    if (
+        !length(names(conditions)) ||
+        !any(names(conditions) == c('condB', 'condA'))
+    ) {
+        stop(
+            'The `conditions` argument must be a named vector with names',
+            ' "condB" and "condA, indicating reference/numerator and',
+            ' target/denominator. For example:',
+            '`c(condB = "control", condA = "condA"',
+            call. = FALSE
+        )
+    }
+    
+    mgs <- paste0(conditions_col, conditions[['condA']])
+    
+    method_names <- names(x)
+    index <-  match(method_names, methods_classification[['method']])
+    effect_size_cols <- methods_classification[index,][['effect_size_col']]
+    names(effect_size_cols) <- method_names
+    
+    for (i in seq_along(effect_size_cols)) {
+        if (grepl('metagenomeSeq', names(effect_size_cols)[i])) {
+            effect_size_cols[i] <- mgs
+        }
+    }
+    
+    effect_size_cols
 }
 
 # Normalization -----------------------------------------------------------

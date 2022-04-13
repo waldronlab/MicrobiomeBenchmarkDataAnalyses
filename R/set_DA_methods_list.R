@@ -7,7 +7,10 @@
 #'
 #' @param conditions_col Character string indicating the name of the column
 #' containing the conditions of the samples in sample_metadata/colData. 
-#' @inheritParams set_DA_methods_list
+#' @inheritParams conditions A named character vector. The names must be
+#' "condB" and "condA". condB indicates the reference/numerator/control
+#' and condA indicates the target/denominator/treatment. For example:
+#' `c(condB = 'control', condA = 'treatment')`
 #' @return A list of DA methods for benchdamic.
 #' @export
 #'

@@ -7,3 +7,4 @@ methods_classification <- read.table(
 
 
 usethis::use_data(methods_classification, overwrite = TRUE, internal = TRUE)
+

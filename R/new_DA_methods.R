@@ -110,7 +110,7 @@ DA_ZINQ <- function(
 
     abundances_t <- as.data.frame(t(abundances))
     
-    rawP <- vector("list", ncol(abundances_t))
+    rawP <- vector("double", ncol(abundances_t))
     names(rawP) <- colnames(abundances_t)
     
     form <- as.formula('X ~ Y')
