@@ -38,3 +38,5 @@ Remotes:
     wdl2459/ZINQ-v2,
     sdgamboa/lefser,
     mcalgaro93/benchdamic
+Depends: 
+    R (>= 2.10)

@@ -79,6 +79,11 @@ filter_phyloseq <- function(ps) {
     ps
 }
 
+
+get_direction_cols <- function(x) {
+    
+}
+
 # Normalization -----------------------------------------------------------
 
 #' TSS normalization
