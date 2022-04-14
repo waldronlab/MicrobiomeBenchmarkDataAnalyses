@@ -416,35 +416,11 @@ plot_enrichment <- function(
 #' @return A tibble.
 #' @export
 #'
-method_classification <- function() {
+get_meth_class <- function() {
     
-    tbl <- tibble::tribble(
-        ~ method, ~ method_class, ~base_method, ~norm,
-        "ALDEx2.none.iqlr.wilcox", "Compositional", "ALDEx2_t-test", "none",
-        "ALDEx2.none.iqlr.t", "Compositional", "ALDEx2_wilcox", "none",
-        "DESeq2.poscounts", "RNA-Seq", "DESeq2", "poscounts",
-        "DESeq2.poscounts.weighted", "scRNA-Seq", "DESeq2", "poscounts",
-        "edgeR.TMM", "RNA-Seq", "edgeR", "TMM",
-        "edgeR.TMM.weighted", "scRNA-Seq", "edgeR", "TMM",
-        "limma.TMM", "RNA-Seq", "limma", "TMM",
-        "limma.TMM.weighted", "scRNA-Seq", "limma", "TMM",
-        "wilcox.CLR", "Compositional", "wilcox", "CLR",
-        "wilcox.none", "Classical", "wilcox", "none",
-        "wilcox.TSS", "Classical", "wilcox", "TSS",
-        "metagenomeSeq.CSSmedian", "Metagenomics", "metagenomeSeq","CSSmedian",
-        "corncob.none.Wald", "Metagenomics", "corncob", "none",
-        "MAST.none.median", "scRNA-Seq", "MAST", "none",
-        "Seurat.none.wilcox", "scRNA-Seq", "Seurat", "none",
-        "ZINQ", "Metagenomics", "ZINQ", "none",
-        "ANCOMBC", "Metagenomics", "ANCOMBC", "none",
-        "metagenomeSeq.CSSdefault", "Metagenomics", "metagenomeSeq", "CSSdefault",
-        "lefse.none", "Classical", "lefse", "none", 
-        "lefse.CLR", "Compositional", "lefse", "CLR"
-        
-    ) %>% 
-        dplyr::relocate(method_class, base_method, method) %>% 
-        dplyr::arrange(method_class, base_method, method)
-    
+    #     dplyr::relocate(method_class, base_method, method) %>% 
+    #     dplyr::arrange(method_class, base_method, method)
+    tbl <- methods_classification
     ## create mappings for color
     base_methods <- sort(unique(tbl$base_method))
     set.seed(1234)
