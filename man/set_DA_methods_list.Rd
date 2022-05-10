@@ -9,6 +9,11 @@ set_DA_methods_list(conditions_col, conditions)
 \arguments{
 \item{conditions_col}{Character string indicating the name of the column
 containing the conditions of the samples in sample_metadata/colData.}
+
+\item{conditions}{A named character vector. The names must be
+"condB" and "condA". condB indicates the reference/numerator/control
+and condA indicates the target/denominator/treatment. For example:
+\code{c(condB = 'control', condA = 'treatment')}}
 }
 \value{
 A list of DA methods for benchdamic.

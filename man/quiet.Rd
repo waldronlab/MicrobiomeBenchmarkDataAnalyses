@@ -10,7 +10,7 @@ quiet(x)
 \item{x}{Expression, command, etc.}
 }
 \value{
-Nothing
+Nothing. NULL.
 }
 \description{
 \code{quiet} hides messages. This was taken from stackOverflow (reference

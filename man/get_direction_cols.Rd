@@ -11,6 +11,11 @@ get_direction_cols(x, conditions_col, conditions)
 
 \item{conditions_col}{Character string indicating the name of the column
 containing the conditions of the samples in sample_metadata/colData.}
+
+\item{conditions}{A named character vector. The names must be
+"condB" and "condA". condB indicates the reference/numerator/control
+and condA indicates the target/denominator/treatment. For example:
+\code{c(condB = 'control', condA = 'treatment')}}
 }
 \value{
 A named vector ready to be used with the
