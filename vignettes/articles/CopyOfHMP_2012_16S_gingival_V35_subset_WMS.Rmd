@@ -1,0 +1,148 @@
+---
+title: "Analysis of the HMP_2012_16S_gingival_V35_subset dataset"
+output: 
+    html_document:
+        toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, message=FALSE}
+library(MicrobiomeBenchmarkData)
+library(MicrobiomeBenchmarkDataAnalyses)
+library(phyloseq)
+library(mia)
+library(benchdamic)
+library(purrr)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(randomcoloR)
+```
+
+# Import Data
+
+```{r}
+tse <- getDataset("HMP_2012_WMS_gingival", dryrun = FALSE)[[1]]
+conditions_col <- "hmp_body_subsite"
+conditions <- c(condB = "subgingival_plaque", condA = "supragingival_plaque")
+```
+
+# Get prior knowledge (biological truth)
+
+This variable will be used later in this document (enrichment section), but
+it's necessary to extract the biological information here since it will be
+lost when the TreeSummarizedExperiment is converted to phyloseq.
+
+```{r}
+row_data <- as.data.frame(rowData(tse))
+taxaNames <- rownames(row_data)
+newNames <- paste0(taxaNames, "|", row_data$genus) 
+priorInfo <- data.frame(
+    taxaNames = taxaNames,
+    genus = row_data$genus,
+    newNames = newNames,
+    type = row_data$BIOSIS 
+)
+rownames(priorInfo) <- taxaNames
+```
+
+# Convert to phyloseq
+
+```{r}
+ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
+
+sample_data(ps)[[conditions_col]] <- 
+    factor(sample_data(ps)[[conditions_col]], levels = conditions)
+```
+
+# Run DA methods
+
+```{r warning=FALSE, message=FALSE}
+DA_output <- run_DA(ps, conditions_col, conditions)
+```
+
+
+# Enrichment
+
+## Get direction object
+
+The direction variable (defined below) contains the names of the columns with
+effect size values for each method. This is an input necessary for the
+`benchdamic::createEnrichment` and `benchdamic::createPositives` functions.
+
+```{r}
+direction <- get_direction_cols(DA_output, conditions_col, conditions)
+```
+
+## Create enrichment object
+
+```{r}
+enrichment <- createEnrichment(
+    object = DA_output,
+    priorKnowledge = priorInfo,
+    enrichmentCol = "type",
+    namesCol = "newNames",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL, # No top feature selected
+    alternative = "greater",
+    verbose = FALSE 
+)
+```
+
+
+## Plot enrichment
+
+```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
+enrich_plot <- plot_enrichment(
+    enrichment = enrichment, 
+    enrichment_col = "type",
+    levels_to_plot = c("Aerobic", "Anaerobic", "F Anaerobic"),
+    conditions = conditions
+)
+enrich_plot
+
+```
+
+# Putative true positives - putative false positives
+
+## Create positives object
+
+```{r}
+positives <- createPositives(
+    object = DA_output, 
+    priorKnowledge = priorInfo, enrichmentCol = "type", namesCol = "newNames",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 50, by = 5),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "Anaerobic"), c("UP Abundant", "Aerobic")),
+    FP = list(c("DOWN Abundant", "Aerobic"), c("UP Abundant", "Anaerobic"))
+)
+```
+
+## Plot enrichment
+
+```{r}
+meth_class <- get_meth_class() 
+positives2 <- left_join(meth_class, positives, by = 'method') %>% 
+    relocate(method_class)
+```
+
+
+```{r, fig.height = 12, fig.width=10}
+plots <- plot_positives(positives2)
+grid.arrange(grobs = plots, ncol = 2)
+
+```
+
+

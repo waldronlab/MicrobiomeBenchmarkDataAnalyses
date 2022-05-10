@@ -38,8 +38,12 @@ run_DA <- function(object, conditions_col, conditions, verbose = FALSE) {
             levels = conditions 
         )
     
+    normalization_methods_list <- set_norm_list()
+    
     ps <- benchdamic::runNormalizations(
-        normalization_list = set_norm_list(), object = object, verbose = verbose 
+        # normalization_list = normalization_methods_list[3:length(normalization_methods_list)], 
+        normalization_list = normalization_methods_list,
+        object = object, verbose = verbose 
     )
     
     zinbWeights <- benchdamic::weights_ZINB(object = ps, design = conditions_col)

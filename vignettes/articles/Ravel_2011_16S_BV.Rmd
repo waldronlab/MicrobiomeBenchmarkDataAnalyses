@@ -1,0 +1,68 @@
+---
+title: "Ravel_2011_16S - Bacterial vaginosis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+library(MicrobiomeBenchmarkData)
+library(MicrobiomeBenchmarkDataAnalyses)
+library(mia)
+library(phyloseq)
+library(dplyr)
+```
+
+
+```{r}
+dat_name <- 'Ravel_2011_16S_BV'
+se <- getDataset(dat_name, dryrun = FALSE)[[1]]
+se <- se[,colData(se)$nugent_score_category %in% c('low', 'high')]
+ab <- assay(se)
+se <- se[rowSums(ab) > 1, colSums(ab) != 0]
+se
+```
+
+## Get prior Info by genus 
+
+```{r}
+priorInfo <- as.data.frame(subset(rowData(se), select = c('genus', 'Attribute')))
+newNames <- paste0(rownames(priorInfo), '|', priorInfo$genus)
+priorInfo <- priorInfo %>% 
+    filter(!is.na(genus)) %>% 
+    distinct()
+rownames(priorInfo) <- priorInfo$genus
+```
+
+## Summarize by genus
+
+```{r}
+se_split <- splitByRanks(se)
+se_genus <- se_split$genus
+se_genus
+```
+
+Reorder priorInfo according to rownames of se_genus
+
+```{r}
+priorInfo <- priorInfo[rownames(se_genus), ]
+```
+
+```{r}
+ps <- makePhyloseqFromTreeSummarizedExperiment(se_genus)
+conditions_col <- 'nugent_score_category'
+conditions <- c(condB = 'low', condA = 'high')
+sample_data(ps)[[conditions_col]] <- 
+    factor(sample_data(ps)[[conditions_col]], levels = conditions)
+```
+
+# RUN DA
+
+```{r}
+DA_output <- run_DA(
+    object = ps, conditions_col = conditions_col, conditions = conditions
+)
+```
+
