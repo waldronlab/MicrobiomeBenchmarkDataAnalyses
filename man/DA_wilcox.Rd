@@ -22,6 +22,11 @@ DA_wilcox(
 \item{conditions_col}{String character.
 The name of the column in sample data with the conditions.}
 
+\item{conditions}{A named character vector. The names must be
+"condB" and "condA". condB indicates the reference/numerator/control
+and condA indicates the target/denominator/treatment. For example:
+\code{c(condB = 'control', condA = 'treatment')}}
+
 \item{verbose}{Print messages or not, Default is FALSE.}
 }
 \value{

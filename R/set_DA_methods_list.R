@@ -7,7 +7,7 @@
 #'
 #' @param conditions_col Character string indicating the name of the column
 #' containing the conditions of the samples in sample_metadata/colData. 
-#' @inheritParams conditions A named character vector. The names must be
+#' @param conditions A named character vector. The names must be
 #' "condB" and "condA". condB indicates the reference/numerator/control
 #' and condA indicates the target/denominator/treatment. For example:
 #' `c(condB = 'control', condA = 'treatment')`

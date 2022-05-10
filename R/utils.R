@@ -6,7 +6,7 @@
 #'
 #' @param x Expression, command, etc.
 #'
-#' @return Nothing
+#' @return Nothing. NULL.
 #' 
 #' @export
 #'
@@ -94,7 +94,6 @@ filter_phyloseq <- function(ps) {
 #' \code{\link[benchdamic]{createPositives}} functions.
 #' @export
 #'
-#' @examples
 get_direction_cols <- function(x, conditions_col, conditions) {
     
     if (

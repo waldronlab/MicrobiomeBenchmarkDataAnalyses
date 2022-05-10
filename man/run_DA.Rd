@@ -12,6 +12,11 @@ run_DA(object, conditions_col, conditions, verbose = FALSE)
 \item{conditions_col}{A character string indicating the name of the column in
 sample_metadata that contains the conditions to be compared.}
 
+\item{conditions}{A named character vector. The names must be
+"condB" and "condA". condB indicates the reference/numerator/control
+and condA indicates the target/denominator/treatment. For example:
+\code{c(condB = 'control', condA = 'treatment')}}
+
 \item{verbose}{This argument is passed to the
 \code{\link[benchdamic]{runNormalizations}} and
 \code{\link[benchdamic]{runDA}} functions.}
