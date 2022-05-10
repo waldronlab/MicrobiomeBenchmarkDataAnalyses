@@ -4,23 +4,37 @@
 \alias{DA_lefse}
 \title{Lefser method}
 \usage{
-DA_lefse(object, grp, ref = NULL, norm = "none", ...)
+DA_lefse(
+  object,
+  pseudo_count = FALSE,
+  conditions,
+  norm = "none",
+  verbose = FALSE,
+  groupCol,
+  ...
+)
 }
 \arguments{
 \item{object}{A phyloseq or (Tree)SummarizedExperiment object.}
 
-\item{grp}{A character string indicating the name of the column in colData
-where the conditions are stored.}
+\item{pseudo_count}{Add or not a pseudocount of 1. Default is FALSE.}
 
-\item{ref}{A character string indicating which condition should be used as
-reference.}
+\item{conditions}{A named character vector of length two. Names must be
+"condB" and "condA" in that order. "condB" must indicate
+control/reference/denominator and "condA" must indicate
+treatment/target/numerator. Example:
+\code{c(condB = 'control', condA = 'treatment')}}
 
-\item{norm}{Normalization method. Options: CLR and norm.}
+\item{norm}{Normalization method. Options: none, CLR, and TSS.}
 
-\item{...}{Other parameters passed to benchdamic.}
+\item{verbose}{If TRUE, messages are displayed on screen. Default is FALSE.}
+
+\item{groupCol}{Name of the column in colData with the conditions.}
+
+\item{...}{Parameters passed to \code{\link[lefser]{lefser}}.}
 }
 \value{
-An object for benchdamic.
+An object ready to be included in the benchdamic framework.
 }
 \description{
 \code{DA_lefser} is a modified version of the lefser package, which includes

@@ -70,25 +70,25 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         ),
         
         # metagenomeSeq
-        my_metagenomeseq <- benchdamic::set_metagenomeSeq(
-            design = as.formula(paste0("~", conditions_col)),
-            norm = c("CSSmedian", "CSSdefault"),
-            coef = 2
-        ),
+        # my_metagenomeseq <- benchdamic::set_metagenomeSeq(
+        #     design = as.formula(paste0("~", conditions_col)),
+        #     norm = c("CSSmedian", "CSSdefault"),
+        #     coef = 2
+        # ),
         
         # ALDEx2 with t-test
-        my_aldex2 <- benchdamic::set_ALDEx2(
-            conditions = conditions_col,
-            test = "t",
-            norm = "none"
-        ),
+        # my_aldex2 <- benchdamic::set_ALDEx2(
+        #     conditions = conditions_col,
+        #     test = "t",
+        #     norm = "none"
+        # ),
         
         # ALDEx2 with wilcox
-        my_aldex2 <- benchdamic::set_ALDEx2(
-            conditions = conditions_col,
-            test = "wilcox",
-            norm = "none"
-        ),
+        # my_aldex2 <- benchdamic::set_ALDEx2(
+        #     conditions = conditions_col,
+        #     test = "wilcox",
+        #     norm = "none"
+        # ),
         
         # corncob
         my_corncob <- benchdamic::set_corncob(
@@ -102,19 +102,19 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         ),
         
         # MAST
-        my_mast <- benchdamic::set_MAST(
-            rescale = "median",
-            design = as.formula(paste0("~", conditions_col)),
-            coefficient = paste0(conditions_col, conditions['condA']),
-            norm = "none"
-        ),
+        # my_mast <- benchdamic::set_MAST(
+        #     rescale = "median",
+        #     design = as.formula(paste0("~", conditions_col)),
+        #     coefficient = paste0(conditions_col, conditions['condA']),
+        #     norm = "none"
+        # ),
         
         # Seurat
-        my_seurat <- benchdamic::set_Seurat(
-            test.use = "wilcox",
-            contrast = c(conditions_col, conditions['condA'], conditions['condB']),
-            norm = "none"
-        ),
+        # my_seurat <- benchdamic::set_Seurat(
+        #     test.use = "wilcox",
+        #     contrast = c(conditions_col, conditions['condA'], conditions['condB']),
+        #     norm = "none"
+        # ),
         
         new_methods <- list(
             ## ANCOMB-BC
@@ -181,6 +181,33 @@ set_DA_methods_list <- function(conditions_col, conditions) {
                 conditions_col = conditions_col,
                 conditions = conditions, 
                 norm = 'CLR', pval_method = 'Cauchy', y_CorD = 'C'
+            ),
+            lefse.11 = list(
+                method = 'DA_lefse',
+                conditions = conditions,
+                norm = 'none',
+                groupCol = conditions_col,
+                kruskal.threshold = 1,
+                wilcox.threshold = 1,
+                lda.threshold = 0
+            ),
+            lefse.12 = list(
+                method = 'DA_lefse',
+                conditions = conditions,
+                norm = 'CLR',
+                groupCol = conditions_col,
+                kruskal.threshold = 1,
+                wilcox.threshold = 1,
+                lda.threshold = 0
+            ),
+            lefse.13 = list(
+                method = 'DA_lefse',
+                conditions = conditions,
+                norm = 'TSS',
+                groupCol = conditions_col,
+                kruskal.threshold = 1,
+                wilcox.threshold = 1,
+                lda.threshold = 0
             )
         )
         

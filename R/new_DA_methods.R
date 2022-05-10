@@ -101,7 +101,7 @@ DA_ZINQ <- function(
     
     ## Sanity check from ZINQ. If there are any warnings they should be
     ## Captured and reported if verbose
-    ## TODO
+    ## TODO ??
     
     sample_metadata[[conditions_col]] <- factor(
         ## ZINQ::ZINQ_check requires a factor with 0 and 1.
@@ -157,44 +157,96 @@ DA_ZINQ <- function(
 #' the pvalues of the Kruskal test.
 #'
 #' @param object A phyloseq or (Tree)SummarizedExperiment object.
-#' @param grp A character string indicating the name of the column in colData
-#' where the conditions are stored.
-#' @param ref A character string indicating which condition should be used as
-#' reference.
-#' @param norm Normalization method. Options: CLR and norm.
-#' @param ... Other parameters passed to benchdamic. 
+#' @param pseudo_count Add or not a pseudocount of 1. Default is FALSE.
+#' @param conditions A named character vector of length two. Names must be
+#' "condB" and "condA" in that order. "condB" must indicate
+#' control/reference/denominator and "condA" must indicate 
+#' treatment/target/numerator. Example:
+#' `c(condB = 'control', condA = 'treatment')`
+#' @param norm Normalization method. Options: none, CLR, and TSS.
+#' @param groupCol Name of the column in colData with the conditions.
+#' @param ... Parameters passed to \code{\link[lefser]{lefser}}. 
+#' @param verbose If TRUE, messages are displayed on screen. Default is FALSE.
 #'
-#' @return An object for benchdamic.
+#' @return An object ready to be included in the benchdamic framework.
 #' @export
 #'
-DA_lefse <- function(object, grp, ref = NULL, norm = 'none', ...) {
+DA_lefse <- function(
+    object, pseudo_count = FALSE, conditions, norm = 'none', verbose = FALSE,
+    groupCol, ...
+) {
     
-    if (class(object) == "phyloseq") {
-        se <- mia::makeTreeSummarizedExperimentFromPhyloseq(object)
-    } else if (any(grepl("SummarizedExperiment", class(object)))) {
-        se <- object
+    if (class(object) != 'phyloseq') {
+        stop(
+            'The object argument must be a phyloseq object',
+            call. = FALSE
+        )
     }
     
-    condition_vector <- SummarizedExperiment::colData(se)[[grp]]
+    name <- 'lefse'
     
-    if (!is.null(ref)) {
-        condition_vector <- stats::relevel(factor(condition_vector), ref)
-    } else {
-        condition_vector <- factor(condition_vector)
+    se <- mia::makeTreeSummarizedExperimentFromPhyloseq(object)
+    abundances <- SummarizedExperiment::assay(se)
+   
+    ## Pseudocount 
+    if (pseudo_count) {
+        if (verbose)
+            message('Adding a pseudocount of 1.')
+        abundances <- abundances + 1
     }
     
-    SummarizedExperiment::colData(se)[[grp]] <- condition_vector
-    
-    
-    if (norm == 'CLR') {
-        name <- 'lefse.CLR'
-        SummarizedExperiment::assay(se) <- 
-            norm_clr(SummarizedExperiment::assay(se))
-    } else {
-        name <- 'lefse.none'
+    ## Conditions
+    if (
+        !length(names(conditions)) ||
+        !all(names(conditions) == c('condB', 'condA'))
+    ) {
+        stop(
+            'the `conditions` argument must be a named vector, and the names',
+            ' must be "condB" and "condA". "condB" must be',
+            ' the reference/control/denominator. Example:',
+            ' `c(condB = "control", condA = "treatment")`',
+            call. = FALSE
+        )
     }
     
-    statInfo <- lefser::lefser2(expr = se, groupCol = grp, ...) 
+    SummarizedExperiment::colData(se)[[groupCol]] <- 
+        factor(
+            SummarizedExperiment::colData(se)[[groupCol]], levels = conditions
+        )
+    
+    ## Normalization
+    if (
+        length(norm) != 1 ||
+        !norm %in% c('none', 'CLR', 'TSS')
+    ) {
+        stop(
+            'Only one normalization method should be included.',
+            ' Supported options are none, CLR, and TSS.',
+            call. = FALSE
+        )
+    }
+    
+    if (norm == 'none') {
+        if (verbose)
+            message('No normalization applied for lefse')
+        name <- paste0(name, '.none')
+    } else if (norm == 'CLR') {
+        if (verbose)
+            message('Applying CLR normalization.')
+        name <- paste0(name, '.CLR')
+        abundances <- norm_clr(abundances)
+    } else if (norm == 'TSS') {
+        if (verbose)
+            message('Applying TSS normalization.')
+        name <- paste0(name, '.TSS')
+        abundances <- norm_tss(abundances)
+    }
+    
+    ## Analysis with lefser(2)
+    
+    SummarizedExperiment::assay(se) <- abundances
+    
+    statInfo <- lefser2(expr = se, groupCol = groupCol, ...) 
     statInfo$adj_pval <- stats::p.adjust(statInfo$kw_pvalues, method = "fdr")
     rownames(statInfo) <- statInfo[["Names"]]
     colnames(statInfo) <- c("Taxa", "LDA_scores", "rawP", "adjP")

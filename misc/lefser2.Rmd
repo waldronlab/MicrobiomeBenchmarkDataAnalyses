@@ -1,0 +1,62 @@
+---
+title: "lefser vs lefser2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+library(SummarizedExperiment)
+library(MicrobiomeBenchmarkDataAnalyses)
+```
+
+```{r}
+se <- lefser::zeller14
+se <- se[,colData(se)$study_condition != 'adenoma']
+abundances <- assay(se)
+abundances_tss <- apply(abundances, 2, function(x) x / sum(x) * 1e6)
+assays(se)$tss <- abundances_tss
+se
+```
+
+
+```{r}
+output1 <- lefser::lefser(
+    se, groupCol = 'study_condition', blockCol = 'age_category',
+    assay = 2L
+)
+
+output2 <- lefser2(
+    se, groupCol = 'study_condition', blockCol = 'age_category',
+    assay = 2L
+)
+
+```
+
+
+Comparing feature names 
+
+```{r}
+
+all(output1$Names %in% output2$Names)
+
+```
+
+Comparing pvalues.
+
+```{r}
+output2_ordered <- output2[match(output1$Names, output2$Names),]
+
+plot(output1$scores, output2_ordered$scores)
+
+```
+
+
+# Conclusion
+
+The scores and the filtered features are very similar between lefser and lefser2.
+So this option will be implemented in the current package.
+
+

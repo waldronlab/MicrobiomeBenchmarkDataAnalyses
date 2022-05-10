@@ -32,11 +32,14 @@ Imports:
     forcats,
     purrr,
     rlang,
-    randomcoloR
+    randomcoloR,
+    MASS,
+    coin,
+    methods,
+    utils
 Remotes:
     waldronlab/MicrobiomeBenchmarkData,
     wdl2459/ZINQ-v2,
-    sdgamboa/lefser,
     mcalgaro93/benchdamic
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1)

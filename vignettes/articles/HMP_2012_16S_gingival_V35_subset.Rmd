@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
-# library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkDataAnalyses)
 library(phyloseq)
 library(mia)
 library(benchdamic)
@@ -32,6 +32,10 @@ conditions <- c(condB = "subgingival_plaque", condA = "supragingival_plaque")
 ```
 
 # Get prior knowledge (biological truth)
+
+This variable will be used later in this document (enrichment section), but
+it's necessary to extract the biological information here since it will be
+lost when the TreeSummarizedExperiment is converted to phyloseq.
 
 ```{r}
 row_data <- as.data.frame(rowData(tse))
@@ -59,7 +63,6 @@ sample_data(ps)[[conditions_col]] <-
 
 ```{r warning=FALSE, message=FALSE}
 DA_output <- run_DA(ps, conditions_col, conditions)
-
 ```
 
 
@@ -67,6 +70,9 @@ DA_output <- run_DA(ps, conditions_col, conditions)
 
 ## Get direction object
 
+The direction variable (defined below) contains the names of the columns with
+effect size values for each method. This is an input necessary for the
+`benchdamic::createEnrichment` and `benchdamic::createPositives` functions.
 
 ```{r}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
@@ -80,11 +86,11 @@ enrichment <- createEnrichment(
     priorKnowledge = priorInfo,
     enrichmentCol = "type",
     namesCol = "newNames",
-    slot = "pValMat", colName = "rawP", type = "pvalue",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
-    threshold_pvalue = 0.05,
+    threshold_pvalue = 0.1,
     threshold_logfc = 0,
-    top = NULL,
+    top = NULL, # No top feature selected
     alternative = "greater",
     verbose = FALSE 
 )
@@ -112,9 +118,9 @@ enrich_plot
 positives <- createPositives(
     object = DA_output, 
     priorKnowledge = priorInfo, enrichmentCol = "type", namesCol = "newNames",
-    slot = "pValMat", colName = "rawP", type = "pvalue",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
-    threshold_pvalue = 0.05,
+    threshold_pvalue = 0.1,
     threshold_logfc = 0,
     top = seq.int(from = 0, to = 50, by = 5),
     alternative = "greater",
@@ -124,127 +130,18 @@ positives <- createPositives(
 )
 ```
 
-
 ## Plot enrichment
 
-
-
-
-
-
-
-
-### LEFSE
-
 ```{r}
-output_lefse_none <- DA_lefse(
-    object = ps, grp = grp, ref = conditions[["condB"]],
-    kruskal.threshold = 1,
-    wilcox.threshold = 1,
-    lda.threshold = 0,
-    norm = 'none'
-)
-
-output_lefse_clr <- DA_lefse(
-    object = ps, grp = grp, ref = conditions[["condB"]],
-    kruskal.threshold = 1,
-    wilcox.threshold = 1,
-    lda.threshold = 0,
-    norm = "CLR"
-)
-```
-
-
-
-
-```{r}
-meth_class <- method_classification()
+meth_class <- get_meth_class() 
 positives2 <- left_join(meth_class, positives, by = 'method') %>% 
     relocate(method_class)
-# positives2 <- positives2 %>% 
-#     mutate(
-#         base_method = sub("\\..*", "", method)
-#     )
 ```
-
-
-
-
-```{r}
-
-max_top <- max(positives2$TP - positives2$FP)
-min_top <- min(positives2$TP - positives2$FP)
-
-x <- split(positives2, positives2$method_class)
-df <- x[[2]]
-df <- df %>% 
-    mutate(
-        across(.cols = where(is.character), .fns = ~ forcats::fct_inorder(.x)),
-        shape = forcats::fct_inorder(as.character(shape))
-        )
-        
-
-(
-p1 <- df %>%
-        ggplot2::ggplot(ggplot2::aes(x = top, y = TP - FP)) +
-        ggplot2::geom_path(
-            ggplot2::aes(color = color, group = method, linetype = norm)
-        ) +
-        ggplot2::geom_point(
-            ggplot2::aes(color = color, shape = norm),
-            size = 3
-        ) +
-        ggplot2::facet_wrap(.~ method_class) +
-        ggplot2::scale_y_continuous(
-            limits = c(min_top - 3, max_top + 3)
-        ) +
-        ggplot2::scale_color_manual(
-            values = levels(df$color), labels = levels(df$base_method)
-            
-        ) +
-        ggplot2::scale_shape_manual(
-            values = as.integer(levels(df$shape)), labels = levels(df$norm)
-        ) +
-        ggplot2::scale_linetype_manual(
-            values = as.integer(levels(df$shape)), labels = levels(df$norm)
-        ) +
-        ggplot2::labs(
-            x = 'Top', y = 'TP - FP'
-        ) +
-        ggplot2::theme_bw() +
-        ggplot2::theme(
-            legend.position = c(0.01, 0.97),
-            legend.justification = c("left", "top"),
-            legend.title = ggplot2::element_blank(),
-            legend.box.background = element_rect(color = "white", fill = 'white'
-            )
-        ) 
-) 
-
-```
-
-
 
 
 ```{r, fig.height = 12, fig.width=10}
 plots <- plot_positives(positives2)
-
-# first_plot <- plots[1] 
-# other_plots <- plots[2:length(plots)]
-# other_plots <- lapply(other_plots, function(x) {
-#     x <- x +
-#         theme(
-#             axis.text.y = element_blank(),
-#             axis.title.y = element_blank(),
-#             axis.ticks.y = element_blank()
-#         )
-#     x
-# })
-# 
-# plots2 <- c(first_plot, other_plots)
-
 grid.arrange(grobs = plots, ncol = 2)
-
 
 ```
 

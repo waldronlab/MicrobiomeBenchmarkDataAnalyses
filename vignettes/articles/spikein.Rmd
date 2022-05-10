@@ -1,0 +1,242 @@
+---
+title: "spikein"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(MicrobiomeBenchmarkData)
+# library(MicrobiomeBenchmarkDataAnalyses)
+library(dplyr)
+library(benchdamic)
+```
+
+
+# Import data and create variables
+
+```{r}
+tse <- getDataset('Stammler_2016_16S_spikein', dryrun = FALSE)[[1]]
+tse <- tse[, colData(tse)[['time']] %in% c('preasct', 'd14')]
+
+conditions_col <- 'time'
+grp <- 'time'
+conditions <- c(condB = 'preasct', condA = 'd14')
+
+```
+
+
+# Apply some filtering
+```{r}
+tse <- tse[rowSums(assay(tse)) > 0,]
+tse
+```
+
+# Get prior knowledge (biological informaition)
+
+
+```{r}
+# sm <- as.data.frame(colData(tse))
+tax_dat <- as.data.frame(rowData(tse)) %>% 
+    tibble::rownames_to_column('Taxon')
+tax_dat <- tax_dat %>% 
+    mutate(
+        Annotation = case_when(
+            grepl('Bacteroidetes', taxonomy) ~ 'pre-SCT',
+            grepl('Firmicutes', taxonomy) & !grepl('Enterococcus', taxonomy) ~ 'pre-SCT',
+            grepl('Enterococcus', taxonomy) ~ 'SCT',
+            TRUE ~ 'not-defined'
+        )
+    )
+
+table(tax_dat$Annotation)
+
+```
+
+```{r}
+priorInfo <- tax_dat[,c('Taxon', 'Annotation')]
+rownames(priorInfo) <- tax_dat$Taxon
+head(priorInfo)
+```
+
+# Convert to phyloseq
+
+```{r}
+ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse)
+
+
+ps
+```
+
+
+# Run DA
+
+```{r}
+DA_output <- run_DA(
+    object = ps, conditions_col = conditions_col, conditions = conditions
+)
+```
+
+
+
+# Enrichment
+
+## Get direction object
+
+The direction variable (defined below) contains the names of the columns with
+effect size values for each method. This is an input necessary for the
+`benchdamic::createEnrichment` and `benchdamic::createPositives` functions.
+
+```{r}
+direction <- get_direction_cols(DA_output, conditions_col, conditions)
+```
+
+## Create enrichment object
+
+```{r}
+enrichment <- createEnrichment(
+    object = DA_output,
+    priorKnowledge = priorInfo,
+    enrichmentCol = "Annotation",
+    namesCol = "Taxon",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL, # No top feature selected
+    alternative = "greater",
+    verbose = FALSE 
+)
+```
+
+
+## Plot enrichment
+
+```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
+enrich_plot <- plot_enrichment(
+    enrichment = enrichment, 
+    enrichment_col = "type",
+    levels_to_plot = c("not-defined", "pre-SCT", "SCT"),
+    conditions = conditions
+)
+enrich_plot
+
+```
+
+# Putative true positives - putative false positives
+
+## Create positives object
+
+```{r}
+positives <- createPositives(
+    object = DA_output, 
+    priorKnowledge = priorInfo, enrichmentCol = "Annotation", namesCol = "Taxon",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 50, by = 5),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "Anaerobic"), c("UP Abundant", "Aerobic")),
+    FP = list(c("DOWN Abundant", "Aerobic"), c("UP Abundant", "Anaerobic"))
+)
+```
+
+## Plot enrichment
+
+```{r}
+meth_class <- get_meth_class() 
+positives2 <- left_join(meth_class, positives, by = 'method') %>% 
+    relocate(method_class)
+```
+
+
+```{r, fig.height = 12, fig.width=10}
+plots <- plot_positives(positives2)
+grid.arrange(grobs = plots, ncol = 2)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+zinbWeights <- benchdamic::weights_ZINB(object = ps, design = conditions_col)
+```
+
+
+
+
+```{r}
+
+ps <- norm_DESeq2(ps, method = 'poscounts', verbose = FALSE)
+
+
+output_deseq2 <- DA_DESeq2(
+    object = ps, pseudo_count = FALSE, 
+    design = as.formula(paste0("~", grp)),
+    contrast = c(grp, conditions["condA"], conditions["condB"]), 
+    norm = "poscounts", 
+    verbose = FALSE
+)
+
+output_deseq2_zinbweights <- DA_DESeq2(
+    object = ps, pseudo_count = FALSE,
+    design = as.formula(paste0("~", grp)),
+    contrast = c(grp, conditions["condA"], conditions["condB"]), 
+    norm = "poscounts", weights = zinbWeights,
+    verbose = FALSE
+)
+```
+
+
+
+
+```{r}
+ps <- norm_edgeR(ps, method = 'none')
+output_aldex2_t <- DA_ALDEx2(
+    object = ps, pseudo_count = FALSE, conditions = grp,
+    test = "t", denom = "iqlr", norm = "none",
+    verbose = FALSE
+)
+
+output_aldex2_wilcox <- DA_ALDEx2(
+    object = ps, pseudo_count = FALSE, conditions = grp,
+    test = "wilcox", denom = "iqlr", norm = "none",
+    verbose = FALSE
+)
+```
+

@@ -347,7 +347,7 @@ plot_enrichment <- function(
     )
     
     ## This step is necessary to include all of the methods
-    meth_class <- method_classification()
+    meth_class <- get_meth_class()
     summary_tbl$method <- factor(
         summary_tbl$method, levels = as.character(meth_class$method)
     )
@@ -386,6 +386,7 @@ plot_enrichment <- function(
                 labels = c(condB, condA)
             )
         ) +
+        ggplot2::scale_x_discrete(drop = FALSE) +
         ggplot2::labs(
             y = "Number of features", x = "DA methods"
         ) +
@@ -418,23 +419,25 @@ plot_enrichment <- function(
 #'
 get_meth_class <- function() {
     
-    #     dplyr::relocate(method_class, base_method, method) %>% 
-    #     dplyr::arrange(method_class, base_method, method)
-    tbl <- methods_classification
+    df <- methods_classification %>% 
+        dplyr::select(-effect_size_col) %>% 
+        dplyr::relocate(method_class, base_method, method) %>% 
+        dplyr::arrange(method_class, base_method, method)
+    
     ## create mappings for color
-    base_methods <- sort(unique(tbl$base_method))
-    set.seed(1234)
+    base_methods <- sort(unique(df$base_method))
+    set.seed(12345)
     colors <- randomcoloR::distinctColorPalette(length(base_methods))
     base_methods_colors <- 
-        tibble::tibble(base_method = base_methods, color = colors)
+        data.frame(base_method = base_methods, color = colors)
     
     ## Create mappings for shape
-    norm <- sort(unique(tbl$norm))
+    norm <- sort(unique(df$norm))
     shapes <- seq_along(norm)
     norm_shapes <- 
-        tibble::tibble(norm = norm, shape = shapes)
+        data.frame(norm = norm, shape = shapes)
     
-   dplyr::left_join(tbl, base_methods_colors, by = 'base_method') %>% 
+   dplyr::left_join(df, base_methods_colors, by = 'base_method') %>% 
        dplyr::left_join(norm_shapes, by = 'norm')
     
 }

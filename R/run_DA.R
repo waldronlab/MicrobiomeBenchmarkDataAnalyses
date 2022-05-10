@@ -32,6 +32,12 @@ run_DA <- function(object, conditions_col, conditions, verbose = FALSE) {
         )
     }
     
+    phyloseq::sample_data(ps)[[conditions_col]] <- 
+        factor(
+            phyloseq::sample_data(ps)[[conditions_col]],
+            levels = conditions 
+        )
+    
     ps <- benchdamic::runNormalizations(
         normalization_list = set_norm_list(), object = object, verbose = verbose 
     )
@@ -40,7 +46,7 @@ run_DA <- function(object, conditions_col, conditions, verbose = FALSE) {
     
     DA_methods <- set_DA_methods_list(conditions_col, conditions)
     
-    runDA(
+    benchdamic::runDA(
         method_list = DA_methods, object = ps, weights = zinbWeights,
         verbose = verbose 
     ) 
