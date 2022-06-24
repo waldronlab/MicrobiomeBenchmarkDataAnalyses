@@ -46,6 +46,12 @@ run_DA <- function(object, conditions_col, conditions, verbose = FALSE) {
         object = object, verbose = verbose 
     )
     
+    ## Separate into functions and make the checks in them.
+    
+    ## TODO Check for ps, throw error (stop with message)
+    ## Return empty class instead of error (for other cases for consistency of output)
+    ## Dont forget to remove browser()
+    
     zinbWeights <- benchdamic::weights_ZINB(object = ps, design = conditions_col)
     
     DA_methods <- set_DA_methods_list(conditions_col, conditions)
