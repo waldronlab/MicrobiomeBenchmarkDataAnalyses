@@ -6,9 +6,8 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
-
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
@@ -23,19 +22,20 @@ library(gridExtra)
 library(randomcoloR)
 ```
 
-# Import Data
+# Data
+
+Import TreeSummarizedExperiment
 
 ```{r}
-tse <- getDataset("HMP_2012_16S_gingival_V35_subset", dryrun = FALSE)[[1]]
+dat_name <- "HMP_2012_16S_gingival_V35_subset"
 conditions_col <- "hmp_body_subsite"
 conditions <- c(condB = "subgingival_plaque", condA = "supragingival_plaque")
+
+tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
+tse
 ```
 
-# Get prior knowledge (biological truth)
-
-This variable will be used later in this document (enrichment section), but
-it's necessary to extract the biological information here since it will be
-lost when the TreeSummarizedExperiment is converted to phyloseq.
+Get prior knowledge from colData (biological truth)
 
 ```{r}
 row_data <- as.data.frame(rowData(tse))
@@ -50,35 +50,30 @@ priorInfo <- data.frame(
 rownames(priorInfo) <- taxaNames
 ```
 
-# Convert to phyloseq
+Convert to phyloseq
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
-
+ps <- filter_phyloseq(ps)
 sample_data(ps)[[conditions_col]] <- 
     factor(sample_data(ps)[[conditions_col]], levels = conditions)
 ```
 
-# Run DA methods
+# Differential abundance analysis
 
 ```{r warning=FALSE, message=FALSE}
 DA_output <- run_DA(ps, conditions_col, conditions)
 ```
 
-
 # Enrichment
 
-## Get direction object
-
-The direction variable (defined below) contains the names of the columns with
-effect size values for each method. This is an input necessary for the
-`benchdamic::createEnrichment` and `benchdamic::createPositives` functions.
+Get direction 
 
 ```{r}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
 ```
 
-## Create enrichment object
+## Enrichment (adjP >= 0.1)
 
 ```{r}
 enrichment <- createEnrichment(
@@ -96,7 +91,6 @@ enrichment <- createEnrichment(
 )
 ```
 
-
 ## Plot enrichment
 
 ```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
@@ -112,7 +106,7 @@ enrich_plot
 
 # Putative true positives - putative false positives
 
-## Create positives object
+## Calculate TP - FP ratio (adP <= 0.1)
 
 ```{r}
 positives <- createPositives(
@@ -130,7 +124,7 @@ positives <- createPositives(
 )
 ```
 
-## Plot enrichment
+## Plot TP - FP 
 
 ```{r}
 meth_class <- get_meth_class() 
@@ -144,5 +138,4 @@ plots <- plot_positives(positives2)
 grid.arrange(grobs = plots, ncol = 2)
 
 ```
-
 

@@ -9,19 +9,22 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
-library(MicrobiomeBenchmarkDataAnalyses)
+# library(MicrobiomeBenchmarkDataAnalyses)
 library(mia)
 library(phyloseq)
 library(dplyr)
+library(benchdamic)
 ```
 
 
 ```{r}
 dat_name <- 'Ravel_2011_16S_BV'
+conditions_col <- 'nugent_score_category'
+conditions <- c(condB = 'low', condA = 'high')
+
 se <- getDataset(dat_name, dryrun = FALSE)[[1]]
 se <- se[,colData(se)$nugent_score_category %in% c('low', 'high')]
-ab <- assay(se)
-se <- se[rowSums(ab) > 1, colSums(ab) != 0]
+se <- se[rowSums(assay(se)) > 1, colSums(assay(se)) != 0]
 se
 ```
 
@@ -39,30 +42,27 @@ rownames(priorInfo) <- priorInfo$genus
 ## Summarize by genus
 
 ```{r}
-se_split <- splitByRanks(se)
-se_genus <- se_split$genus
+se_genus <- splitByRanks(se)$genus
 se_genus
 ```
 
 Reorder priorInfo according to rownames of se_genus
 
-```{r}
-priorInfo <- priorInfo[rownames(se_genus), ]
-```
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(se_genus)
-conditions_col <- 'nugent_score_category'
-conditions <- c(condB = 'low', condA = 'high')
 sample_data(ps)[[conditions_col]] <- 
     factor(sample_data(ps)[[conditions_col]], levels = conditions)
 ```
 
-# RUN DA
+
+## Run Differential abundance analysis
 
 ```{r}
-DA_output <- run_DA(
-    object = ps, conditions_col = conditions_col, conditions = conditions
-)
+ps <- filter_phyloseq(ps)
+ps <- runNormalizations(set_norm_list(),ps)
+zw <- weights_ZINB(ps, design = conditions_col)
+DA_methods <- set_DA_methods_list(conditions_col, conditions)
+DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
 ```
 

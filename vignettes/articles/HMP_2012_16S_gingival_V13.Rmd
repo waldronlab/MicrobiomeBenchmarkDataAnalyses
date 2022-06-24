@@ -1,0 +1,61 @@
+---
+title: "HMP_2012_16S_gingival_V13"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r setup}
+library(MicrobiomeBenchmarkData)
+library(MicrobiomeBenchmarkDataAnalyses)
+library(mia)
+library(phyloseq)
+```
+
+# Data
+
+Import TreeSummarizedEperiment:
+
+```{r}
+tse <- getDataset('HMP_2012_16S_gingival_V13', dryrun = FALSE)[[1]]
+ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
+ps
+```
+
+# Prior knowledge 
+
+```{r}
+row_data <- as.data.frame(rowData(tse))
+row_data$taxon_name <- rownames(row_data)
+row_data$new_names <- paste0(row_data$taxon_name, '|', row_data$genus)
+prior_info <- row_data[, c('taxon_name', 'new_names', 'genus', 'taxon_annotation')]
+```
+
+
+# Divde by rank
+
+```{r}
+tse_by_ranks <- splitByRanks(tse)
+tse_genus <- tse_by_ranks$genus
+tse_genus
+```
+```{r}
+row_data_genus <- as.data.frame(rowData(tse_genus))
+```
+
+
+
+
+
+Comparison must be betwen subgingival and supragingival plaque samples
+
+```{r}
+
+```
+

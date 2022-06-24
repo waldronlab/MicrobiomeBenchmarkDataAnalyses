@@ -6,7 +6,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 
@@ -21,6 +21,7 @@ library(dplyr)
 library(ggplot2)
 library(gridExtra)
 library(randomcoloR)
+library(tibble)
 ```
 
 # Import data
@@ -28,14 +29,12 @@ library(randomcoloR)
 Dataset
 
 ```{r}
-x <- getDataset(dryrun = FALSE)
-tse <- getDataset("HMP_2012_WMS_gingival", dryrun = FALSE)[[1]]
-rownames(tse) <- sub("^.*s__", "", rownames(tse))
-
-grp <- "body_subsite"
-
-## subgingival will be used as 'control'
+dat_name <- 'HMP_2012_WMS_gingival'
+conditions_col <- "body_subsite"
 conditions <- c(condB = "subgingival_plaque", condA = "supragingival_plaque")
+
+tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
+rownames(tse) <- sub("^.*s__", "", rownames(tse))
 ```
 
 # Analysis at the species level
@@ -50,8 +49,7 @@ biosis_file <- system.file(
 biosis <- read.table(biosis_file, header = TRUE, sep = "\t")
 ```
 
-Create priorKnowledge
-
+Create priorInfo data
 
 ```{r}
 row_data <- as.data.frame(rowData(tse))
@@ -66,284 +64,77 @@ Convert to phyloseq
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
-
-## This step places the first condition as reference
-sample_data(ps)[[grp]] <- factor(
-    sample_data(ps)[[grp]], levels = conditions
+ps <- filter_phyloseq(ps)
+sample_data(ps)[[conditions_col]] <- factor(
+    sample_data(ps)[[conditions_col]], levels = conditions
 )
 ps
 ```
 
-## Add normalization factors (benchdamic)
 
 ```{r}
-norm_pars <- tibble::tribble(
-    ~ fun, ~ method,
-    "norm_edgeR", "TMM",
-    "norm_edgeR", "none",
-    "norm_DESeq2", "poscounts",
-    "norm_CSS", "median",
-    "norm_CSS", "default"
+DA_output <- run_DA(
+    object = ps, conditions_col = conditions_col, conditions = conditions
 )
-
-norms <- setNormalizations(fun = norm_pars$fun, method = norm_pars$method)
-
-ps <- 
-    runNormalizations(normalization_list = norms, object = ps, verbose = FALSE)
-
-grep("^NF\\.", colnames(sample_data(ps)), value = TRUE)
 ```
 
-## Estimate matrix of weights
+# Exploratory plots of the DA outputs
 
-These weights are only used by DESeq2, edgeR, and limma-voom to make them
-compatible with scRNA-seq analysis.
+## P-value distribution
 
 ```{r}
-zinbWeights <- weights_ZINB(object = ps, design = grp)
+priorInfo$type <- ifelse(is.na(priorInfo$type), "NA", priorInfo$type)
+pvalue_plots <- map2(DA_output, names(DA_output), ~ {
+    rownames_to_column(.x$pValMat, var = 'taxa') %>%
+        as_tibble() %>% 
+        left_join(priorInfo, by = c('taxa' = 'newNames')) %>% 
+        ggplot(aes(x = rawP, fill = type)) +
+        geom_histogram(bins = 20, color = 'black') +
+        scale_x_continuous(limits = c(-0.05, 1.05)) +
+        ggtitle(.y) +
+        theme_bw()
+})
 ```
-
-
-## Run DA methods
-
-### DESeq2
 
 ```{r}
-output_deseq2 <- DA_DESeq2(
-    object = ps, pseudo_count = FALSE, 
-    design = as.formula(paste0("~", grp)),
-    contrast = c(grp, conditions["condA"], conditions["condB"]), 
-    norm = "poscounts", 
-    verbose = FALSE
-)
-
-output_deseq2_zinbweights <- DA_DESeq2(
-    object = ps, pseudo_count = FALSE,
-    design = as.formula(paste0("~", grp)),
-    contrast = c(grp, conditions["condA"], conditions["condB"]), 
-    norm = "poscounts", weights = zinbWeights,
-    verbose = FALSE
-)
+pvalue_plots
 ```
 
-### edgeR
+
+## Histogram of adjusted P-values
 
 ```{r}
-output_edger <- DA_edgeR(
-    object = ps, pseudo_count = FALSE, group_name = grp,
-    design = as.formula(paste0("~", grp)), norm = "TMM",
-    verbose = FALSE
-)
 
-output_edger_zinbweihgts <- DA_edgeR(
-    object = ps, pseudo_count = FALSE, group_name = grp,
-    design = as.formula(paste0("~", grp)), norm = "TMM",
-    weights = zinbWeights,
-    verbose = FALSE
-)
+fdr_plots <- map2(DA_output, names(DA_output), ~ {
+    rownames_to_column(.x$pValMat, var = 'taxa') %>%
+        as_tibble() %>% 
+        left_join(priorInfo, by = c('taxa' = 'newNames')) %>% 
+        ggplot(aes(x = adjP, fill = type)) +
+        geom_histogram(bins = 20, color = 'black') +
+        scale_x_continuous(limits = c(-0.05, 1.05)) +
+        ggtitle(.y) +
+        theme_bw()
+})
+
 ```
-
-### limma
 
 ```{r}
-output_limma <- DA_limma(
-    object = ps, pseudo_count = FALSE, design = grp, norm = "TMM",
-    verbose = FALSE,
-)
-
-output_limma_zinbweights <- DA_limma(
-   object = ps, pseudo_count = FALSE, design = grp, norm = "TMM" ,
-   weights = zinbWeights, verbose = FALSE 
-)
+fdr_plots
 ```
 
-### ALDEx2
+# Enrichment
+
+Get direction 
 
 ```{r}
-output_aldex2_t <- DA_ALDEx2(
-    object = ps, pseudo_count = FALSE, conditions = grp,
-    test = "t", denom = "iqlr", norm = "none",
-    verbose = FALSE
-)
-
-output_aldex2_wilcox <- DA_ALDEx2(
-    object = ps, pseudo_count = FALSE, conditions = grp,
-    test = "wilcox", denom = "iqlr", norm = "none",
-    verbose = FALSE
-)
-
+direction <- get_direction_cols(DA_output, conditions_col, conditions)
 ```
 
-### MetagenomeSeq
-
-```{r}
-output_metagenomeseq_default <- DA_metagenomeSeq(
-    object = ps, design = grp, coef = 2, norm = "CSSdefault",
-    verbose = FALSE
-)
-
-output_metagenomeseq_median <- DA_metagenomeSeq(
-    object = ps, design = grp, coef = 2, norm = "CSSmedian",
-    verbose = FALSE
-)
-
-```
-
-### Corncob
-
-```{r}
-output_corncob <- DA_corncob(
-    object = ps, pseudo_count = FALSE, formula = as.formula(paste0("~", grp)),
-    phi.formula = as.formula(paste0("~", grp)),
-    formula_null = ~ 1,
-    phi.formula_null = as.formula(paste0("~", grp)),
-    test = "Wald",
-    coefficient = paste0(grp, conditions["condA"]),
-    norm = "none",
-    verbose = FALSE
-)
-```
-
-
-### MAST
-
-```{r}
-output_mast <- DA_MAST(
-    object = ps, pseudo_count = FALSE, 
-    rescale = "median",
-    design = as.formula(paste0("~", grp)),
-    coefficient = paste0(grp, conditions["condA"]),
-    norm = "none",
-    verbose = FALSE
-)
-```
-
-### Seurat
-
-```{r}
-output_seurat <- DA_Seurat(
-    object = ps, test.use = "wilcox",
-    contrast = c(grp, conditions["condA"], conditions["condB"]),
-    norm = "none",
-    verbose = FALSE
-)
-```
-
-### Wilcox
-
-```{r, warning=FALSE}
-output_wilcox_none <- DA_wilcox(
-    object = ps, norm = 'none', design = grp, denom = conditions["condB"]
-)
-
-output_wilcox_clr <- DA_wilcox(
-    object = ps, norm = 'CLR', design = grp, denom = conditions["condB"]
-)
-
-output_wilcox_tss <- DA_wilcox(
-    object = ps, norm = 'TSS', design = grp, denom = conditions["condB"]
-)
-```
-
-### ZINQ
-
-```{r, message=FALSE, warning=FALSE}
-output_zinq <- zinq(object = ps, grp = grp, conditions[2])
-```
-
-
-### ANCOMBC
-
-```{r}
-output_ancombc <- ancombc(object = ps, formula = grp, group = grp)
-```
-
-### LEFSE
-
-```{r}
-output_lefse_none <- DA_lefse(
-    object = ps, grp = grp, ref = conditions[["condB"]],
-    kruskal.threshold = 1,
-    wilcox.threshold = 1,
-    lda.threshold = 0,
-    norm = 'none'
-)
-
-output_lefse_clr <- DA_lefse(
-    object = ps, grp = grp, ref = conditions[["condB"]],
-    kruskal.threshold = 1,
-    wilcox.threshold = 1,
-    lda.threshold = 0,
-    norm = "CLR"
-)
-```
-
-
-## Combine DA results
-
-```{r}
-DA_results <- list(
-    output_deseq2,
-    output_deseq2_zinbweights,
-    output_edger,
-    output_edger_zinbweihgts,
-    output_limma,
-    output_limma_zinbweights,
-    output_aldex2_t,
-    output_aldex2_wilcox,
-    output_metagenomeseq_median,
-    output_metagenomeseq_default,
-    output_corncob,
-    output_mast,
-    output_seurat,
-    output_wilcox_none,
-    output_wilcox_clr,
-    output_wilcox_tss,
-    output_zinq,
-    output_ancombc,
-    output_lefse_none,
-    output_lefse_clr
-)
-names(DA_results) <- map_chr(DA_results, ~ .x$name)
-str(DA_results, max.level = 1)
-
-```
-
-## Enrichment
-
-### Direction
-
-```{r}
-direction <- c(
-    output_deseq2 = "log2FoldChange",
-    output_deseq2_zinbweights = "log2FoldChange",
-    output_edgeR = "logFC",
-    output_edgeR_zinbweihgts = "logFC",
-    output_limma = "logFC",
-    output_limma_zinbweights = "logFC",
-    output_aldex2_t = "effect",
-    output_aldex2_wilcox = "effect",
-    output_metagenomeseq_default = paste0(grp, conditions["condA"]),
-    output_metagenomeseq_median = paste0(grp, conditions["condA"]),
-    output_corncob = "Estimate",
-    output_mast = "logFC",
-    output_seurat = "avg_log2FC",
-    output_wilcox_none = "log2FoldChange",
-    output_wilcox_clr = "log2FoldChange",
-    output_wilcox_tss = "log2FoldChange",
-    output_zinq = "log2FoldChange",
-    output_ancombc = "logFC",
-    output_lefse_none = "LDA_scores",
-    output_lefse_clr = "LDA_scores"
-)
-
-```
-
-### Calculate enrichment
+## Enrichment (adjP >= 0.1)
 
 ```{r}
 enrichment <- createEnrichment(
-    object = DA_results,
+    object = DA_output,
     priorKnowledge = priorInfo,
     enrichmentCol = "type",
     namesCol = "newNames",
@@ -351,15 +142,13 @@ enrichment <- createEnrichment(
     direction = direction,
     threshold_pvalue = 0.1,
     threshold_logfc = 0,
-    top = NULL,
+    top = NULL, # No top feature selected
     alternative = "greater",
     verbose = FALSE 
 )
-
 ```
 
-
-### Plot enrichment
+## Plot enrichment
 
 ```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
 enrich_plot <- plot_enrichment(
@@ -372,17 +161,17 @@ enrich_plot
 
 ```
 
-## Putative positives ratio
+# Putative true positives - putative false positives
 
-### Create table of putative positives
+## Calculate TP - FP ratio (adP <= 0.1)
 
 ```{r}
 positives <- createPositives(
-    object = DA_results, 
+    object = DA_output, 
     priorKnowledge = priorInfo, enrichmentCol = "type", namesCol = "newNames",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
-    threshold_pvalue = 0.1,
+    threshold_pvalue = 0.2,
     threshold_logfc = 0,
     top = seq.int(from = 0, to = 50, by = 5),
     alternative = "greater",
@@ -392,59 +181,18 @@ positives <- createPositives(
 )
 ```
 
-
-### Plot table of putative positives
-
-```{r}
-# pos_plot <- plotPositives(positives)
-# pos_plot
-```
-
+## Plot TP - FP 
 
 ```{r}
-meth_class <- method_classification()
+meth_class <- get_meth_class() 
 positives2 <- left_join(meth_class, positives, by = 'method') %>% 
     relocate(method_class)
-# positives2 <- positives2 %>% 
-#     mutate(
-#         base_method = sub("\\..*", "", method)
-#     )
 ```
 
 
-```{r, fig.height=6, fig.width=10}
-
-# n_meth <- length(unique(positives2$method))
-
-# p1 <- positives2 %>%    
-#     mutate(
-#         method = paste0(method_class, "--", method)
-#     ) %>% 
-#     ggplot(
-#         aes(x = top, y = TP - FP)
-#     ) +
-#     geom_path(
-#         aes(linetype = method_class, color = method)
-#     ) +
-#     geom_point(
-#         aes(shape = method_class, color = method)
-#     ) +
-#     labs(x = "Top") +
-#     scale_color_manual(values = distinctColorPalette(n_meth)) +
-#     scale_linetype_discrete(guide = "none") +
-#     scale_shape_discrete(guide = 'none') +
-#     facet_wrap(~method_class) +
-#     theme_bw() +
-#     theme(
-#         legend.title = element_blank()
-#     )
-# 
-# p1
-
-```
 ```{r, fig.height = 12, fig.width=10}
 plots <- plot_positives(positives2)
 grid.arrange(grobs = plots, ncol = 2)
-```
 
+```
 

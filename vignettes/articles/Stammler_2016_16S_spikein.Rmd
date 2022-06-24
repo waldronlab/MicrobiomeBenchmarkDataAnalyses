@@ -1,0 +1,106 @@
+---
+title: "Analysis of the Stammler_2016_16S_spikein dataset"
+output: 
+    html_document:
+        toc: true
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSEw
+)
+```
+
+```{r setup}
+library(MicrobiomeBenchmarkData)
+library(MicrobiomeBenchmarkDataAnalyses)
+library(dplyr)
+library(benchdamic)
+library(phyloseq)
+library(purrr)
+```
+
+
+# Import data and create variables
+
+```{r}
+tse <- getDataset('Stammler_2016_16S_spikein', dryrun = FALSE)[[1]]
+tse <- tse[, colData(tse)[['time']] %in% c('preasct', 'd14')]
+
+conditions_col <- 'time'
+grp <- 'time'
+conditions <- c(condB = 'preasct', condA = 'd14')
+
+```
+
+
+# Apply some filtering
+```{r}
+tse <- tse[rowSums(assay(tse)) > 0,]
+tse
+```
+
+# Get prior knowledge (biological informaition)
+
+
+```{r}
+# sm <- as.data.frame(colData(tse))
+tax_dat <- as.data.frame(rowData(tse)) %>% 
+    tibble::rownames_to_column('Taxon')
+tax_dat <- tax_dat %>% 
+    mutate(
+        Annotation = case_when(
+            grepl('Bacteroidetes', taxonomy) ~ 'pre-SCT',
+            grepl('Firmicutes', taxonomy) & !grepl('Enterococcus', taxonomy) ~ 'pre-SCT',
+            grepl('Enterococcus', taxonomy) ~ 'SCT',
+            TRUE ~ 'not-defined'
+        )
+    )
+
+table(tax_dat$Annotation)
+
+```
+
+```{r}
+priorInfo <- tax_dat[,c('Taxon', 'Annotation')]
+rownames(priorInfo) <- tax_dat$Taxon
+head(priorInfo)
+```
+
+# Convert to phyloseq
+
+```{r}
+ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse)
+sample_data(ps)[[conditions_col]] <- factor(
+    sample_data(ps)[[conditions_col]], levels = conditions
+)
+ps <- filter_phyloseq(ps)
+ps
+```
+
+
+# Run DA
+
+```{r}
+DA_output <- run_DA(
+    object = ps, conditions_col = conditions_col, conditions = conditions,
+    verbose = TRUE
+)
+```
+```{r}
+spikein <- map(DA_output, ~ {
+    x = .x$pValMat
+    x = x[grep('XXXX', rownames(x)),]
+    x %>% 
+        tibble::rownames_to_column(var = 'taxa')
+    }) %>% 
+    bind_rows(.id = 'test')
+
+
+DA_output$edgeR.TMM$statInfo
+```
+
+
