@@ -67,15 +67,20 @@ taxize_classification_to_taxonomy_table <- function(tax, id_type = "name") {
 #' \code{filter_phyloseq} filters both taxa and samples.
 #'
 #' @param ps A phyloseq object with otu_table and sample_data
+#' @param min_per_samples minimal percentage of samples
 #'
 #' @return The filtered phyloseq object
 #' @export
 #'
-filter_phyloseq <- function(ps) {
+filter_phyloseq <- function(ps, min_per_samples = 0.2) { ## make arguments for filters
+    
     m <- phyloseq::otu_table(ps)
-    ps <- phyloseq::prune_taxa(rowSums(m > 0) >= 5, ps)
+    n_samples <- ncol(m)
+    min_n_samples <- round(n_samples * min_per_samples)
+    ps <- phyloseq::prune_taxa(rowSums(m > 0) >= min_n_samples, ps)
+    ## TODO change absolute values for a fraction ~ 20%
     m <- phyloseq::otu_table(ps)
-    ps <- phyloseq::prune_samples(colSums(m > 0) >= 2, ps)
+    ps <- phyloseq::prune_samples(colSums(m > 0) >= 2, ps) ## apply higher filtering
     ps
 }
 
@@ -453,8 +458,8 @@ get_meth_class <- function() {
 #'
 plot_positives <- function(x) {
     
-    max_top <- max(x$TP - x$FP)
-    min_top <- min(x$TP - x$FP)
+    max_top <- max(x$TP - x$FP, na.rm = TRUE)
+    min_top <- min(x$TP - x$FP, na.rm = TRUE)
     
     list_of_tables <- split(x, x$method_class)
     
@@ -490,14 +495,21 @@ plot_positives <- function(x) {
             ggplot2::labs(
                 x = 'Top', y = 'TP - FP'
             ) +
+            ggplot2::guides(color=guide_legend(override.aes=list(fill=NA))) +
+            guides(
+                color = ggplot2::guide_legend(order = 1)
+            ) +
             ggplot2::theme_bw() +
             ggplot2::theme(
                 legend.position = c(0.01, 0.97),
                 legend.justification = c("left", "top"),
                 # legend.title = ggplot2::element_blank(),
-                legend.box.background = element_rect(
-                    size = 2, color = "white", fill = 'white'
-                )
+                # legend.box.background = element_rect(
+                #     size = 2, color = "red", fill = 'blue'
+                # ),
+                legend.box.background = ggplot2::element_blank(),
+                legend.key = ggplot2::element_blank(),
+                legend.background = ggplot2::element_blank()
             )
         p1
     })

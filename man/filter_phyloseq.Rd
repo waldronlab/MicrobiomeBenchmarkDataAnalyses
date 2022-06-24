@@ -4,10 +4,12 @@
 \alias{filter_phyloseq}
 \title{Fitler phyloseq object}
 \usage{
-filter_phyloseq(ps)
+filter_phyloseq(ps, min_per_samples = 0.2)
 }
 \arguments{
 \item{ps}{A phyloseq object with otu_table and sample_data}
+
+\item{min_per_samples}{minimal percentage of samples}
 }
 \value{
 The filtered phyloseq object
