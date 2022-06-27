@@ -12,8 +12,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(MicrobiomeBenchmarkData)
 library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkData)
 library(mia)
 library(phyloseq)
 library(magrittr)
