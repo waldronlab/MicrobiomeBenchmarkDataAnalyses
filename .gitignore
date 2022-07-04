@@ -5,3 +5,5 @@
 inst/doc
 docs
 extra_files
+.rds
+vignettes/articles/*.rds
