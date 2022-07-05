@@ -139,6 +139,27 @@ if (file.exists(DA_output_file)) {
 # DA_output <- run_DA(ps, conditions_col, conditions)
 ```
 
+## Number of DA features
+
+```{r}
+lapply(DA_output, function(x) {
+    nrow(dplyr::filter(x$pValMat, adjP <= 0.1))
+}) %>% 
+    unlist() %>% 
+    as.data.frame() %>% 
+    tibble::rownames_to_column(var = 'method') %>% 
+    magrittr::set_colnames(c('method', 'n')) %>% 
+    dplyr::arrange(n) %>% 
+    dplyr::mutate(method = forcats::fct_inorder(method)) %>% 
+    ggplot(aes(method, n)) +
+    geom_col() + 
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    
+```
+
+
+
 ## Enrichment analysis
 
 
