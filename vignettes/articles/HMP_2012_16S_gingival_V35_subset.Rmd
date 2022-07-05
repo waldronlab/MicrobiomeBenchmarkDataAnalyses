@@ -1,68 +1,76 @@
 ---
 title: "Analysis of the HMP_2012_16S_gingival_V35_subset dataset"
 output: 
-    html_document:
-        toc: true
+    html_document: 
+      toc: yes
 ---
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
-```{r, message=FALSE}
-library(MicrobiomeBenchmarkData)
+```{r setup}
 library(MicrobiomeBenchmarkDataAnalyses)
-library(phyloseq)
+library(MicrobiomeBenchmarkData)
 library(mia)
 library(benchdamic)
-library(purrr)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
-library(randomcoloR)
 ```
 
-# Data
 
-Import TreeSummarizedExperiment
+# Import data
 
 ```{r}
-dat_name <- "HMP_2012_16S_gingival_V35_subset"
-conditions_col <- "hmp_body_subsite"
-conditions <- c(condB = "subgingival_plaque", condA = "supragingival_plaque")
-
+dat_name <-'HMP_2012_16S_gingival_V35_subset'
 tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
 tse
 ```
 
-Get prior knowledge from colData (biological truth)
+# Prior knowledge
 
 ```{r}
 row_data <- as.data.frame(rowData(tse))
-taxaNames <- rownames(row_data)
-newNames <- paste0(taxaNames, "|", row_data$GENUS) 
-priorInfo <- data.frame(
-    taxaNames = taxaNames,
-    genus = row_data$GENUS,
-    newNames = newNames,
-    type = row_data$BIOSIS 
-)
-rownames(priorInfo) <- taxaNames
+prior_info <- row_data[, c('genus', 'taxon_annotation')]
+prior_info$taxon_name <- rownames(prior_info)
+prior_info$new_names <- paste0(prior_info$taxon_name, '|', prior_info$genus)
+head(prior_info)
 ```
 
-Convert to phyloseq
+# Convert to phyloseq
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
 ps <- filter_phyloseq(ps)
-sample_data(ps)[[conditions_col]] <- 
-    factor(sample_data(ps)[[conditions_col]], levels = conditions)
+phyloseq::sample_data(ps)$body_subsite <- 
+    factor(phyloseq::sample_data(ps)$body_subsite)
+ps
 ```
 
-# Differential abundance analysis
+# Run DA
 
-```{r warning=FALSE, message=FALSE}
-DA_output <- run_DA(ps, conditions_col, conditions)
+```{r, message=TRUE}
+conditions_col <- 'body_subsite'
+conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
+
+## This can take a while. It's better to save the results and import them back
+## later
+DA_output_file <-  paste0('./', dat_name, '.rds')
+if (file.exists(DA_output_file)) {
+    message('DA results exist in directory. Importing...')
+    DA_output <- readRDS(DA_output_file)
+} else if (!file.exists(DA_output_file)) {
+    message('Performing DA results.')
+    DA_output <- run_DA(ps, conditions_col, conditions)
+    saveRDS(DA_output, DA_output_file) 
+}
+
+```
+
+
+```{r}
+names(DA_output)
 ```
 
 # Enrichment
@@ -78,9 +86,9 @@ direction <- get_direction_cols(DA_output, conditions_col, conditions)
 ```{r}
 enrichment <- createEnrichment(
     object = DA_output,
-    priorKnowledge = priorInfo,
-    enrichmentCol = "type",
-    namesCol = "newNames",
+    priorKnowledge = prior_info,
+    enrichmentCol = "taxon_annotation",
+    namesCol = "new_names",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
     threshold_pvalue = 0.1,
@@ -96,8 +104,8 @@ enrichment <- createEnrichment(
 ```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
 enrich_plot <- plot_enrichment(
     enrichment = enrichment, 
-    enrichment_col = "type",
-    levels_to_plot = c("Aerobic", "Anaerobic", "F Anaerobic"),
+    enrichment_col = "taxon_annotation",
+    levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
     conditions = conditions
 )
 enrich_plot
@@ -111,7 +119,8 @@ enrich_plot
 ```{r}
 positives <- createPositives(
     object = DA_output, 
-    priorKnowledge = priorInfo, enrichmentCol = "type", namesCol = "newNames",
+    priorKnowledge = prior_info, 
+    enrichmentCol = "taxon_annotation", namesCol = "new_names",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
     threshold_pvalue = 0.1,
@@ -119,8 +128,8 @@ positives <- createPositives(
     top = seq.int(from = 0, to = 50, by = 5),
     alternative = "greater",
     verbose = FALSE,
-    TP = list(c("DOWN Abundant", "Anaerobic"), c("UP Abundant", "Aerobic")),
-    FP = list(c("DOWN Abundant", "Aerobic"), c("UP Abundant", "Anaerobic"))
+    TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
+    FP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "anaerobic"))
 )
 ```
 

@@ -1,5 +1,8 @@
 ---
 title: "HMP_2012_16S_gingival_V13"
+output: 
+    html_document:
+        toc: true
 ---
 
 ```{r, include = FALSE}
@@ -11,51 +14,208 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 ```{r setup}
-library(MicrobiomeBenchmarkData)
 library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkData)
 library(mia)
 library(phyloseq)
+library(magrittr)
+library(benchdamic)
+
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
 ```
 
 # Data
 
-Import TreeSummarizedEperiment:
+Import dataset:
+
+```{r import data}
+dat_name <- 'HMP_2012_16S_gingival_V13'
+x <- getDataset(dat_name, dryrun = FALSE)[[1]]
+x
+```
+Filter data
+
++ Subjects from the same run center and the first visit.
 
 ```{r}
-tse <- getDataset('HMP_2012_16S_gingival_V13', dryrun = FALSE)[[1]]
-ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
+col_data <- as.data.frame(colData(x))
+col_data_sub <-
+    dplyr::filter(col_data, run_center == 'WUGC', visit_number == 1)
+col_data_split <- split(col_data_sub, factor(col_data_sub$body_subsite))
+subjects <- intersect(
+    col_data_split$subgingival_plaque$subject_id,
+    col_data_split$supragingival_plaque$subject_id
+)
+
+male_subjects <- dplyr::filter(
+    col_data_sub,
+    subject_id %in% subjects, gender == 'male'
+) %>% 
+    dplyr::pull(subject_id) %>% 
+    unique()
+
+female_subjects <- dplyr::filter(
+    col_data_sub,
+    subject_id %in% subjects, gender == 'female'
+) %>% 
+    dplyr::pull(subject_id) %>% 
+    unique()
+n <- min(length(male_subjects), length(female_subjects))
+set.seed(1234)
+select_subjects <- c(sample(male_subjects, n), sample(female_subjects, n))
+select_samples <- rownames(col_data_sub)[
+    col_data_sub$subject_id %in% select_subjects
+]
+x_sub <- x[,select_samples]
+x_sub <- x_sub[rowSums(assay(x_sub)) > 0, ]
+x_sub
+```
+
+Summarize by ranks and retrieve data at the genus level:
+
+```{r}
+by_ranks <- splitByRanks(x_sub)
+x_genus <- by_ranks$genus
+x_genus
+```
+
+# Prior information
+
+OTU level:
+
+```{r prior information}
+row_data <- as.data.frame(rowData(x_sub))
+prior_info <- row_data[, c('genus', 'taxon_annotation')]
+prior_info$taxon_name <- rownames(row_data)
+prior_info$new_names <- paste0(prior_info$taxon_name, '|', prior_info$genus)
+prior_info <- 
+    dplyr::relocate(prior_info, taxon_name, new_names, genus, taxon_annotation)
+head(prior_info)
+```
+
+Genus level
+
+```{r}
+row_data_genus <- as.data.frame(rowData(x_genus))
+prior_info_genus <- row_data_genus[,c('genus', 'taxon_annotation')]
+head(prior_info_genus)
+```
+
+# Benchmarking at the OTU level
+
+Define some variables
+
+```{r}
+conditions_col <- 'body_subsite'
+conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
+```
+
+Convert to phyloseq
+
+```{r}
+ps <- makePhyloseqFromTreeSummarizedExperiment(x_sub)
+ps <- filter_phyloseq(ps)
+sample_data(ps)[[conditions_col]] <- 
+    factor(sample_data(ps)[[conditions_col]], levels = conditions)
 ps
 ```
 
-# Prior knowledge 
+## Differential abundance analysis
 
 ```{r}
-row_data <- as.data.frame(rowData(tse))
-row_data$taxon_name <- rownames(row_data)
-row_data$new_names <- paste0(row_data$taxon_name, '|', row_data$genus)
-prior_info <- row_data[, c('taxon_name', 'new_names', 'genus', 'taxon_annotation')]
+## This can take a while. It's better to save the results and import them back
+## later
+DA_output_file <-  paste0('./', dat_name, '.rds')
+if (file.exists(DA_output_file)) {
+    message('DA results exist in directory. Importing...')
+    DA_output <- readRDS(DA_output_file)
+} else if (!file.exists(DA_output_file)) {
+    message('Performing DA results.')
+    DA_output <- run_DA(ps, conditions_col, conditions)
+    saveRDS(DA_output, DA_output_file) 
+}
+
+
+# DA_output <- run_DA(ps, conditions_col, conditions)
+```
+
+## Enrichment analysis
+
+
+Get direction 
+
+```{r}
+direction <- get_direction_cols(DA_output, conditions_col, conditions)
+```
+
+## Enrichment (adjP >= 0.1)
+
+```{r}
+enrichment <- createEnrichment(
+    object = DA_output,
+    priorKnowledge = prior_info,
+    enrichmentCol = "taxon_annotation",
+    namesCol = "new_names",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL, # No top feature selected
+    alternative = "greater",
+    verbose = FALSE 
+)
+```
+
+## Plot enrichment
+
+```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
+enrich_plot <- plot_enrichment(
+    enrichment = enrichment, 
+    enrichment_col = "taxon_annotation",
+    levels_to_plot = c("aerobic", "anaerobic", "facultative_naerobic"),
+    conditions = conditions
+)
+enrich_plot
+
+```
+
+# Putative true positives - putative false positives
+
+## Calculate TP - FP ratio (adP <= 0.1)
+
+```{r}
+positives <- createPositives(
+    object = DA_output, 
+    priorKnowledge = prior_info, 
+    enrichmentCol = "taxon_annotation", namesCol = "new_names",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 50, by = 5),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
+    FP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "anaerobic"))
+)
+```
+
+## Plot TP - FP 
+
+```{r}
+meth_class <- get_meth_class() 
+positives2 <- left_join(meth_class, positives, by = 'method') %>% 
+    relocate(method_class)
 ```
 
 
-# Divde by rank
-
-```{r}
-tse_by_ranks <- splitByRanks(tse)
-tse_genus <- tse_by_ranks$genus
-tse_genus
-```
-```{r}
-row_data_genus <- as.data.frame(rowData(tse_genus))
-```
-
-
-
-
-
-Comparison must be betwen subgingival and supragingival plaque samples
-
-```{r}
+```{r, fig.height = 12, fig.width=10}
+plots <- plot_positives(positives2)
+grid.arrange(grobs = plots, ncol = 2)
 
 ```
 

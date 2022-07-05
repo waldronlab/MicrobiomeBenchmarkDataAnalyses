@@ -19,6 +19,7 @@ library(phyloseq)
 library(magrittr)
 library(benchdamic)
 
+library(dplyr)
 library(ggplot2)
 library(gridExtra)
 ```
@@ -28,7 +29,8 @@ library(gridExtra)
 Import dataset:
 
 ```{r import data}
-x <- getDataset('HMP_2012_16S_gingival_V35', dryrun = FALSE)[[1]]
+dat_name <- 'HMP_2012_16S_gingival_V35'
+x <- getDataset(dat_name, dryrun = FALSE)[[1]]
 x
 ```
 Filter data
@@ -121,7 +123,20 @@ ps
 ## Differential abundance analysis
 
 ```{r}
-DA_output <- run_DA(ps, conditions_col, conditions)
+## This can take a while. It's better to save the results and import them back
+## later
+DA_output_file <-  paste0('./', dat_name, '.rds')
+if (file.exists(DA_output_file)) {
+    message('DA results exist in directory. Importing...')
+    DA_output <- readRDS(DA_output_file)
+} else if (!file.exists(DA_output_file)) {
+    message('Performing DA results.')
+    DA_output <- run_DA(ps, conditions_col, conditions)
+    saveRDS(DA_output, DA_output_file) 
+}
+
+
+# DA_output <- run_DA(ps, conditions_col, conditions)
 ```
 
 ## Enrichment analysis

@@ -5,121 +5,74 @@ output:
         toc: true
 ---
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 
-```{r, message=FALSE}
-library(MicrobiomeBenchmarkData)
+```{r}
+
 library(MicrobiomeBenchmarkDataAnalyses)
-library(phyloseq)
+library(MicrobiomeBenchmarkData)
 library(mia)
 library(benchdamic)
-library(purrr)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
-library(randomcoloR)
-library(tibble)
 ```
+
 
 # Import data
 
-Dataset
-
 ```{r}
-dat_name <- 'HMP_2012_WMS_gingival'
-conditions_col <- "body_subsite"
-conditions <- c(condB = "subgingival_plaque", condA = "supragingival_plaque")
-
+dat_name <-'HMP_2012_WMS_gingival'
 tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
-rownames(tse) <- sub("^.*s__", "", rownames(tse))
+tse
 ```
 
-# Analysis at the species level
-
-Import biosis annotations:
-
-```{r}
-biosis_file <- system.file(
-  "extdata/nychanes_biosis.tsv", 
-  package = "MicrobiomeBenchmarkDataAnalyses"
-)
-biosis <- read.table(biosis_file, header = TRUE, sep = "\t")
-```
-
-Create priorInfo data
+# Prior knowledge
 
 ```{r}
 row_data <- as.data.frame(rowData(tse))
-priorInfo <- left_join(row_data, biosis, by = c("genus" = "genera")) %>% 
-    select(species, biosis) 
-rownames(priorInfo) <- rownames(row_data)
-colnames(priorInfo) <- c("taxaNames", "type")
-priorInfo$newNames <- rownames(priorInfo)
+prior_info <- row_data[, c('genus', 'taxon_annotation')]
+prior_info$taxon_name <- rownames(prior_info)
+prior_info$new_names <- paste0(prior_info$taxon_name, '|', prior_info$genus)
+head(prior_info)
 ```
 
-Convert to phyloseq
+# Convert to phyloseq
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
 ps <- filter_phyloseq(ps)
-sample_data(ps)[[conditions_col]] <- factor(
-    sample_data(ps)[[conditions_col]], levels = conditions
-)
+phyloseq::sample_data(ps)$body_subsite <- 
+    factor(phyloseq::sample_data(ps)$body_subsite)
 ps
 ```
 
+# Run DA
 
-```{r}
-DA_output <- run_DA(
-    object = ps, conditions_col = conditions_col, conditions = conditions
-)
-```
+```{r, message=TRUE}
+conditions_col <- 'body_subsite'
+conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
 
-# Exploratory plots of the DA outputs
-
-## P-value distribution
-
-```{r}
-priorInfo$type <- ifelse(is.na(priorInfo$type), "NA", priorInfo$type)
-pvalue_plots <- map2(DA_output, names(DA_output), ~ {
-    rownames_to_column(.x$pValMat, var = 'taxa') %>%
-        as_tibble() %>% 
-        left_join(priorInfo, by = c('taxa' = 'newNames')) %>% 
-        ggplot(aes(x = rawP, fill = type)) +
-        geom_histogram(bins = 20, color = 'black') +
-        scale_x_continuous(limits = c(-0.05, 1.05)) +
-        ggtitle(.y) +
-        theme_bw()
-})
-```
-
-```{r}
-pvalue_plots
-```
-
-
-## Histogram of adjusted P-values
-
-```{r}
-
-fdr_plots <- map2(DA_output, names(DA_output), ~ {
-    rownames_to_column(.x$pValMat, var = 'taxa') %>%
-        as_tibble() %>% 
-        left_join(priorInfo, by = c('taxa' = 'newNames')) %>% 
-        ggplot(aes(x = adjP, fill = type)) +
-        geom_histogram(bins = 20, color = 'black') +
-        scale_x_continuous(limits = c(-0.05, 1.05)) +
-        ggtitle(.y) +
-        theme_bw()
-})
+## This can take a while. It's better to save the results and import them back
+## later
+DA_output_file <-  paste0('./', dat_name, '.rds')
+if (file.exists(DA_output_file)) {
+    message('DA results exist in directory. Importing...')
+    DA_output <- readRDS(DA_output_file)
+} else if (!file.exists(DA_output_file)) {
+    message('Performing DA results.')
+    DA_output <- run_DA(ps, conditions_col, conditions)
+    saveRDS(DA_output, DA_output_file) 
+}
 
 ```
 
+
 ```{r}
-fdr_plots
+names(DA_output)
 ```
 
 # Enrichment
@@ -135,9 +88,9 @@ direction <- get_direction_cols(DA_output, conditions_col, conditions)
 ```{r}
 enrichment <- createEnrichment(
     object = DA_output,
-    priorKnowledge = priorInfo,
-    enrichmentCol = "type",
-    namesCol = "newNames",
+    priorKnowledge = prior_info,
+    enrichmentCol = "taxon_annotation",
+    namesCol = "taxon_name",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
     threshold_pvalue = 0.1,
@@ -153,8 +106,8 @@ enrichment <- createEnrichment(
 ```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
 enrich_plot <- plot_enrichment(
     enrichment = enrichment, 
-    enrichment_col = "type",
-    levels_to_plot = c("Aerobic", "Anaerobic", "F Anaerobic"),
+    enrichment_col = "taxon_annotation",
+    levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
     conditions = conditions
 )
 enrich_plot
@@ -168,16 +121,17 @@ enrich_plot
 ```{r}
 positives <- createPositives(
     object = DA_output, 
-    priorKnowledge = priorInfo, enrichmentCol = "type", namesCol = "newNames",
+    priorKnowledge = prior_info, 
+    enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
-    threshold_pvalue = 0.2,
+    threshold_pvalue = 0.1,
     threshold_logfc = 0,
     top = seq.int(from = 0, to = 50, by = 5),
     alternative = "greater",
     verbose = FALSE,
-    TP = list(c("DOWN Abundant", "Anaerobic"), c("UP Abundant", "Aerobic")),
-    FP = list(c("DOWN Abundant", "Aerobic"), c("UP Abundant", "Anaerobic"))
+    TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
+    FP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "anaerobic"))
 )
 ```
 
@@ -195,4 +149,3 @@ plots <- plot_positives(positives2)
 grid.arrange(grobs = plots, ncol = 2)
 
 ```
-
