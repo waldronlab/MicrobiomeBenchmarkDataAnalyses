@@ -466,7 +466,7 @@ plot_positives <- function(x) {
     list_of_plots <- purrr::map(list_of_tables, ~ {
         df <- .x %>% 
             dplyr::mutate(
-                dplyr::across(.cols = tidyselect::where(is.character), .fns = ~ forcats::fct_inorder(.x)),
+                dplyr::across(.cols = tidyselect:::where(is.character), .fns = ~ forcats::fct_inorder(.x)),
                 shape = forcats::fct_inorder(as.character(shape))
             )
         p1 <- df %>%
