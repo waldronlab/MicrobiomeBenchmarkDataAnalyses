@@ -113,15 +113,19 @@ Run DA for raw counts
 
 ```{r}
 
-fname <- paste0('./', dat_name, '.rds')
-if (!file.exists(fname)) {
-    DA_output <- run_DA(
-        object = ps, conditions_col = conditions_col, conditions = conditions,
-        verbose = FALSE  
-        )
-    saveRDS(DA_output, fname)
-} else if (file.exists(fname)) {
-    DA_output <- readRDS(fname)
+DA_output_file <-  paste0('./', dat_name, '.rds')
+DA_output_flie_2 <- paste0('../../misc/articles_data/', dat_name, '.rds')
+
+if (file.exists(DA_output_file)) {
+    message('DA results exist in directory. Importing...')
+    DA_output <- readRDS(DA_output_file)
+} else if (file.exists(DA_output_flie_2)) {
+    message('DA results exist in misc. Importing')
+    DA_output <- readRDS(DA_output_flie_2)
+} else if (!file.exists(DA_output_file)) {
+    message('Performing DA results.')
+    DA_output <- run_DA(ps, conditions_col, conditions)
+    saveRDS(DA_output, DA_output_file) 
 }
 
 ```
@@ -129,15 +133,20 @@ if (!file.exists(fname)) {
 Run DA for recalibrated counts
 
 ```{r}
-fname_recal <- paste0('./', dat_name, '_recal.rds')
-if (!file.exists(fname_recal)) {
-    DA_output_recal <- run_DA(
-        object = ps_recal, conditions_col = conditions_col,
-        conditions = conditions, verbose = FALSE 
-    )
-    saveRDS(DA_output_recal, fname_recal)
-} else if (file.exists(fname_recal)) {
-    DA_output_recal <- readRDS(fname_recal)
+DA_output_file_recal <-  paste0('./', dat_name, '_recal.rds')
+DA_output_flie_2_recal <-
+    paste0('../../misc/articles_data/', dat_name, '_recal.rds')
+
+if (file.exists(DA_output_file_recal)) {
+    message('DA results exist in directory. Importing...')
+    DA_output_recal <- readRDS(DA_output_file_recal)
+} else if (file.exists(DA_output_flie_2_recal)) {
+    message('DA results exist in misc. Importing')
+    DA_output_recal <- readRDS(DA_output_flie_2_recal)
+} else if (!file.exists(DA_output_file_recal)) {
+    message('Performing DA results.')
+    DA_output_recal <- run_DA(ps_recal, conditions_col, conditions)
+    saveRDS(DA_output_recal, DA_output_file_recal) 
 }
 
 ```

@@ -59,9 +59,14 @@ conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
 ## This can take a while. It's better to save the results and import them back
 ## later
 DA_output_file <-  paste0('./', dat_name, '.rds')
+DA_output_flie_2 <- paste0('../../misc/articles_data/', dat_name, '.rds')
+
 if (file.exists(DA_output_file)) {
     message('DA results exist in directory. Importing...')
     DA_output <- readRDS(DA_output_file)
+} else if (file.exists(DA_output_flie_2)) {
+    message('DA results exist in misc. Importing')
+    DA_output <- readRDS(DA_output_flie_2)
 } else if (!file.exists(DA_output_file)) {
     message('Performing DA results.')
     DA_output <- run_DA(ps, conditions_col, conditions)
