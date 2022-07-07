@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message=FALSE}
 library(MicrobiomeBenchmarkData)
-# library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkDataAnalyses)
 library(mia)
 library(phyloseq)
 library(dplyr)
@@ -19,38 +19,46 @@ library(benchdamic)
 
 ```{r}
 dat_name <- 'Ravel_2011_16S_BV'
-conditions_col <- 'nugent_score_category'
-conditions <- c(condB = 'low', condA = 'high')
+conditions_col <- 'study_condition'
+conditions <- c(condB = 'healthy', condA = 'bacterial_vaginosis')
 
-se <- getDataset(dat_name, dryrun = FALSE)[[1]]
-se <- se[,colData(se)$nugent_score_category %in% c('low', 'high')]
-se <- se[rowSums(assay(se)) > 1, colSums(assay(se)) != 0]
-se
+tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
+select_samples <- colData(tse)[[conditions_col]] %in% conditions
+tse <- tse[, select_samples]
+tse <- tse[rowSums(assay(tse)) > 1,] 
+tse
 ```
+
+```{r}
+table(colData(tse)$study_condition)
+```
+
 
 ## Get prior Info by genus 
 
 ```{r}
-priorInfo <- as.data.frame(subset(rowData(se), select = c('genus', 'Attribute')))
+priorInfo <- 
+    as.data.frame(subset(rowData(tse), select = c('genus', 'taxon_annotation')))
 newNames <- paste0(rownames(priorInfo), '|', priorInfo$genus)
 priorInfo <- priorInfo %>% 
     filter(!is.na(genus)) %>% 
     distinct()
 rownames(priorInfo) <- priorInfo$genus
+head(priorInfo)
 ```
 
 ## Summarize by genus
 
 ```{r}
-se_genus <- splitByRanks(se)$genus
-se_genus
+tse_genus <- splitByRanks(tse)$genus
+tse_genus
 ```
 
 Reorder priorInfo according to rownames of se_genus
 
 
 ```{r}
-ps <- makePhyloseqFromTreeSummarizedExperiment(se_genus)
+ps <- makePhyloseqFromTreeSummarizedExperiment(tse_genus)
 sample_data(ps)[[conditions_col]] <- 
     factor(sample_data(ps)[[conditions_col]], levels = conditions)
 ```
@@ -58,11 +66,42 @@ sample_data(ps)[[conditions_col]] <-
 
 ## Run Differential abundance analysis
 
+Filter
+
 ```{r}
 ps <- filter_phyloseq(ps)
+```
+
+DA analysis:
+
+```{r}
 ps <- runNormalizations(set_norm_list(),ps)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
-DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
+
+DA_methods$DA_ALDEx2.1 <- NULL
+DA_methods <- purrr::discard(DA_methods, is.null)
+
+```
+
+```{r}
+fname <- paste0('./', dat_name, '.rds')
+fname2 <- paste0('../../misc/articles_data/', dat_name, '.rds')
+if (file.exists(fname)) {
+    message('DA output exists in current directory. Importing...')
+    DA_output <- readRDS(fname)
+} else if (file.exists(fname2)) {
+    message('DA ouptut exists in misc directory. Importing...')
+    DA_output <- readRDS(fname2)
+} else {
+    DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
+    saveRDS(DA_output, fname)
+} 
+```
+
+See results
+
+```{r}
+names(DA_output)
 ```
 
