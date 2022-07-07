@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   message = FALSE,
-  warning = FALSEw
+  warning = FALSE
 )
 ```
 
@@ -24,83 +24,199 @@ library(purrr)
 ```
 
 
-# Import data and create variables
+## Import data 
 
 ```{r}
-tse <- getDataset('Stammler_2016_16S_spikein', dryrun = FALSE)[[1]]
-tse <- tse[, colData(tse)[['time']] %in% c('preasct', 'd14')]
-
-conditions_col <- 'time'
-grp <- 'time'
-conditions <- c(condB = 'preasct', condA = 'd14')
-
-```
-
-
-# Apply some filtering
-```{r}
-tse <- tse[rowSums(assay(tse)) > 0,]
+dat_name <- 'Stammler_2016_16S_spikein'
+tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
 tse
 ```
 
-# Get prior knowledge (biological informaition)
+## Spike-in bacteria identifiers
+
+| Bacteria | ID | Load |
+| -------- | -- | ---- |
+| *Salinibacter ruber* | AF323500XXXX | 3.0 x 10<sup>8</sup> |
+| *Rhizobium radiobacter* | AB247615XXXX | 5.0 x 10<sup>8</sup> |
+| *Alicyclobacillus acidiphilus* | AB076660XXXX | 1.0 x 10<sup>8</sup> |
 
 
 ```{r}
-# sm <- as.data.frame(colData(tse))
-tax_dat <- as.data.frame(rowData(tse)) %>% 
-    tibble::rownames_to_column('Taxon')
-tax_dat <- tax_dat %>% 
-    mutate(
-        Annotation = case_when(
-            grepl('Bacteroidetes', taxonomy) ~ 'pre-SCT',
-            grepl('Firmicutes', taxonomy) & !grepl('Enterococcus', taxonomy) ~ 'pre-SCT',
-            grepl('Enterococcus', taxonomy) ~ 'SCT',
-            TRUE ~ 'not-defined'
-        )
-    )
-
-table(tax_dat$Annotation)
-
+spikein_bacteria <- c(
+    s_ruber = 'AF323500XXXX', 
+    r_radiobacter = 'AB247615XXXX',
+    a_acidiphilus = 'AB076660XXXX'
+)
 ```
 
+
+## Recalibrate counts based on Salinibacter ruber
+
 ```{r}
-priorInfo <- tax_dat[,c('Taxon', 'Annotation')]
-rownames(priorInfo) <- tax_dat$Taxon
-head(priorInfo)
+counts <- assay(tse)
+## AF323500XXXX is the unique OTU corresponding to S. ruber
+s_ruber <- counts['AF323500XXXX', ]
+size_factor <- s_ruber/mean(s_ruber)
+
+counts_recal <- counts 
+for(i in seq(ncol(counts_recal))){
+    counts_recal[,i] <- round(counts_recal[,i] / size_factor[i])
+}
+
+tse_recal <- tse
+assay(tse_recal) <- counts_recal
+```
+
+# Subset samples - preASCT vs d14
+
+```{r}
+## Variables for conditions
+conditions_col <- 'study_condition'
+conditions <- c(condB = 'preASCT', condA = 'd14')
+
+## Select samples
+select_samples <- colData(tse)[[conditions_col]] %in% conditions
+
+## Raw read counts
+tse <- tse[, select_samples]
+tse <- tse[rowSums(assay(tse)) > 0, ]
+
+## Recalibrated counts
+tse_recal <- tse_recal[, select_samples]
+tse_recal <- tse_recal[rowSums(assay(tse_recal)) > 0, ]
+
 ```
 
 # Convert to phyloseq
 
 ```{r}
+## Convert raw counts to phyloseq
 ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse)
 sample_data(ps)[[conditions_col]] <- factor(
     sample_data(ps)[[conditions_col]], levels = conditions
 )
 ps <- filter_phyloseq(ps)
-ps
+
+## Convert recalibrated counts to phyloseq
+
+ps_recal <- mia::makePhyloseqFromTreeSummarizedExperiment(tse_recal)
+sample_data(ps_recal)[[conditions_col]] <- factor(
+    sample_data(ps_recal)[[conditions_col]], levels = conditions
+)
+ps_recal <- filter_phyloseq(ps_recal)
 ```
 
 
 # Run DA
 
-```{r}
-DA_output <- run_DA(
-    object = ps, conditions_col = conditions_col, conditions = conditions,
-    verbose = TRUE
-)
-```
-```{r}
-spikein <- map(DA_output, ~ {
-    x = .x$pValMat
-    x = x[grep('XXXX', rownames(x)),]
-    x %>% 
-        tibble::rownames_to_column(var = 'taxa')
-    }) %>% 
-    bind_rows(.id = 'test')
+Run DA for raw counts
 
+```{r}
 
-DA_output$edgeR.TMM$statInfo
+fname <- paste0('./', dat_name, '.rds')
+if (!file.exists(fname)) {
+    DA_output <- run_DA(
+        object = ps, conditions_col = conditions_col, conditions = conditions,
+        verbose = FALSE  
+        )
+    saveRDS(DA_output, fname)
+} else if (file.exists(fname)) {
+    DA_output <- readRDS(fname)
+}
+
 ```
 
+Run DA for recalibrated counts
+
+```{r}
+fname_recal <- paste0('./', dat_name, '_recal.rds')
+if (!file.exists(fname_recal)) {
+    DA_output_recal <- run_DA(
+        object = ps_recal, conditions_col = conditions_col,
+        conditions = conditions, verbose = FALSE 
+    )
+    saveRDS(DA_output_recal, fname_recal)
+} else if (file.exists(fname_recal)) {
+    DA_output_recal <- readRDS(fname_recal)
+}
+
+```
+
+
+## Comparing results of DA
+
+Get results with raw counts
+
+```{r}
+
+dir_cols <- get_direction_cols(DA_output, conditions_col, conditions)
+
+output <- vector('list', length(DA_output))
+names(output) <- names(DA_output)
+
+for (i in seq_along(output)) {
+    output_name <- names(dir_cols)[i]
+    col_name <- dir_cols[i]
+    statInfo <- DA_output[[output_name]]$statInfo
+    statInfo <- statInfo[, c(col_name), drop = FALSE]
+    pValMat <- DA_output[[output_name]]$pValMat
+    df <- cbind(statInfo, pValMat)
+    df <- df %>% 
+        as.data.frame() %>% 
+        tibble::rownames_to_column(var = 'taxon_name') %>% 
+        as_tibble() %>% 
+        magrittr::set_colnames(c('taxon_id', 'effect_size', 'rawP', 'adjP')) 
+    output[[i]] <- df
+}
+
+output <- bind_rows(output, .id = 'method')
+
+```
+
+
+Get results with recalibrated counts
+
+```{r}
+dir_cols_recal <-
+    get_direction_cols(DA_output_recal, conditions_col, conditions)
+
+output_recal <- vector('list', length(DA_output_recal))
+names(output_recal) <- names(DA_output_recal)
+
+for (i in seq_along(output_recal)) {
+    output_name <- names(dir_cols_recal)[i]
+    col_name <- dir_cols_recal[i]
+    statInfo <- DA_output_recal[[output_name]]$statInfo
+    statInfo <- statInfo[, c(col_name), drop = FALSE]
+    pValMat <- DA_output_recal[[output_name]]$pValMat
+    df <- cbind(statInfo, pValMat)
+    df <- df %>% 
+        as.data.frame() %>% 
+        tibble::rownames_to_column(var = 'taxon_name') %>% 
+        as_tibble() %>% 
+        magrittr::set_colnames(c('taxon_id', 'effect_size', 'rawP', 'adjP')) 
+    output_recal[[i]] <- df
+}
+
+output_recal <- bind_rows(output_recal, .id = 'method')
+```
+
+## Compare results
+
+
+```{r}
+output %>% 
+    dplyr::filter(
+        taxon_id %in% spikein_bacteria,
+        rawP <= 0.05
+    )
+```
+
+```{r}
+output_recal %>% 
+    dplyr::filter(
+        taxon_id %in% spikein_bacteria,
+        rawP <= 0.05
+    )
+```
 
