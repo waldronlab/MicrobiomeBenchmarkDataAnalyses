@@ -74,8 +74,8 @@ ps <- filter_phyloseq(ps)
 
 DA analysis:
 
-```{r}
-ps <- runNormalizations(set_norm_list(),ps)
+```{r, message=FALSE}
+ps <- runNormalizations(set_norm_list(),ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
