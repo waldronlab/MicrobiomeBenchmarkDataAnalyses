@@ -126,7 +126,7 @@ ps
 
 ## Differential abundance analysis
 
-```{r}
+```{r, message=TRUE}
 ## This can take a while. It's better to save the results and import them back
 ## later
 DA_output_file <-  paste0('./', dat_name, '.rds')
