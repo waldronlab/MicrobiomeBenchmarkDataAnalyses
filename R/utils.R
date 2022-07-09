@@ -72,13 +72,12 @@ taxize_classification_to_taxonomy_table <- function(tax, id_type = "name") {
 #' @return The filtered phyloseq object
 #' @export
 #'
-filter_phyloseq <- function(ps, min_per_samples = 0.2) { ## make arguments for filters
+filter_phyloseq <- function(ps, min_per_samples = 0.2) { 
     
     m <- phyloseq::otu_table(ps)
     n_samples <- ncol(m)
     min_n_samples <- round(n_samples * min_per_samples)
     ps <- phyloseq::prune_taxa(rowSums(m > 0) >= min_n_samples, ps)
-    ## TODO change absolute values for a fraction ~ 20%
     m <- phyloseq::otu_table(ps)
     ps <- phyloseq::prune_samples(colSums(m > 0) >= 2, ps) ## apply higher filtering
     ps

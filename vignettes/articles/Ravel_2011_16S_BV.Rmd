@@ -81,7 +81,6 @@ DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
 DA_methods$DA_ALDEx2.1 <- NULL
 DA_methods <- purrr::discard(DA_methods, is.null)
-
 ```
 
 ```{r}

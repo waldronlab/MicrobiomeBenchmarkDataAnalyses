@@ -151,7 +151,6 @@ if (file.exists(DA_output_file_recal)) {
 
 ```
 
-
 ## Comparing results of DA
 
 Get results with raw counts
@@ -217,6 +216,7 @@ output_recal <- bind_rows(output_recal, .id = 'method')
 output %>% 
     dplyr::filter(
         taxon_id %in% spikein_bacteria,
+        # grepl('^(wilcox)', method)
         rawP <= 0.05
     )
 ```
@@ -225,7 +225,47 @@ output %>%
 output_recal %>% 
     dplyr::filter(
         taxon_id %in% spikein_bacteria,
-        rawP <= 0.05
+        # grepl('^(wilcox)', method)
+         rawP <= 0.05
     )
+```
+
+# count of salnibacter
+
+Compare with normalization 
+
+```{r}
+assay(tse)[spikein_bacteria['s_ruber'], ]
+```
+
+```{r}
+sd(assay(tse_recal)[spikein_bacteria['s_ruber'], ])
+```
+
+# counts of Alicyclobacillus acidiphilus
+
+```{r}
+sd(assay(tse)[spikein_bacteria['a_acidiphilus'], ])
+```
+
+```{r}
+sd(assay(tse_recal)[spikein_bacteria['a_acidiphilus'], ])
+```
+
+
+# counts of 
+
+```{r}
+sd(assay(tse)[spikein_bacteria['r_radiobacter'], ])
+
+```
+
+```{r}
+sd(assay(tse_recal)[spikein_bacteria['r_radiobacter'], ])
+
+```
+
+```{r}
+spikein_bacteria
 ```
 
