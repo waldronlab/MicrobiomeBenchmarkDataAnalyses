@@ -42,4 +42,4 @@ Remotes:
     wdl2459/ZINQ-v2,
     mcalgaro93/benchdamic
 Depends: 
-    R (>= 4.1)
+    R (>= 4.2)
