@@ -21,7 +21,7 @@ ZINQ.TSS.MinP	Metagenomics	ZINQ	TSS	log2FoldChange
 ZINQ.none.Cauchy	Metagenomics	ZINQ	none	log2FoldChange
 ZINQ.CLR.Cauchy	Compositional	ZINQ	CLR	log2FoldChange
 ZINQ.TSS.Cauchy	Metagenomics	ZINQ	TSS	log2FoldChange
-ancombc.none	Metagenomics	ANCOMBC	none	lfc
+ancombc.none	Compositional	ANCOMBC	none	lfc
 lefse.none	Classical	lefse	none	LDA_scores
 lefse.CLR	Compositional	lefse	CLR	LDA_scores
 lefse.TSS	Classical	lefse	TSS	LDA_scores

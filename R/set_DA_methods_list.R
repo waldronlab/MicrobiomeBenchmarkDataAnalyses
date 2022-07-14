@@ -62,7 +62,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         ),
         
         # limma + weights 
-        my_limma <- benchdamic::set_limma( # I get a warning
+        my_limma <- benchdamic::set_limma(
             design = as.formula(paste0("~", conditions_col)),
             norm = "TMM", 
             coef = 2,
@@ -72,16 +72,16 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         ## metagenomeSeq
         my_metagenomeseq <- benchdamic::set_metagenomeSeq(
             design = as.formula(paste0("~", conditions_col)),
-            norm = c("CSSmedian", "CSSdefault"),
+            norm = c("CSSmedian"),
             coef = 2
         ),
 
         ## ALDEx2 with t-test
-        my_aldex2 <- benchdamic::set_ALDEx2(
-            conditions = conditions_col,
-            test = "t",
-            norm = "none"
-        ),
+        # my_aldex2 <- benchdamic::set_ALDEx2(
+        #     conditions = conditions_col,
+        #     test = "t",
+        #     norm = "none"
+        # ),
 
         ## ALDEx2 with wilcox
         my_aldex2 <- benchdamic::set_ALDEx2(
@@ -127,12 +127,12 @@ set_DA_methods_list <- function(conditions_col, conditions) {
                p_adj_method = 'fdr'
             ),
             ## Wilcox
-            wilcox.2 = list(
-                method = 'DA_wilcox',
-                norm = 'none',
-                conditions_col = conditions_col,
-                conditions = conditions
-            ),
+            # wilcox.2 = list(
+            #     method = 'DA_wilcox',
+            #     norm = 'none',
+            #     conditions_col = conditions_col,
+            #     conditions = conditions
+            # ),
             wilcox.3 = list(
                 method = 'DA_wilcox',
                 norm = 'TSS',
@@ -146,30 +146,30 @@ set_DA_methods_list <- function(conditions_col, conditions) {
                 conditions = conditions
             ),
             ## ZINQ
-            ZINQ.5 = list(
-                method = 'DA_ZINQ',
-                conditions_col = conditions_col,
-                conditions = conditions, 
-                norm = 'none', pval_method = 'MinP', y_CorD = 'D'
-            ),
-            ZINQ.6 = list(
-                method = 'DA_ZINQ',
-                conditions_col = conditions_col,
-                conditions = conditions, 
-                norm = 'TSS', pval_method = 'MinP', y_CorD = 'C'
-            ),
-            ZINQ.7 = list(
-                method = 'DA_ZINQ',
-                conditions_col = conditions_col,
-                conditions = conditions, 
-                norm = 'CLR', pval_method = 'MinP', y_CorD = 'C'
-            ),
-            ZINQ.8 = list(
-                method = 'DA_ZINQ',
-                conditions_col = conditions_col,
-                conditions = conditions, 
-                norm = 'none', pval_method = 'Cauchy', y_CorD = 'D'
-            ),
+            # ZINQ.5 = list(
+            #     method = 'DA_ZINQ',
+            #     conditions_col = conditions_col,
+            #     conditions = conditions, 
+            #     norm = 'none', pval_method = 'MinP', y_CorD = 'D'
+            # ),
+            # ZINQ.6 = list(
+            #     method = 'DA_ZINQ',
+            #     conditions_col = conditions_col,
+            #     conditions = conditions, 
+            #     norm = 'TSS', pval_method = 'MinP', y_CorD = 'C'
+            # ),
+            # ZINQ.7 = list(
+            #     method = 'DA_ZINQ',
+            #     conditions_col = conditions_col,
+            #     conditions = conditions, 
+            #     norm = 'CLR', pval_method = 'MinP', y_CorD = 'C'
+            # ),
+            # ZINQ.8 = list(
+            #     method = 'DA_ZINQ',
+            #     conditions_col = conditions_col,
+            #     conditions = conditions, 
+            #     norm = 'none', pval_method = 'Cauchy', y_CorD = 'D'
+            # ),
             ZINQ.9 = list(
                 method = 'DA_ZINQ',
                 conditions_col = conditions_col,
@@ -182,15 +182,15 @@ set_DA_methods_list <- function(conditions_col, conditions) {
                 conditions = conditions, 
                 norm = 'CLR', pval_method = 'Cauchy', y_CorD = 'C'
             ),
-            lefse.11 = list(
-                method = 'DA_lefse',
-                conditions = conditions,
-                norm = 'none',
-                groupCol = conditions_col,
-                kruskal.threshold = 1,
-                wilcox.threshold = 1,
-                lda.threshold = 0
-            ),
+            # lefse.11 = list(
+            #     method = 'DA_lefse',
+            #     conditions = conditions,
+            #     norm = 'none',
+            #     groupCol = conditions_col,
+            #     kruskal.threshold = 1,
+            #     wilcox.threshold = 1,
+            #     lda.threshold = 0
+            # ),
             lefse.12 = list(
                 method = 'DA_lefse',
                 conditions = conditions,
