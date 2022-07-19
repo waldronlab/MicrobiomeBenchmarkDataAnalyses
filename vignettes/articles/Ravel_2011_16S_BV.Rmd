@@ -15,39 +15,61 @@ library(phyloseq)
 library(dplyr)
 library(benchdamic)
 
+<<<<<<< HEAD
 library(ggplot2)
 
+=======
+
+library(purrr)
+library(ggplot2)
+library(gridExtra)
+>>>>>>> new-branch
 ```
 
+# Import data
 
 ```{r}
 dat_name <- 'Ravel_2011_16S_BV'
 conditions_col <- 'study_condition'
 conditions <- c(condB = 'healthy', condA = 'bacterial_vaginosis')
 
-tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
-select_samples <- colData(tse)[[conditions_col]] %in% conditions
+tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
+
+################################################################
+## Select equal number of samples per ethnic group
+col_data <- as.data.frame(colData(tse))
+
+row_names <- col_data %>% 
+    split(factor(.$ethnicity)) %>% 
+    map(~split(., .x$study_condition)) %>% 
+    unlist(recursive = FALSE) %>% 
+    map(rownames)
+
+min_n <- row_names %>% 
+    map_int(length) %>% 
+    min()
+
+set.seed(4567)
+select_samples <- map(row_names, ~ sample(.x, min_n, replace = FALSE)) %>% 
+    unlist(use.names = FALSE)
+
+##############################################
+# aelect_samples <- colData(tse)[[conditions_col]] %in% conditions
 tse <- tse[, select_samples]
 tse <- tse[rowSums(assay(tse)) > 1,] 
 tse
 ```
 
-```{r}
-table(colData(tse)$study_condition)
-```
-
-
 ## Get prior Info by genus 
 
 ```{r}
-priorInfo <- 
-    as.data.frame(subset(rowData(tse), select = c('genus', 'taxon_annotation')))
-newNames <- paste0(rownames(priorInfo), '|', priorInfo$genus)
-priorInfo <- priorInfo %>% 
+prior_info <- as.data.frame(rowData(tse)[, c('genus', 'taxon_annotation')])
+newNames <- paste0(rownames(prior_info), '|', prior_info$genus)
+prior_info <- prior_info %>% 
     filter(!is.na(genus)) %>% 
     distinct()
-rownames(priorInfo) <- priorInfo$genus
-head(priorInfo)
+rownames(prior_info) <- prior_info$genus
+head(prior_info)
 ```
 
 ## Summarize by genus
@@ -57,8 +79,7 @@ tse_genus <- splitByRanks(tse)$genus
 tse_genus
 ```
 
-Reorder priorInfo according to rownames of se_genus
-
+Reorder prior_info according to rownames of se_genus
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse_genus)
@@ -79,7 +100,7 @@ DA analysis:
 
 ```{r, message=FALSE}
 ps <- runNormalizations(set_norm_list(),ps, verbose = FALSE)
-zw <- weights_ZINB(ps, design = conditions_col)
+# zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
 DA_methods$DA_ALDEx2.1 <- NULL
@@ -104,9 +125,16 @@ if (file.exists(fname)) {
 See results
 
 ```{r}
+remove_output <- c(
+    "metagenomeSeq.CSSdefault", "wilcox.none", "ZINQ.none.MinP", 
+    "ZINQ.TSS.MinP", "ZINQ.CLR.MinP", "ZINQ.none.Cauchy", "lefse.none"
+)
+
+DA_output <- DA_output[!names(DA_output) %in% remove_output]
 names(DA_output)
 ```
 
+<<<<<<< HEAD
 Get significant taxa (pvalues and adj pvalues) and direction (effect size):
 
 ```{r}
@@ -186,10 +214,19 @@ increased_abundance_adjp <- output %>%
     dplyr::filter(
         taxon_annotation == 'bv-associated'
     )
+=======
+# Enrichment
+
+Get direction
+
+```{r}
+direction <- get_direction_cols(DA_output, conditions_col, conditions)
+>>>>>>> new-branch
 ```
 
 
 ```{r}
+<<<<<<< HEAD
 increased_abundance_adjp %>% 
     count(method) %>% 
     ggplot(aes(method,sort(n))) +
@@ -205,3 +242,77 @@ increased_abundance_adjp %>%
 ```
 
 
+=======
+enrichment <- createEnrichment(
+    object = DA_output,
+    priorKnowledge = prior_info,
+    enrichmentCol = "taxon_annotation",
+    namesCol = "genus",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL, 
+    alternative = "greater",
+    verbose = FALSE 
+)
+```
+
+
+```{r}
+enrich_plot <- plot_enrichment(
+    enrichment = enrichment, 
+    enrichment_col = "taxon_annotation",
+    levels_to_plot = c("hv-associated", "bv-associated"),
+    conditions = c(condB = "HV", condA = "BV") 
+)
+enrich_plot
+```
+
+# Plot putative true positves and true negatives ratio
+
+```{r}
+positives <- createPositives(
+    object = DA_output, 
+    priorKnowledge = prior_info, 
+    enrichmentCol = "taxon_annotation", namesCol = "genus",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 20, by = 2),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "hv-associated"), c("UP Abundant", "bv-associated")),
+    FP = list(c("DOWN Abundant", "bv-associated"), c("UP Abundant", "hv-associated"))
+)
+```
+
+
+```{r}
+meth_class <- get_meth_class() 
+positives2 <- left_join(positives, meth_class, by = 'method') %>% 
+    relocate(method_class)
+```
+
+
+```{r}
+plots <- plot_positives(positives2)
+grid.arrange(grobs = plots, ncol = 3)
+```
+
+
+
+
+
+```{r, eval=FALSE, include=FALSE, echo=FALSE}
+
+ggsave(filename = "Ravell_2011_a.png", plot = enrich_plot, width = 8, height = 5)
+
+positives_plots <- grid.arrange(grobs = plots, ncol = 3)
+ggsave(filename = "Ravell_2011_b.png", plot = positives_plots, width = 10, height = 6)
+```
+
+
+
+>>>>>>> new-branch

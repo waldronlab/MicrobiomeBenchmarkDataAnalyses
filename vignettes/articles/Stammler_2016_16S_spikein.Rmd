@@ -14,22 +14,42 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message=FALSE}
 library(MicrobiomeBenchmarkData)
 library(MicrobiomeBenchmarkDataAnalyses)
 library(dplyr)
 library(benchdamic)
 library(phyloseq)
 library(purrr)
-```
 
+library(ggplot2)
+library(gridExtra)
+```
 
 ## Import data 
 
 ```{r}
 dat_name <- 'Stammler_2016_16S_spikein'
-tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
+conditions_col <- 'study_condition'
+conditions <- c(condB = 'preASCT', condA = 'd14')
+
+tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 tse
+```
+
+## priorInfo
+
+```{r}
+row_data <- as.data.frame(rowData(tse))
+row_data <- row_data %>% 
+    mutate(
+        taxon_annotation = ifelse(
+            grepl("Enterococcus", taxonomy), "Enterococcus", "not-Enterococcus"
+        )
+    )
+prior_info <- row_data
+prior_info$taxon_name <- rownames(row_data)
+prior_info <- prior_info[, c('taxon_name', 'taxon_annotation')]
 ```
 
 ## Spike-in bacteria identifiers
@@ -70,10 +90,6 @@ assay(tse_recal) <- counts_recal
 # Subset samples - preASCT vs d14
 
 ```{r}
-## Variables for conditions
-conditions_col <- 'study_condition'
-conditions <- c(condB = 'preASCT', condA = 'd14')
-
 ## Select samples
 select_samples <- colData(tse)[[conditions_col]] %in% conditions
 
@@ -151,9 +167,148 @@ if (file.exists(DA_output_file_recal)) {
 
 ```
 
+```{r}
+remove_output <- c(
+    "metagenomeSeq.CSSdefault", "wilcox.none", "ZINQ.none.MinP", 
+    "ZINQ.TSS.MinP", "ZINQ.CLR.MinP", "ZINQ.none.Cauchy", "lefse.none",
+    "ALDEx2.none.iqlr.t"
+)
+
+DA_output <- DA_output[!names(DA_output) %in% remove_output]
+DA_output_recal <- DA_output_recal[!names(DA_output_recal) %in% remove_output]
+```
+
+
 ## Comparing results of DA
 
-Get results with raw counts
+```{r}
+direction <- get_direction_cols(DA_output, conditions_col, conditions)
+```
+
+
+### No calibrated counts
+
+```{r}
+enrichment <- createEnrichment(
+    object = DA_output,
+    priorKnowledge = prior_info,
+    enrichmentCol = "taxon_annotation",
+    namesCol = "taxon_name",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL, 
+    alternative = "greater",
+    verbose = FALSE 
+)
+```
+
+```{r}
+enrich_plot <- plot_enrichment(
+    enrichment = enrichment, 
+    enrichment_col = "taxon_annotation",
+    levels_to_plot = c("Enterococcus"),
+    conditions = c(condB = "preASCT", condA = "14d") 
+)
+enrich_plot
+```
+
+# Plot putative true positves and true negatives ratio
+
+```{r}
+positives <- createPositives(
+    object = DA_output, 
+    priorKnowledge = prior_info, 
+    enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 20, by = 2),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "non-Enterococcus"), c("UP Abundant", "Enterococcus")),
+    FP = list(c("DOWN Abundant", "Enterococcus"), c("UP Abundant", "non-Enterococcus"))
+)
+```
+
+
+```{r}
+meth_class <- get_meth_class() 
+positives2 <- left_join(positives, meth_class, by = 'method') %>% 
+    relocate(method_class)
+```
+
+
+```{r}
+plots <- plot_positives(positives2)
+grid.arrange(grobs = plots[2], ncol = 1)
+```
+
+## Recal
+
+```{r}
+enrichment_recal <- createEnrichment(
+    object = DA_output_recal,
+    priorKnowledge = prior_info,
+    enrichmentCol = "taxon_annotation",
+    namesCol = "taxon_name",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL, 
+    alternative = "greater",
+    verbose = FALSE 
+)
+```
+
+```{r}
+enrich_plot_recal <- plot_enrichment(
+    enrichment = enrichment_recal, 
+    enrichment_col = "taxon_annotation",
+    levels_to_plot = c("Enterococcus"),
+    conditions = c(condB = "preASCT", condA = "14d") 
+)
+enrich_plot_recal
+```
+
+
+```{r}
+positives_recal <- createPositives(
+    object = DA_output_recal, 
+    priorKnowledge = prior_info, 
+    enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 20, by = 2),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "non-Enterococcus"), c("UP Abundant", "Enterococcus")),
+    FP = list(c("DOWN Abundant", "Enterococcus"), c("UP Abundant", "non-Enterococcus"))
+)
+```
+
+
+```{r}
+meth_class <- get_meth_class() 
+positives2_recal <- left_join(positives_recal, meth_class, by = 'method') %>% 
+    relocate(method_class)
+```
+
+
+```{r}
+plots_recal <- plot_positives(positives2_recal)
+grid.arrange(grobs = plots_recal[2:3], ncol = 2)
+```
+
+
+
+
+# Get results with raw counts
 
 ```{r}
 
@@ -213,22 +368,45 @@ output_recal <- bind_rows(output_recal, .id = 'method')
 
 
 ```{r}
-output %>% 
+(
+sig <- output %>% 
     dplyr::filter(
         taxon_id %in% spikein_bacteria,
         # grepl('^(wilcox)', method)
         rawP <= 0.05
+        # adjP <= 0.1
     )
+)
 ```
 
 ```{r}
-output_recal %>% 
+(
+sig_recal <- output_recal %>% 
     dplyr::filter(
         taxon_id %in% spikein_bacteria,
         # grepl('^(wilcox)', method)
          rawP <= 0.05
+        # adjP <= 0.1
     )
+)
 ```
+
+```{r}
+inter <- intersect(sig$method, sig_recal$method)
+
+sig[!sig$method %in% inter, ]
+
+```
+
+```{r}
+table(sig$method)
+```
+
+
+```{r}
+table(sig_recal$method)
+```
+
 
 # count of salnibacter
 
@@ -268,4 +446,37 @@ sd(assay(tse_recal)[spikein_bacteria['r_radiobacter'], ])
 ```{r}
 spikein_bacteria
 ```
+
+```{r}
+row_data <- as.data.frame(rowData(tse))
+
+enterococcus_taxa <- row_data %>% 
+    filter(grepl("Enterococcus", taxonomy)) %>% 
+    rownames()
+```
+
+
+
+```{r, include=FALSE, eval=FALSE, echo=FALSE}
+## Enrihcment
+ggsave(filename = "Stammler_a.png", plot = enrich_plot, width = 5,height = 5)
+
+## Enrichment recalibrated
+ggsave(filename = "Stammler_b.png", plot = enrich_plot_recal, width = 4, height = 5)
+
+d <- grid.arrange(grobs = plots[2], ncol = 1)
+## Positives
+ggsave(filename = "Stammler_c.png", plot = d, width = 3.5, height = 3.5)
+
+## Poisitives recalibrated
+c <- grid.arrange(grobs = plots_recal[2:3], ncol = 2)
+ggsave(filename = "Stammler_d.png", plot = c, height = 3.5) 
+
+```
+
+
+
+
+
+
 

@@ -30,7 +30,7 @@ Import dataset:
 
 ```{r import data}
 dat_name <- 'HMP_2012_16S_gingival_V35'
-x <- getDataset(dat_name, dryrun = FALSE)[[1]]
+x <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 x
 ```
 Filter data
@@ -144,6 +144,21 @@ if (file.exists(DA_output_file)) {
 # DA_output <- run_DA(ps, conditions_col, conditions)
 ```
 
+
+```{r}
+remove_output <- c(
+    "metagenomeSeq.CSSdefault", "wilcox.none", "ZINQ.none.MinP", 
+    "ZINQ.TSS.MinP", "ZINQ.CLR.MinP", "ZINQ.none.Cauchy", "lefse.none", 
+    "ALDEx2.none.iqlr.t"
+)
+
+DA_output <- DA_output[!names(DA_output) %in% remove_output]
+names(DA_output)
+```
+
+
+
+
 ## Number of DA features
 
 ```{r}
@@ -158,6 +173,7 @@ lapply(DA_output, function(x) {
     dplyr::mutate(method = forcats::fct_inorder(method)) %>% 
     ggplot(aes(method, n)) +
     geom_col() + 
+    geom_text(aes(label = n)) +
     theme_bw() +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
@@ -216,13 +232,13 @@ positives <- createPositives(
     enrichmentCol = "taxon_annotation", namesCol = "new_names",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
-    threshold_pvalue = 0.1,
+    threshold_pvalue = 1,
     threshold_logfc = 0,
     top = seq.int(from = 0, to = 50, by = 5),
     alternative = "greater",
     verbose = FALSE,
     TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
-    FP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "anaerobic"))
+    FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
 )
 ```
 
@@ -230,7 +246,7 @@ positives <- createPositives(
 
 ```{r}
 meth_class <- get_meth_class() 
-positives2 <- left_join(meth_class, positives, by = 'method') %>% 
+positives2 <- left_join(positives, meth_class, by = 'method') %>% 
     relocate(method_class)
 ```
 
@@ -239,5 +255,13 @@ positives2 <- left_join(meth_class, positives, by = 'method') %>%
 plots <- plot_positives(positives2)
 grid.arrange(grobs = plots, ncol = 2)
 
+```
+
+
+```{r,eval=FALSE, include=FALSE, echo=FALSE}
+ggsave(filename = "HMP_2012_a.png", plot = enrich_plot, width = 8, height = 5)
+
+positives_plots <- grid.arrange(grobs = plots, ncol = 3)
+ggsave(filename = "HMP_2012_b.png", plot = positives_plots, width = 10, height = 6)
 ```
 

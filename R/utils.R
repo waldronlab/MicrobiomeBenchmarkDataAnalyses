@@ -471,10 +471,10 @@ plot_positives <- function(x) {
         p1 <- df %>%
             ggplot2::ggplot(ggplot2::aes(x = top, y = TP - FP)) +
             ggplot2::geom_path(
-                ggplot2::aes(color = color, group = method, linetype = norm)
+                ggplot2::aes(color = color, group = method) #linetype = norm
             ) +
             ggplot2::geom_point(
-                ggplot2::aes(color = color, shape = norm),
+                ggplot2::aes(color = color), #shape = norm
                 size = 3
             ) +
             ggplot2::facet_wrap(.~ method_class) +
@@ -485,12 +485,12 @@ plot_positives <- function(x) {
                 values = levels(df$color), labels = levels(df$base_method)
                 
             ) +
-            ggplot2::scale_shape_manual(
-                values = as.integer(levels(df$shape)), labels = levels(df$norm)
-            ) +
-            ggplot2::scale_linetype_manual(
-                values = as.integer(levels(df$shape)), labels = levels(df$norm)
-            ) +
+            # ggplot2::scale_shape_manual(
+            #     values = as.integer(levels(df$shape)), labels = levels(df$norm)
+            # ) +
+            # ggplot2::scale_linetype_manual(
+            #     values = as.integer(levels(df$shape)), labels = levels(df$norm)
+            # ) +
             ggplot2::labs(
                 x = 'Top', y = 'TP - FP'
             ) +

@@ -1,6 +1,6 @@
 method	method_class	base_method	norm	effect_size_col
-ALDEx2.none.iqlr.wilcox	Compositional	ALDEx2_t-test	none	effect
-ALDEx2.none.iqlr.t	Compositional	ALDEx2_wilcox	none	effect
+ALDEx2.none.iqlr.wilcox	Compositional	ALDEx2_wilcox	none	effect
+ALDEx2.none.iqlr.t	Compositional	ALDEx2_t-test	none	effect
 DESeq2.poscounts	RNA-Seq	DESeq2	poscounts	log2FoldChange
 DESeq2.poscounts.weighted	scRNA-Seq	DESeq2	poscounts	log2FoldChange
 edgeR.TMM	RNA-Seq	edgeR	TMM	logFC
