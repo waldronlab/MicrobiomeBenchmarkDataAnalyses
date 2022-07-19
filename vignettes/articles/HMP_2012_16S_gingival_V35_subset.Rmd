@@ -24,7 +24,11 @@ library(gridExtra)
 
 ```{r}
 dat_name <-'HMP_2012_16S_gingival_V35_subset'
-tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
+
+conditions_col <- 'body_subsite'
+conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
+
+tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 tse
 ```
 
@@ -51,8 +55,6 @@ ps
 # Run DA
 
 ```{r, message=TRUE}
-conditions_col <- 'body_subsite'
-conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
 
 ## This can take a while. It's better to save the results and import them back
 ## later
@@ -73,10 +75,17 @@ if (file.exists(DA_output_file)) {
 
 ```
 
-
 ```{r}
+remove_output <- c(
+    "metagenomeSeq.CSSdefault", "wilcox.none", "ZINQ.none.MinP", 
+    "ZINQ.TSS.MinP", "ZINQ.CLR.MinP", "ZINQ.none.Cauchy", "lefse.none", 
+    "ALDEx2.none.iqlr.t"
+)
+
+DA_output <- DA_output[!names(DA_output) %in% remove_output]
 names(DA_output)
 ```
+
 
 # Enrichment
 
@@ -111,7 +120,7 @@ enrich_plot <- plot_enrichment(
     enrichment = enrichment, 
     enrichment_col = "taxon_annotation",
     levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
-    conditions = conditions
+    conditions = c(condB = 'subgingival', condA = 'supragingival') 
 )
 enrich_plot
 
@@ -134,7 +143,7 @@ positives <- createPositives(
     alternative = "greater",
     verbose = FALSE,
     TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
-    FP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "anaerobic"))
+    FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
 )
 ```
 
@@ -142,7 +151,7 @@ positives <- createPositives(
 
 ```{r}
 meth_class <- get_meth_class() 
-positives2 <- left_join(meth_class, positives, by = 'method') %>% 
+positives2 <- left_join(positives, meth_class, by = 'method') %>% 
     relocate(method_class)
 ```
 
@@ -152,4 +161,13 @@ plots <- plot_positives(positives2)
 grid.arrange(grobs = plots, ncol = 2)
 
 ```
+
+```{r,eval=FALSE, include=FALSE, echo=FALSE}
+ggsave(filename = "HMP_2012_a.png", plot = enrich_plot, width = 8, height = 5)
+
+positives_plots <- grid.arrange(grobs = plots, ncol = 3)
+ggsave(filename = "HMP_2012_b.png", plot = positives_plots, width = 10, height = 6)
+```
+
+
 
