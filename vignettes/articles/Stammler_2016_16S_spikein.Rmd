@@ -1,0 +1,482 @@
+---
+title: "Analysis of the Stammler_2016_16S_spikein dataset"
+output: 
+    html_document:
+        toc: true
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r setup, message=FALSE}
+library(MicrobiomeBenchmarkData)
+library(MicrobiomeBenchmarkDataAnalyses)
+library(dplyr)
+library(benchdamic)
+library(phyloseq)
+library(purrr)
+
+library(ggplot2)
+library(gridExtra)
+```
+
+## Import data 
+
+```{r}
+dat_name <- 'Stammler_2016_16S_spikein'
+conditions_col <- 'study_condition'
+conditions <- c(condB = 'preASCT', condA = 'd14')
+
+tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
+tse
+```
+
+## priorInfo
+
+```{r}
+row_data <- as.data.frame(rowData(tse))
+row_data <- row_data %>% 
+    mutate(
+        taxon_annotation = ifelse(
+            grepl("Enterococcus", taxonomy), "Enterococcus", "not-Enterococcus"
+        )
+    )
+prior_info <- row_data
+prior_info$taxon_name <- rownames(row_data)
+prior_info <- prior_info[, c('taxon_name', 'taxon_annotation')]
+```
+
+## Spike-in bacteria identifiers
+
+| Bacteria | ID | Load |
+| -------- | -- | ---- |
+| *Salinibacter ruber* | AF323500XXXX | 3.0 x 10<sup>8</sup> |
+| *Rhizobium radiobacter* | AB247615XXXX | 5.0 x 10<sup>8</sup> |
+| *Alicyclobacillus acidiphilus* | AB076660XXXX | 1.0 x 10<sup>8</sup> |
+
+
+```{r}
+spikein_bacteria <- c(
+    s_ruber = 'AF323500XXXX', 
+    r_radiobacter = 'AB247615XXXX',
+    a_acidiphilus = 'AB076660XXXX'
+)
+```
+
+
+## Recalibrate counts based on Salinibacter ruber
+
+```{r}
+counts <- assay(tse)
+## AF323500XXXX is the unique OTU corresponding to S. ruber
+s_ruber <- counts['AF323500XXXX', ]
+size_factor <- s_ruber/mean(s_ruber)
+
+counts_recal <- counts 
+for(i in seq(ncol(counts_recal))){
+    counts_recal[,i] <- round(counts_recal[,i] / size_factor[i])
+}
+
+tse_recal <- tse
+assay(tse_recal) <- counts_recal
+```
+
+# Subset samples - preASCT vs d14
+
+```{r}
+## Select samples
+select_samples <- colData(tse)[[conditions_col]] %in% conditions
+
+## Raw read counts
+tse <- tse[, select_samples]
+tse <- tse[rowSums(assay(tse)) > 0, ]
+
+## Recalibrated counts
+tse_recal <- tse_recal[, select_samples]
+tse_recal <- tse_recal[rowSums(assay(tse_recal)) > 0, ]
+
+```
+
+# Convert to phyloseq
+
+```{r}
+## Convert raw counts to phyloseq
+ps <- mia::makePhyloseqFromTreeSummarizedExperiment(tse)
+sample_data(ps)[[conditions_col]] <- factor(
+    sample_data(ps)[[conditions_col]], levels = conditions
+)
+ps <- filter_phyloseq(ps)
+
+## Convert recalibrated counts to phyloseq
+
+ps_recal <- mia::makePhyloseqFromTreeSummarizedExperiment(tse_recal)
+sample_data(ps_recal)[[conditions_col]] <- factor(
+    sample_data(ps_recal)[[conditions_col]], levels = conditions
+)
+ps_recal <- filter_phyloseq(ps_recal)
+```
+
+
+# Run DA
+
+Run DA for raw counts
+
+```{r}
+
+DA_output_file <-  paste0('./', dat_name, '.rds')
+DA_output_flie_2 <- paste0('../../misc/articles_data/', dat_name, '.rds')
+
+if (file.exists(DA_output_file)) {
+    message('DA results exist in directory. Importing...')
+    DA_output <- readRDS(DA_output_file)
+} else if (file.exists(DA_output_flie_2)) {
+    message('DA results exist in misc. Importing')
+    DA_output <- readRDS(DA_output_flie_2)
+} else if (!file.exists(DA_output_file)) {
+    message('Performing DA results.')
+    DA_output <- run_DA(ps, conditions_col, conditions)
+    saveRDS(DA_output, DA_output_file) 
+}
+
+```
+
+Run DA for recalibrated counts
+
+```{r}
+DA_output_file_recal <-  paste0('./', dat_name, '_recal.rds')
+DA_output_flie_2_recal <-
+    paste0('../../misc/articles_data/', dat_name, '_recal.rds')
+
+if (file.exists(DA_output_file_recal)) {
+    message('DA results exist in directory. Importing...')
+    DA_output_recal <- readRDS(DA_output_file_recal)
+} else if (file.exists(DA_output_flie_2_recal)) {
+    message('DA results exist in misc. Importing')
+    DA_output_recal <- readRDS(DA_output_flie_2_recal)
+} else if (!file.exists(DA_output_file_recal)) {
+    message('Performing DA results.')
+    DA_output_recal <- run_DA(ps_recal, conditions_col, conditions)
+    saveRDS(DA_output_recal, DA_output_file_recal) 
+}
+
+```
+
+```{r}
+remove_output <- c(
+    "metagenomeSeq.CSSdefault", "wilcox.none", "ZINQ.none.MinP", 
+    "ZINQ.TSS.MinP", "ZINQ.CLR.MinP", "ZINQ.none.Cauchy", "lefse.none",
+    "ALDEx2.none.iqlr.t"
+)
+
+DA_output <- DA_output[!names(DA_output) %in% remove_output]
+DA_output_recal <- DA_output_recal[!names(DA_output_recal) %in% remove_output]
+```
+
+
+## Comparing results of DA
+
+```{r}
+direction <- get_direction_cols(DA_output, conditions_col, conditions)
+```
+
+
+### No calibrated counts
+
+```{r}
+enrichment <- createEnrichment(
+    object = DA_output,
+    priorKnowledge = prior_info,
+    enrichmentCol = "taxon_annotation",
+    namesCol = "taxon_name",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL, 
+    alternative = "greater",
+    verbose = FALSE 
+)
+```
+
+```{r}
+enrich_plot <- plot_enrichment(
+    enrichment = enrichment, 
+    enrichment_col = "taxon_annotation",
+    levels_to_plot = c("Enterococcus"),
+    conditions = c(condB = "preASCT", condA = "14d") 
+)
+enrich_plot
+```
+
+# Plot putative true positves and true negatives ratio
+
+```{r}
+positives <- createPositives(
+    object = DA_output, 
+    priorKnowledge = prior_info, 
+    enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 20, by = 2),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "non-Enterococcus"), c("UP Abundant", "Enterococcus")),
+    FP = list(c("DOWN Abundant", "Enterococcus"), c("UP Abundant", "non-Enterococcus"))
+)
+```
+
+
+```{r}
+meth_class <- get_meth_class() 
+positives2 <- left_join(positives, meth_class, by = 'method') %>% 
+    relocate(method_class)
+```
+
+
+```{r}
+plots <- plot_positives(positives2)
+grid.arrange(grobs = plots[2], ncol = 1)
+```
+
+## Recal
+
+```{r}
+enrichment_recal <- createEnrichment(
+    object = DA_output_recal,
+    priorKnowledge = prior_info,
+    enrichmentCol = "taxon_annotation",
+    namesCol = "taxon_name",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 0.1,
+    threshold_logfc = 0,
+    top = NULL, 
+    alternative = "greater",
+    verbose = FALSE 
+)
+```
+
+```{r}
+enrich_plot_recal <- plot_enrichment(
+    enrichment = enrichment_recal, 
+    enrichment_col = "taxon_annotation",
+    levels_to_plot = c("Enterococcus"),
+    conditions = c(condB = "preASCT", condA = "14d") 
+)
+enrich_plot_recal
+```
+
+
+```{r}
+positives_recal <- createPositives(
+    object = DA_output_recal, 
+    priorKnowledge = prior_info, 
+    enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
+    slot = "pValMat", colName = "adjP", type = "pvalue",
+    direction = direction,
+    threshold_pvalue = 1,
+    threshold_logfc = 0,
+    top = seq.int(from = 0, to = 20, by = 2),
+    alternative = "greater",
+    verbose = FALSE,
+    TP = list(c("DOWN Abundant", "non-Enterococcus"), c("UP Abundant", "Enterococcus")),
+    FP = list(c("DOWN Abundant", "Enterococcus"), c("UP Abundant", "non-Enterococcus"))
+)
+```
+
+
+```{r}
+meth_class <- get_meth_class() 
+positives2_recal <- left_join(positives_recal, meth_class, by = 'method') %>% 
+    relocate(method_class)
+```
+
+
+```{r}
+plots_recal <- plot_positives(positives2_recal)
+grid.arrange(grobs = plots_recal[2:3], ncol = 2)
+```
+
+
+
+
+# Get results with raw counts
+
+```{r}
+
+dir_cols <- get_direction_cols(DA_output, conditions_col, conditions)
+
+output <- vector('list', length(DA_output))
+names(output) <- names(DA_output)
+
+for (i in seq_along(output)) {
+    output_name <- names(dir_cols)[i]
+    col_name <- dir_cols[i]
+    statInfo <- DA_output[[output_name]]$statInfo
+    statInfo <- statInfo[, c(col_name), drop = FALSE]
+    pValMat <- DA_output[[output_name]]$pValMat
+    df <- cbind(statInfo, pValMat)
+    df <- df %>% 
+        as.data.frame() %>% 
+        tibble::rownames_to_column(var = 'taxon_name') %>% 
+        as_tibble() %>% 
+        magrittr::set_colnames(c('taxon_id', 'effect_size', 'rawP', 'adjP')) 
+    output[[i]] <- df
+}
+
+output <- bind_rows(output, .id = 'method')
+
+```
+
+
+Get results with recalibrated counts
+
+```{r}
+dir_cols_recal <-
+    get_direction_cols(DA_output_recal, conditions_col, conditions)
+
+output_recal <- vector('list', length(DA_output_recal))
+names(output_recal) <- names(DA_output_recal)
+
+for (i in seq_along(output_recal)) {
+    output_name <- names(dir_cols_recal)[i]
+    col_name <- dir_cols_recal[i]
+    statInfo <- DA_output_recal[[output_name]]$statInfo
+    statInfo <- statInfo[, c(col_name), drop = FALSE]
+    pValMat <- DA_output_recal[[output_name]]$pValMat
+    df <- cbind(statInfo, pValMat)
+    df <- df %>% 
+        as.data.frame() %>% 
+        tibble::rownames_to_column(var = 'taxon_name') %>% 
+        as_tibble() %>% 
+        magrittr::set_colnames(c('taxon_id', 'effect_size', 'rawP', 'adjP')) 
+    output_recal[[i]] <- df
+}
+
+output_recal <- bind_rows(output_recal, .id = 'method')
+```
+
+## Compare results
+
+
+```{r}
+(
+sig <- output %>% 
+    dplyr::filter(
+        taxon_id %in% spikein_bacteria,
+        # grepl('^(wilcox)', method)
+        rawP <= 0.05
+        # adjP <= 0.1
+    )
+)
+```
+
+```{r}
+(
+sig_recal <- output_recal %>% 
+    dplyr::filter(
+        taxon_id %in% spikein_bacteria,
+        # grepl('^(wilcox)', method)
+         rawP <= 0.05
+        # adjP <= 0.1
+    )
+)
+```
+
+```{r}
+inter <- intersect(sig$method, sig_recal$method)
+
+sig[!sig$method %in% inter, ]
+
+```
+
+```{r}
+table(sig$method)
+```
+
+
+```{r}
+table(sig_recal$method)
+```
+
+
+# count of salnibacter
+
+Compare with normalization 
+
+```{r}
+assay(tse)[spikein_bacteria['s_ruber'], ]
+```
+
+```{r}
+sd(assay(tse_recal)[spikein_bacteria['s_ruber'], ])
+```
+
+# counts of Alicyclobacillus acidiphilus
+
+```{r}
+sd(assay(tse)[spikein_bacteria['a_acidiphilus'], ])
+```
+
+```{r}
+sd(assay(tse_recal)[spikein_bacteria['a_acidiphilus'], ])
+```
+
+
+# counts of 
+
+```{r}
+sd(assay(tse)[spikein_bacteria['r_radiobacter'], ])
+
+```
+
+```{r}
+sd(assay(tse_recal)[spikein_bacteria['r_radiobacter'], ])
+
+```
+
+```{r}
+spikein_bacteria
+```
+
+```{r}
+row_data <- as.data.frame(rowData(tse))
+
+enterococcus_taxa <- row_data %>% 
+    filter(grepl("Enterococcus", taxonomy)) %>% 
+    rownames()
+```
+
+
+
+```{r, include=FALSE, eval=FALSE, echo=FALSE}
+## Enrihcment
+ggsave(filename = "Stammler_a.png", plot = enrich_plot, width = 5,height = 5)
+
+## Enrichment recalibrated
+ggsave(filename = "Stammler_b.png", plot = enrich_plot_recal, width = 4, height = 5)
+
+d <- grid.arrange(grobs = plots[2], ncol = 1)
+## Positives
+ggsave(filename = "Stammler_c.png", plot = d, width = 3.5, height = 3.5)
+
+## Poisitives recalibrated
+c <- grid.arrange(grobs = plots_recal[2:3], ncol = 2)
+ggsave(filename = "Stammler_d.png", plot = c, height = 3.5) 
+
+```
+
+
+
+
+
+
+
