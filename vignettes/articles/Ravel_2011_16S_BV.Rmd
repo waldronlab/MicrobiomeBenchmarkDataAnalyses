@@ -15,15 +15,10 @@ library(phyloseq)
 library(dplyr)
 library(benchdamic)
 
-<<<<<<< HEAD
-library(ggplot2)
-
-=======
-
 library(purrr)
 library(ggplot2)
 library(gridExtra)
->>>>>>> new-branch
+
 ```
 
 # Import data
@@ -134,115 +129,17 @@ DA_output <- DA_output[!names(DA_output) %in% remove_output]
 names(DA_output)
 ```
 
-<<<<<<< HEAD
-Get significant taxa (pvalues and adj pvalues) and direction (effect size):
 
-```{r}
-dir_cols <- get_direction_cols(DA_output, conditions_col, conditions)
-
-output <- vector('list', length(DA_output))
-names(output) <- names(DA_output)
-
-for (i in seq_along(output)) {
-    output_name <- names(dir_cols)[i]
-    col_name <- dir_cols[i]
-    statInfo <- DA_output[[output_name]]$statInfo
-    statInfo <- statInfo[, c(col_name), drop = FALSE]
-    pValMat <- DA_output[[output_name]]$pValMat
-    df <- cbind(statInfo, pValMat)
-    df <- df %>% 
-        as.data.frame() %>% 
-        tibble::rownames_to_column(var = 'taxon_name') %>% 
-        as_tibble() %>% 
-        magrittr::set_colnames(c('taxon_id', 'effect_size', 'rawP', 'adjP')) 
-    output[[i]] <- df
-}
-
-output <- bind_rows(output, .id = 'method')
-```
-
-
-Lactobacillus should be less abundante in all bacterial vaginosis samples
-
-```{r}
-lactobacillus <- output %>% 
-    dplyr::filter(taxon_id == 'Lactobacillus') 
-DT::datatable(lactobacillus)
-```
-
-```{r}
-lactobacillus %>% 
-    ggplot(aes(method, effect_size)) +
-    geom_point(aes(color = rawP)) +
-    scale_colour_viridis_b() + 
-    theme(
-        axis.text.x = element_text(angle = 45, hjust = 1)
-    )
-```
-
-```{r}
-lactobacillus %>% 
-    ggplot(aes(method, effect_size)) +
-    geom_point(aes(color = adjP)) +
-    scale_colour_viridis_b() + 
-    theme(
-        axis.text.x = element_text(angle = 45, hjust = 1)
-    )
-```
-
-```{r}
-increased_abundance_rawp <- output %>% 
-    dplyr::filter(
-        rawP <= 0.05, effect_size > 0
-    ) %>% 
-    left_join(priorInfo, by = c('taxon_id' = 'genus')) %>% 
-    dplyr::filter(
-        taxon_annotation == 'bv-associated'
-    )
-```
-
-
-## Increased abundance of hv-associated
-
-
-```{r}
-increased_abundance_adjp <- output %>% 
-    dplyr::filter(
-        adjP <= 0.1, effect_size > 0
-    ) %>% 
-    left_join(priorInfo, by = c('taxon_id' = 'genus')) %>% 
-    dplyr::filter(
-        taxon_annotation == 'bv-associated'
-    )
-=======
 # Enrichment
 
 Get direction
 
 ```{r}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
->>>>>>> new-branch
 ```
 
 
 ```{r}
-<<<<<<< HEAD
-increased_abundance_adjp %>% 
-    count(method) %>% 
-    ggplot(aes(method,sort(n))) +
-    geom_col(color = 'black', alpha = 0.3) +
-    scale_y_continuous(limits = c(0, 11), breaks = seq(0, 10, 2)) +
-    labs(
-        x = 'DA methods', y = 'Number of detected BV-associated taxa'
-    ) +
-    theme_bw() +
-    theme(
-        axis.text.x = element_text(angle = 45, hjust = 1)
-    )
-```
-
-
-=======
 enrichment <- createEnrichment(
     object = DA_output,
     priorKnowledge = prior_info,
@@ -302,9 +199,6 @@ grid.arrange(grobs = plots, ncol = 3)
 ```
 
 
-
-
-
 ```{r, eval=FALSE, include=FALSE, echo=FALSE}
 
 ggsave(filename = "Ravell_2011_a.png", plot = enrich_plot, width = 8, height = 5)
@@ -313,6 +207,3 @@ positives_plots <- grid.arrange(grobs = plots, ncol = 3)
 ggsave(filename = "Ravell_2011_b.png", plot = positives_plots, width = 10, height = 6)
 ```
 
-
-
->>>>>>> new-branch
