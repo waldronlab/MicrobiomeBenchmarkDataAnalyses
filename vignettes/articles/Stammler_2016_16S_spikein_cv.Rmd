@@ -1,0 +1,59 @@
+---
+title: "Analysis of the Sammler_2016_16S_spikein dataset"
+subtitle: "Coefficient of variation"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE}
+library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkData)
+```
+
+# Import data
+
+```{r}
+tse <- getBenchmarkData('Stammler_2016_16S_spikein', dryrun = FALSE)[[1]]
+```
+
+# Normalize data with TSS (relative abundance) and CLR
+
+TSS
+
+```{r}
+assays(tse)[[2]] <- apply(assays(tse)[[1]], 2, function(x) {
+    x / sum(x) * 1e6
+})
+names(assays(tse))[2] <- 'TSS'
+```
+
+CLR
+
+```{r}
+assays(tse)[[3]] <- apply(assays(tse)[[1]] + 1, 2, function(x) {
+    log(x / exp(mean(log(x))))
+})
+names(assays)[3] <- 'CLR'
+```
+
+# Extract data of sipike-in bacteria
+
+```{r}
+spk_bac <- c(
+    s_radiobacter
+)
+```
+
+
+
+
+
+
+
+
+
