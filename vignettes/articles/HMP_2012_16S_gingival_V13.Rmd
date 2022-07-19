@@ -34,7 +34,7 @@ Import dataset:
 
 ```{r import data}
 dat_name <- 'HMP_2012_16S_gingival_V13'
-x <- getDataset(dat_name, dryrun = FALSE)[[1]]
+x <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 x
 ```
 Filter data

@@ -26,7 +26,7 @@ library(gridExtra)
 
 ```{r}
 dat_name <-'HMP_2012_WMS_gingival'
-tse <- getDataset(dat_name, dryrun = FALSE)[[1]]
+tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 tse
 ```
 
