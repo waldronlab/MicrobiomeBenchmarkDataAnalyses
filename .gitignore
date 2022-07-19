@@ -8,3 +8,5 @@ extra_files
 .rds
 vignettes/articles/*.rds
 vignettes/articles/*.rds
+vignettes/articles/*.svg
+vignettes/articles/*png
