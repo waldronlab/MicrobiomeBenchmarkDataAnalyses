@@ -13,6 +13,9 @@ knitr::opts_chunk$set(
 ```{r setup, message=FALSE}
 library(MicrobiomeBenchmarkDataAnalyses)
 library(MicrobiomeBenchmarkData)
+library(dplyr)
+library(tibble)
+library(tidyr)
 ```
 
 # Import data
@@ -38,22 +41,105 @@ CLR
 assays(tse)[[3]] <- apply(assays(tse)[[1]] + 1, 2, function(x) {
     log(x / exp(mean(log(x))))
 })
-names(assays)[3] <- 'CLR'
+names(assays(tse))[3] <- 'CLR'
 ```
 
 # Extract data of sipike-in bacteria
 
 ```{r}
 spk_bac <- c(
-    s_radiobacter
+    s_ruber = 'AF323500XXXX', 
+    r_radiobacter = 'AB247615XXXX',
+    a_acidiphilus = 'AB076660XXXX'
 )
+
+spk_bac_tse <- tse[spk_bac,]
+rownames(spk_bac_tse) <- names(spk_bac)
+rownames(spk_bac_tse)
+```
+
+```{r}
+spk_bac_tse
+```
+
+# Get tidy data
+
+Get sample metadata (for both TSS and CLR):
+
+```{r}
+col_data <- spk_bac_tse %>% 
+    colData() %>% 
+    as.data.frame() %>% 
+    rownames_to_column(var = "sample_id") %>% 
+    as_tibble() %>% 
+    select(sample_id, subject_id, study_condition)
+
+```
+
+TSS
+
+```{r}
+tss_data <- assays(spk_bac_tse)$TSS %>% 
+    as.data.frame() %>% 
+    rownames_to_column("taxon_id") %>% 
+    as_tibble() %>% 
+    pivot_longer(
+        cols = 2:last_col(), names_to = "sample_id", values_to = "abundance"
+    ) %>% 
+    left_join(col_data, by = 'sample_id')
+head(tss_data)
+```
+
+CLR
+
+```{r}
+clr_data <- assays(spk_bac_tse)$CLR %>% 
+    as.data.frame() %>% 
+    rownames_to_column("taxon_id") %>% 
+    as_tibble() %>% 
+    pivot_longer(
+        cols = 2:last_col(), names_to = "sample_id", values_to = "abundance"
+    ) %>% 
+    left_join(col_data, by = 'sample_id')
+head(clr_data)
 ```
 
 
+# Coefficient of variation (all study conditions)
+
+```{r, message=FALSE}
+tss_cv_all <- tss_data %>% 
+    group_by(taxon_id) %>% 
+    summarise(cv_tss = sd(abundance) / mean(abundance) * 100) %>% 
+    ungroup()
+
+clr_cv_all <- clr_data %>% 
+    group_by(taxon_id) %>% 
+    summarise(cv_clr = sd(abundance) / mean(abundance) * 100) %>% 
+    ungroup()
+
+cv_all <- full_join(tss_cv_all, clr_cv_all)
+
+DT::datatable(cv_all)
+```
 
 
+# Coefficient of variation (only preASCT and d14 study conditions)
 
+```{r, message=FALSE}
+tss_cv <- tss_data %>% 
+    filter(study_condition %in% c('preASCT', 'd14')) %>% 
+    group_by(taxon_id) %>% 
+    summarise(cv_tss = sd(abundance) / mean(abundance) * 100) %>% 
+    ungroup()
 
+clr_cv <- clr_data %>% 
+    filter(study_condition %in% c('preASCT', 'd14')) %>% 
+    group_by(taxon_id) %>% 
+    summarise(cv_clr = sd(abundance) / mean(abundance) * 100) %>% 
+    ungroup()
 
+cv <- full_join(tss_cv, clr_cv)
 
-
+DT::datatable(cv)
+```
