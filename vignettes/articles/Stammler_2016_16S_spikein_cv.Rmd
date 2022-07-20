@@ -35,7 +35,7 @@ TSS
 
 ```{r}
 assays(tse)[[2]] <- apply(assays(tse)[[1]] + 1, 2, function(x) {
-    log(x / sum(x))
+    x / sum(x)
 })
 names(assays(tse))[2] <- 'TSS'
 ```
@@ -44,7 +44,7 @@ CLR
 
 ```{r}
 assays(tse)[[3]] <- apply(assays(tse)[[1]] + 1, 2, function(x) {
-    log(x / exp(mean(log(x))))
+    x / exp(mean(log(x)))
 })
 names(assays(tse))[3] <- 'CLR'
 ```
@@ -91,7 +91,7 @@ clr_data <- tidy.RangedSummarizedExperiment(spk_bac_tse, assay = "CLR") %>%
     right_join(col_data)
 
 data <- bind_rows(list(TSS = tss_data, CLR = clr_data), .id = 'norm') %>% 
-    mutate(norm = ifelse(norm == 'TSS', 'logTSS (rel_ab)', norm))
+    mutate(norm = ifelse(norm == 'TSS', 'TSS (relative abundance)', norm))
 
 DT::datatable(data, filter = 'top')
 ```
@@ -141,7 +141,7 @@ data %>%
 
 # Plots of abundance values for the three spike-in bacteria
 
-```{r, message=FALSE, fig.height=9}
+```{r, message=FALSE, fig.height=9, fig.width=9}
 data %>% 
     mutate(
         study_condition = factor(
@@ -150,12 +150,11 @@ data %>%
     ) %>% 
     arrange(study_condition) %>% 
     mutate(sample = forcats::fct_inorder(sample)) %>% 
-    ggplot(aes(sample, value, group = norm)) + 
-    geom_line(aes(linetype = norm)) + 
+    ggplot(aes(sample, value)) + 
     geom_point(
         aes(fill = study_condition), size = 3, shape = 21, color = 'black'
     ) +
-    facet_wrap(~taxon, ncol = 1) +
+    facet_wrap(~taxon+norm, ncol = 2, scales = "free") +
     labs(
         title = 'Comparison of CLR and relative abundance values',
         x = 'Abundance value',
