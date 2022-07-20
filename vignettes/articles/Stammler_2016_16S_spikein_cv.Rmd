@@ -166,7 +166,7 @@ tss_data %>%
     knitr::kable()
 ```
 
-### CLR (TSS)
+### CLR 
 
 ```{r}
 clr_data %>% 
