@@ -19,7 +19,8 @@ library(MicrobiomeBenchmarkData)
 library(dplyr)
 library(tibble)
 library(tidyr)
-library(boot)
+library(biobroom)
+library(ggplot2)
 ```
 
 # Import data
@@ -33,8 +34,8 @@ tse <- getBenchmarkData('Stammler_2016_16S_spikein', dryrun = FALSE)[[1]]
 TSS
 
 ```{r}
-assays(tse)[[2]] <- apply(assays(tse)[[1]], 2, function(x) {
-    x / sum(x) * 1e6
+assays(tse)[[2]] <- apply(assays(tse)[[1]] + 1, 2, function(x) {
+    log(x / sum(x))
 })
 names(assays(tse))[2] <- 'TSS'
 ```
@@ -70,43 +71,33 @@ spk_bac_tse
 
 Get sample metadata (for both TSS and CLR):
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
+## col data for both TSS and CLR
 col_data <- spk_bac_tse %>% 
     colData() %>% 
     as.data.frame() %>% 
-    rownames_to_column(var = "sample_id") %>% 
+    rownames_to_column(var = "sample") %>% 
     as_tibble() %>% 
-    select(sample_id, subject_id, study_condition)
+    select(sample, subject_id, study_condition)
 
+## data for relative abundance
+tss_data <- tidy.RangedSummarizedExperiment(spk_bac_tse, assay = "TSS") %>% 
+    rename(taxon = gene) %>% 
+    right_join(col_data)
+
+## data for CLR
+clr_data <- tidy.RangedSummarizedExperiment(spk_bac_tse, assay = "CLR") %>% 
+    rename(taxon = gene) %>% 
+    right_join(col_data)
+
+data <- bind_rows(list(TSS = tss_data, CLR = clr_data), .id = 'norm') %>% 
+    mutate(norm = ifelse(norm == 'TSS', 'logTSS (rel_ab)', norm))
+
+DT::datatable(data, filter = 'top')
 ```
 
-TSS
 
-```{r}
-tss_data <- assays(spk_bac_tse)$TSS %>% 
-    as.data.frame() %>% 
-    rownames_to_column("taxon_id") %>% 
-    as_tibble() %>% 
-    pivot_longer(
-        cols = 2:last_col(), names_to = "sample_id", values_to = "abundance"
-    ) %>% 
-    left_join(col_data, by = 'sample_id')
-head(tss_data)
-```
 
-CLR
-
-```{r}
-clr_data <- assays(spk_bac_tse)$CLR %>% 
-    as.data.frame() %>% 
-    rownames_to_column("taxon_id") %>% 
-    as_tibble() %>% 
-    pivot_longer(
-        cols = 2:last_col(), names_to = "sample_id", values_to = "abundance"
-    ) %>% 
-    left_join(col_data, by = 'sample_id')
-head(clr_data)
-```
 
 # Calculate coefficient of variation
 
@@ -114,64 +105,65 @@ head(clr_data)
 
 ```{r}
 get_cv <- function(df) {
-    ## an internal function for calculating cv
     cv <- function(x, n) { sd(x[n]) / mean(x[n]) * 100 } 
-    
-    x <- df |> 
-        {\(y) split(y, factor(y$taxon_id))}() |>
+    df |> 
+        {\(y) split(y, factor(y$taxon))}() |>
         # lapply(., function(x) split(x, x$study_condition)) %>% 
         # unlist(recursive = FALSE) %>% 
-        lapply(function(x) boot::boot(x$abundance, cv, R = 1000))
-    
-    res <- data.frame(
-        bac = names(x),
-        original_cv = vapply(x, function(x) x$t0, double(1)),
-        mean_cv = vapply(x, function(x) mean(x$t), double(1)),
-        sd_cv = vapply(x, function(x) sd(x$t), double(1)),
-        ## Calculate bis by resting the mean minus original
-        bias_cv = vapply(x, function(x) mean(x$t[,1]) - x$t0[1], double(1))
-    )
-    
-    rownames(res) <- NULL
-    dplyr::as_tibble(res)
+        lapply(function(x) boot::boot(x$value, cv, R = 1000)) |>
+        lapply(function(x) broom::tidy(x)) |>
+        dplyr::bind_rows(.id = 'taxon') |>
+        dplyr::rename(cv = statistic)
 }
 ```
 
 ## Coefficient of variation (all study conditions, preASCT, d0, d7, d14)
 
-### Relative abudance (TSS)
-
 ```{r}
-tss_data %>% 
-    get_cv() %>% 
-    knitr::kable()
-```
-
-### CLR
-
-```{r}
-clr_data %>% 
-    get_cv() %>% 
-    knitr::kable()
+data %>% 
+    split(factor(.$norm)) %>% 
+    lapply(get_cv) %>% 
+    bind_rows(.id = 'nrom') %>% 
+    DT::datatable(filter = 'top')
 ```
 
 ## Coefficient of variation (only preASCT and d14 study conditions)
 
-### Relative abundance (TSS)
-
 ```{r}
-tss_data %>% 
+data %>% 
     filter(study_condition %in% c('preASCT', 'd14')) %>%
-    get_cv() %>% 
-    knitr::kable()
+    split(factor(.$norm)) %>% 
+    lapply(get_cv) %>% 
+    bind_rows(.id = 'nrom') %>% 
+    DT::datatable(filter = 'top')
 ```
 
-### CLR 
 
-```{r}
-clr_data %>% 
-    filter(study_condition %in% c('preASCT', 'd14')) %>%
-    get_cv() %>% 
-    knitr::kable()
+# Plots of abundance values for the three spike-in bacteria
+
+```{r, message=FALSE, fig.height=9}
+data %>% 
+    mutate(
+        study_condition = factor(
+            study_condition, levels = c('preASCT', 'd0', 'd7', 'd14') 
+        )
+    ) %>% 
+    arrange(study_condition) %>% 
+    mutate(sample = forcats::fct_inorder(sample)) %>% 
+    ggplot(aes(sample, value, group = norm)) + 
+    geom_line(aes(linetype = norm)) + 
+    geom_point(
+        aes(fill = study_condition), size = 3, shape = 21, color = 'black'
+    ) +
+    facet_wrap(~taxon, ncol = 1) +
+    labs(
+        title = 'Comparison of CLR and relative abundance values',
+        x = 'Abundance value',
+        y = 'Sample name'
+    ) +
+    theme_bw() +
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1)
+    )
 ```
 
