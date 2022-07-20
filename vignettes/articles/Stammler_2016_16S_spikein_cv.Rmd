@@ -1,6 +1,9 @@
 ---
 title: "Analysis of the Sammler_2016_16S_spikein dataset"
 subtitle: "Coefficient of variation"
+output:
+    html_document:
+        toc: yes
 ---
 
 ```{r, include = FALSE}
@@ -16,6 +19,7 @@ library(MicrobiomeBenchmarkData)
 library(dplyr)
 library(tibble)
 library(tidyr)
+library(boot)
 ```
 
 # Import data
@@ -104,42 +108,70 @@ clr_data <- assays(spk_bac_tse)$CLR %>%
 head(clr_data)
 ```
 
+# Calculate coefficient of variation
 
-# Coefficient of variation (all study conditions)
+## Define function for CV
 
-```{r, message=FALSE}
-tss_cv_all <- tss_data %>% 
-    group_by(taxon_id) %>% 
-    summarise(cv_tss = sd(abundance) / mean(abundance) * 100) %>% 
-    ungroup()
-
-clr_cv_all <- clr_data %>% 
-    group_by(taxon_id) %>% 
-    summarise(cv_clr = sd(abundance) / mean(abundance) * 100) %>% 
-    ungroup()
-
-cv_all <- full_join(tss_cv_all, clr_cv_all)
-
-DT::datatable(cv_all)
+```{r}
+get_cv <- function(df) {
+    ## an internal function for calculating cv
+    cv <- function(x, n) { sd(x[n]) / mean(x[n]) * 100 } 
+    
+    x <- df |> 
+        {\(y) split(y, factor(y$taxon_id))}() |>
+        # lapply(., function(x) split(x, x$study_condition)) %>% 
+        # unlist(recursive = FALSE) %>% 
+        lapply(function(x) boot::boot(x$abundance, cv, R = 1000))
+    
+    res <- data.frame(
+        bac = names(x),
+        original_cv = vapply(x, function(x) x$t0, double(1)),
+        mean_cv = vapply(x, function(x) mean(x$t), double(1)),
+        sd_cv = vapply(x, function(x) sd(x$t), double(1)),
+        ## Calculate bis by resting the mean minus original
+        bias_cv = vapply(x, function(x) mean(x$t[,1]) - x$t0[1], double(1))
+    )
+    
+    rownames(res) <- NULL
+    dplyr::as_tibble(res)
+}
 ```
 
+## Coefficient of variation (all study conditions, preASCT, d0, d7, d14)
 
-# Coefficient of variation (only preASCT and d14 study conditions)
+### Relative abudance (TSS)
 
-```{r, message=FALSE}
-tss_cv <- tss_data %>% 
-    filter(study_condition %in% c('preASCT', 'd14')) %>% 
-    group_by(taxon_id) %>% 
-    summarise(cv_tss = sd(abundance) / mean(abundance) * 100) %>% 
-    ungroup()
-
-clr_cv <- clr_data %>% 
-    filter(study_condition %in% c('preASCT', 'd14')) %>% 
-    group_by(taxon_id) %>% 
-    summarise(cv_clr = sd(abundance) / mean(abundance) * 100) %>% 
-    ungroup()
-
-cv <- full_join(tss_cv, clr_cv)
-
-DT::datatable(cv)
+```{r}
+tss_data %>% 
+    get_cv() %>% 
+    knitr::kable()
 ```
+
+### CLR
+
+```{r}
+clr_data %>% 
+    get_cv() %>% 
+    knitr::kable()
+```
+
+## Coefficient of variation (only preASCT and d14 study conditions)
+
+### Relative abundance (TSS)
+
+```{r}
+tss_data %>% 
+    filter(study_condition %in% c('preASCT', 'd14')) %>%
+    get_cv() %>% 
+    knitr::kable()
+```
+
+### CLR (TSS)
+
+```{r}
+clr_data %>% 
+    filter(study_condition %in% c('preASCT', 'd14')) %>%
+    get_cv() %>% 
+    knitr::kable()
+```
+
