@@ -1,6 +1,6 @@
 ---
-title: "Analysis of the Sammler_2016_16S_spikein dataset"
-subtitle: "Coefficient of variation"
+title: "Analysis of the Sammler_2016_16S_spikein dataset II"
+subtitle: "Coefficient of variation and plots of abundance values"
 output:
     html_document:
         toc: yes
