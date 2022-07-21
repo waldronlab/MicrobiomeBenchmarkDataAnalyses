@@ -53,9 +53,9 @@ names(assays(tse))[3] <- 'CLR'
 
 ```{r}
 spk_bac <- c(
-    s_ruber = 'AF323500XXXX', 
-    r_radiobacter = 'AB247615XXXX',
-    a_acidiphilus = 'AB076660XXXX'
+    `S. ruber` = 'AF323500XXXX', 
+    `R. radiobacter` = 'AB247615XXXX',
+    `A. acidiphilus` = 'AB076660XXXX'
 )
 
 spk_bac_tse <- tse[spk_bac,]
@@ -120,24 +120,60 @@ get_cv <- function(df) {
 ## Coefficient of variation (all study conditions, preASCT, d0, d7, d14)
 
 ```{r}
-data %>% 
+cv_data <- data %>% 
     split(factor(.$norm)) %>% 
     lapply(get_cv) %>% 
-    bind_rows(.id = 'nrom') %>% 
-    DT::datatable(filter = 'top')
+    bind_rows(.id = 'norm')
+DT::datatable(cv_data, filter = 'top')
 ```
+
+```{r}
+cv_data %>% 
+    ggplot(aes(taxon, cv, color = norm)) +
+    geom_col(position = position_dodge(1), alpha = 0, size = 1) +
+    geom_errorbar(
+        aes(min = cv - std.error, max = cv + std.error, color = norm),
+        position = position_dodge(1), width = 0.2, size = 1
+    ) + 
+    labs(
+        x = "Spike-in bacteria",
+        y = "Coefficient of variation"
+    ) +
+    theme_bw() +
+    theme(axis.text.x = element_text(face = 'italic'))
+
+```
+
+
 
 ## Coefficient of variation (only preASCT and d14 study conditions)
 
 ```{r}
-data %>% 
+cv_data_2 <- data %>% 
     filter(study_condition %in% c('preASCT', 'd14')) %>%
     split(factor(.$norm)) %>% 
     lapply(get_cv) %>% 
-    bind_rows(.id = 'nrom') %>% 
-    DT::datatable(filter = 'top')
+    bind_rows(.id = 'norm') 
+DT::datatable(cv_data_2, filter = 'top')
 ```
 
+
+```{r}
+cv_data_2 %>% 
+    ggplot(aes(taxon, cv, color = norm)) +
+    geom_col(position = position_dodge(1), alpha = 0, size = 1) +
+    geom_errorbar(
+        aes(min = cv - std.error, max = cv + std.error, color = norm),
+        position = position_dodge(1), width = 0.2, size = 1
+    ) + 
+    labs(
+        x = "Spike-in bacteria",
+        y = "Coefficient of variation"
+    ) +
+    theme_bw() +
+    theme(axis.text.x = element_text(face = 'italic'))
+
+```
 
 # Plots of abundance values for the three spike-in bacteria
 
