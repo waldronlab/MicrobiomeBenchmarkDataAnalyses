@@ -178,7 +178,7 @@ cv_data_2 %>%
 # Plots of abundance values for the three spike-in bacteria
 
 ```{r, message=FALSE, fig.height=9, fig.width=9}
-data %>% 
+p <- data %>% 
     mutate(
         study_condition = factor(
             study_condition, levels = c('preASCT', 'd0', 'd7', 'd14') 
@@ -200,5 +200,10 @@ data %>%
     theme(
         axis.text.x = element_text(angle = 45, hjust = 1)
     )
+p
+```
+
+```{r}
+ggsave(filename = "Spikein.png", plot = p, width = 9, height = 9)
 ```
 
