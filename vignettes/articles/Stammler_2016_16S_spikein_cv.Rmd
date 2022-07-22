@@ -34,19 +34,17 @@ tse <- getBenchmarkData('Stammler_2016_16S_spikein', dryrun = FALSE)[[1]]
 TSS
 
 ```{r}
-assays(tse)[[2]] <- apply(assays(tse)[[1]] + 1, 2, function(x) {
+assay(tse, "TSS") <- apply(assay(tse) + 1, 2, function(x) {
     x / sum(x)
 })
-names(assays(tse))[2] <- 'TSS'
 ```
 
 CLR
 
 ```{r}
-assays(tse)[[3]] <- apply(assays(tse)[[1]] + 1, 2, function(x) {
+assay(tse, "CLR") <- apply(assay(tse) + 1, 2, function(x) {
     x / exp(mean(log(x)))
 })
-names(assays(tse))[3] <- 'CLR'
 ```
 
 # Extract data of sipike-in bacteria
