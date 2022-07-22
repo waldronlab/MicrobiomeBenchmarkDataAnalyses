@@ -1,0 +1,48 @@
+---
+title: "Ravel_2011_16S_BV II: compositions"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkData)
+library(tidySummarizedExperiment)
+library(dplyr)
+```
+
+
+# Import and transform data (TSS and CLR)
+
+```{r, message=FALSE, warning=FALSE}
+tse <- getBenchmarkData('Ravel_2011_16S_BV', dryrun = FALSE)[[1]]
+tse_genus <- mia::splitByRanks(tse, na.rm = FALSE)$genus
+assays(tse_genus)$TSS <- norm_tss(assay(tse_genus))
+assays(tse_genus)$CLR <- norm_clr(assay(tse_genus))
+```
+
+# Get tidy data
+
+```{r}
+data <- tidySummarizedExperiment::as_tibble(tse_genus) %>% 
+    rename(taxon = .feature, sample = .sample) %>% 
+    filter(!is.na(taxon_annotation))
+head(data)
+```
+
+# Plot TSS
+
+```{r}
+
+data %>% 
+    ggplot2(aes(taxon, ))
+
+```
+
+
+# Plot CLR

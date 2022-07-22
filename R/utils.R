@@ -139,6 +139,8 @@ get_direction_cols <- function(x, conditions_col, conditions) {
 #' @param total_sum The tolal sum of the scaling, e.g. 100 or 1e.
 #' 
 #' @return A TSS-normalized matrix,
+#' 
+#' @export
 #'
 norm_tss <- function(mat, total_sum = 1e6) {
     apply(mat, 2, function(x) x / sum(x) * total_sum)
@@ -153,6 +155,7 @@ norm_tss <- function(mat, total_sum = 1e6) {
 #' @param pseudocount A pseudocount to add. Default = 1.
 #'
 #' @return A matrix with CLR normalization
+#' @export
 #'
 norm_clr <- function(mat, pseudocount = 0) {
     ## Centered log ratio transformation of a vector
@@ -514,4 +517,6 @@ plot_positives <- function(x) {
     })
     list_of_plots
 }
+
+
 

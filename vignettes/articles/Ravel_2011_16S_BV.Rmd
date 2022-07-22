@@ -1,29 +1,30 @@
 ---
 title: "Ravel_2011_16S - Bacterial vaginosis"
-output: html_document
+output:
+    html_document:
+        toc: yes
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, message=FALSE}
-library(MicrobiomeBenchmarkData)
+```{r, message=FALSE, warning=FALSE}
 library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkData)
 library(mia)
 library(phyloseq)
 library(dplyr)
 library(benchdamic)
-
-
 library(purrr)
 library(ggplot2)
 library(gridExtra)
+library(tidySummarizedExperiment)
 ```
 
 # Import data
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 dat_name <- 'Ravel_2011_16S_BV'
 conditions_col <- 'study_condition'
 conditions <- c(condB = 'healthy', condA = 'bacterial_vaginosis')
@@ -31,8 +32,9 @@ conditions <- c(condB = 'healthy', condA = 'bacterial_vaginosis')
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 
 ################################################################
-## Select equal number of samples per ethnic group
-col_data <- as.data.frame(colData(tse))
+## Select equal number of samples per ethnicity group
+col_data <- as.data.frame(colData(tse)) %>% 
+    filter(study_condition %in% conditions)
 
 row_names <- col_data %>% 
     split(factor(.$ethnicity)) %>% 
@@ -49,87 +51,83 @@ select_samples <- map(row_names, ~ sample(.x, min_n, replace = FALSE)) %>%
     unlist(use.names = FALSE)
 
 ##############################################
-# aelect_samples <- colData(tse)[[conditions_col]] %in% conditions
 tse <- tse[, select_samples]
-tse <- tse[rowSums(assay(tse)) > 1,] 
-tse
-```
+tse <- tse[rowSums(assay(tse)) > 1, ] 
 
-## Get prior Info by genus 
+## Summarize abundances by genus
+tse_genus <- agglomerateByRank(tse, rank = 'genus', na.rm = FALSE)
+tse_genus
+```
+## Get prior info 
 
 ```{r}
-prior_info <- as.data.frame(rowData(tse)[, c('genus', 'taxon_annotation')])
-newNames <- paste0(rownames(prior_info), '|', prior_info$genus)
-prior_info <- prior_info %>% 
-    filter(!is.na(genus)) %>% 
-    distinct()
-rownames(prior_info) <- prior_info$genus
+prior_info <- as.data.frame(rowData(tse_genus)[, c('genus', 'taxon_annotation')])
+prior_info$new_names <- paste0(rownames(prior_info), '|', prior_info$genus)
 head(prior_info)
 ```
 
-## Summarize by genus
-
-```{r}
-tse_genus <- splitByRanks(tse)$genus
-tse_genus
-```
-
-Reorder prior_info according to rownames of se_genus
+# Convert to phyloseq
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse_genus)
 sample_data(ps)[[conditions_col]] <- 
     factor(sample_data(ps)[[conditions_col]], levels = conditions)
-```
 
-
-## Run Differential abundance analysis
-
-Filter
-
-```{r}
+## Filter low abundance taxa
 ps <- filter_phyloseq(ps)
 ```
 
-DA analysis:
+Update prior information (necessary after filtering low abundace taxa)
 
-```{r, message=FALSE}
+```{r}
+prior_info <- prior_info[taxa_names(ps), ]
+prior_info$taxon_name <- rownames(prior_info)
+```
+
+# run differential abundance analysis
+
+da analysis:
+
+```{r, message=FALSE, warning=FALSE}
+## running this in three separate functions to remove aldex2
+## aldex2 throws an error.
 ps <- runNormalizations(set_norm_list(),ps, verbose = FALSE)
-# zw <- weights_ZINB(ps, design = conditions_col)
+zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
 DA_methods$DA_ALDEx2.1 <- NULL
 DA_methods <- purrr::discard(DA_methods, is.null)
+
+## run methods
+DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
+
+## remove methods that won't be considered
+remove_output <- c(
+    "metagenomeseq.cssdefault", "wilcox.none", "zinq.none.minp", 
+    "zinq.tss.minp", "zinq.clr.minp", "zinq.none.cauchy", "lefse.none"
+)
+DA_output <- DA_output[!names(DA_output) %in% remove_output]
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE, eval=FALSE, echo=FALSE, include=FALSE}
+## for now, don't include this code. it seems that running the da doesn't take
+## long
 fname <- paste0('./', dat_name, '.rds')
 fname2 <- paste0('../../misc/articles_data/', dat_name, '.rds')
 if (file.exists(fname)) {
-    message('DA output exists in current directory. Importing...')
-    DA_output <- readRDS(fname)
+    message('da output exists in current directory. importing...')
+    # da_output <- readrds(fname)
 } else if (file.exists(fname2)) {
-    message('DA ouptut exists in misc directory. Importing...')
-    DA_output <- readRDS(fname2)
+    message('da ouptut exists in misc directory. importing...')
+    # da_output <- readrds(fname2)
 } else {
-    DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
-    saveRDS(DA_output, fname)
+    # da_output <- runda(da_methods, ps, weights = zw, verbose = FALSE) 
+    # saverds(da_output, fname)
 } 
 ```
 
-See results
 
-```{r}
-remove_output <- c(
-    "metagenomeSeq.CSSdefault", "wilcox.none", "ZINQ.none.MinP", 
-    "ZINQ.TSS.MinP", "ZINQ.CLR.MinP", "ZINQ.none.Cauchy", "lefse.none"
-)
-
-DA_output <- DA_output[!names(DA_output) %in% remove_output]
-names(DA_output)
-```
-
-# Enrichment
+# enrichment
 
 Get direction
 
@@ -143,7 +141,7 @@ enrichment <- createEnrichment(
     object = DA_output,
     priorKnowledge = prior_info,
     enrichmentCol = "taxon_annotation",
-    namesCol = "genus",
+    namesCol = "new_names",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
     threshold_pvalue = 0.1,
@@ -171,7 +169,7 @@ enrich_plot
 positives <- createPositives(
     object = DA_output, 
     priorKnowledge = prior_info, 
-    enrichmentCol = "taxon_annotation", namesCol = "genus",
+    enrichmentCol = "taxon_annotation", namesCol = "new_names",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
     threshold_pvalue = 1,
@@ -198,16 +196,139 @@ grid.arrange(grobs = plots, ncol = 3)
 ```
 
 
-
-
-
 ```{r, eval=FALSE, include=FALSE, echo=FALSE}
-
+## This code is just for exporting the plots.
 ggsave(filename = "Ravell_2011_a.png", plot = enrich_plot, width = 8, height = 5)
-
 positives_plots <- grid.arrange(grobs = plots, ncol = 3)
 ggsave(filename = "Ravell_2011_b.png", plot = positives_plots, width = 10, height = 6)
 ```
 
 
+# Stacked plot of compositions
+
+```{r, warning=FALSE}
+new_tse <- mia::makeTreeSummarizedExperimentFromPhyloseq(ps)
+
+assays(new_tse)[[2]] <- apply(assays(new_tse)[[1]] + 1, 2, function(x) {
+    x / sum(x)
+})
+names(assays(new_tse))[2] <- 'TSS'
+
+assays(new_tse)[[3]] <- apply(assays(new_tse)[[1]] + 1, 2, function(x) {
+    x / exp(mean(log(x)))
+})
+names(assays(new_tse))[3] <- 'CLR'
+
+data <- tidySummarizedExperiment::as_tibble(new_tse) %>% 
+    rename(taxon = .feature, sample = .sample) %>% 
+    left_join(prior_info, by = c('taxon' = 'taxon_name'))
+head(data)
+```
+
+
+## Compositions with TSS data
+
+order of taxa
+
+```{r}
+first_set <- data %>% 
+    filter(
+        nugent_score_category == 'low',
+        taxon_annotation == 'hv-associated'
+    ) %>% 
+    arrange(desc(TSS)) %>% 
+    pull(sample)
+
+
+second_set <- data %>% 
+    filter(
+        nugent_score_category == 'high',
+        taxon_annotation == 'hv-associated'
+    ) %>% 
+    arrange(desc(TSS)) %>% 
+    pull(sample)
+samples_order <- c(first_set, second_set)
+
+```
+
+
+```{r}
+p1 <- data %>% 
+    # arrange(nugent_score) %>%
+    mutate(
+        sample = factor(sample, levels = samples_order),
+        # sample = forcats::fct_inorder(sample),
+        nugent_score_category = factor(
+            nugent_score_category, levels = c('low', 'high'),
+            labels = c('Low Nugent score', 'High Nugent score')
+        ),
+        taxon_annotation = case_when(
+            taxon_annotation == "hv-associated" ~ "Health-associated",
+            taxon_annotation == "bv-associated" ~ "BV-associated",
+            is.na(taxon_annotation) ~ "Unnanotated"
+        ),
+        taxon_annotation = factor(
+            taxon_annotation, levels = c('Health-associated', 'BV-associated', 'Unnanotated')[3:1]
+        )
+    ) %>%
+    # filter(!is.na(taxon_annotation)) %>% 
+    ggplot(aes(sample, TSS )) +
+    geom_col(aes(fill = taxon_annotation)) +
+    scale_fill_manual(values = c('gray60', 'firebrick2', 'dodgerblue2')) +
+    labs(
+        x = "Samples",
+        y = "Relative abundance values (TSS)"
+    ) +
+    facet_wrap(~nugent_score_category, ncol = 2, scales = "free_x") +
+    theme_bw() +
+    theme(
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        panel.grid = element_blank()
+    )
+p1
+```
+
+
+```{r}
+p2 <- data %>% 
+    # arrange(nugent_score) %>%
+    mutate(
+        sample = factor(sample, levels = samples_order),
+        # sample = forcats::fct_inorder(sample),
+        nugent_score_category = factor(
+            nugent_score_category, levels = c('low', 'high'),
+            labels = c('Low Nugent score', 'High Nugent score')
+        ),
+        taxon_annotation = case_when(
+            taxon_annotation == "hv-associated" ~ "Health-associated",
+            taxon_annotation == "bv-associated" ~ "BV-associated",
+            is.na(taxon_annotation) ~ "Unnanotated"
+        ),
+        taxon_annotation = factor(
+            taxon_annotation, levels = c('Health-associated', 'BV-associated', 'Unnanotated')[3:1]
+        )
+    ) %>%
+    # filter(!is.na(taxon_annotation)) %>% 
+    ggplot(aes(sample, CLR )) +
+    geom_col(aes(fill = taxon_annotation)) +
+    scale_fill_manual(values = c('gray60', 'firebrick2', 'dodgerblue2')) +
+    labs(
+        x = "Samples",
+        y = "Relative abundance values (TSS)"
+    ) +
+    facet_wrap(~nugent_score_category, ncol = 2, scales = "free_x") +
+    theme_bw() +
+    theme(
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        panel.grid = element_blank()
+    )
+p2
+```
+
+```{r,, echo=FALSE, eval=FALSE, include=FALSE}
+ggsave("Ravell_2011_c.png", p1)
+ggsave("Ravell_2011_d.png", p2)
+```
 
