@@ -4,10 +4,12 @@
 \alias{norm_clr}
 \title{CLR normalization}
 \usage{
-norm_clr(mat, pseudocount = 0)
+norm_clr(mat, pseudocount = 0, log = FALSE)
 }
 \arguments{
 \item{pseudocount}{A pseudocount to add. Default = 1.}
+
+\item{log}{If TRUE, CLR will be logged. Default = FALSE.}
 
 \item{x}{A count matrix.}
 }
