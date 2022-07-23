@@ -14,7 +14,8 @@ Suggests:
     gridExtra,
     knitr,
     MicrobiomeBenchmarkData,
-    rmarkdown
+    rmarkdown,
+    tidySummarizedExperiment
 VignetteBuilder: knitr
 Imports: 
     SummarizedExperiment,
