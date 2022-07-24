@@ -141,7 +141,10 @@ DT::datatable(cv_res, filter = 'top')
 cv_res %>% 
     mutate(
         recal = ifelse(grepl('recal', norm), 'Recalibrated', 'Original'),
-        norm = factor(norm, levels = sort(unique(norm)))
+        norm = factor(norm, levels = c(
+            'counts', 'counts_recal', 'TSS', 'TSS_recal', 'CLR', 'CLR_recal'
+            )
+        )
     ) %>% 
     ggplot(aes(norm, cv)) +
     geom_col(
