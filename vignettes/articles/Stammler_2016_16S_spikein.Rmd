@@ -1,6 +1,6 @@
 ---
-title: "Analysis of the Sammler_2016_16S_spikein dataset II"
-subtitle: "Coefficient of variation and plots of abundance values"
+title: "Analysis of the Sammler_2016_16S_spikein dataset"
+subtitle: "Comparison of coefficient of variation"
 output:
     html_document:
         toc: yes
@@ -23,31 +23,17 @@ library(biobroom)
 library(ggplot2)
 ```
 
-# Import data
+# Source code
 
-```{r}
+[Source](https://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/articles/Stammler_2016_16S_spikein.html)
+
+# Data
+
+```{r, message=FALSE, warning=FALSE}
 tse <- getBenchmarkData('Stammler_2016_16S_spikein', dryrun = FALSE)[[1]]
 ```
 
-# Normalize data with TSS (relative abundance) and CLR
-
-TSS
-
-```{r}
-assay(tse, "TSS") <- apply(assay(tse) + 1, 2, function(x) {
-    x / sum(x)
-})
-```
-
-CLR
-
-```{r}
-assay(tse, "CLR") <- apply(assay(tse) + 1, 2, function(x) {
-    x / exp(mean(log(x)))
-})
-```
-
-# Extract data of sipike-in bacteria
+## Recalibrate with spike-in Salinibacter ruber
 
 ```{r}
 spk_bac <- c(
@@ -56,22 +42,50 @@ spk_bac <- c(
     `A. acidiphilus` = 'AB076660XXXX'
 )
 
-spk_bac_tse <- tse[spk_bac,]
-rownames(spk_bac_tse) <- names(spk_bac)
-rownames(spk_bac_tse)
+counts <- assay(tse, 'counts')
+s_ruber <- counts[spk_bac['S. ruber'], ]
+
+size_factor <- s_ruber/mean(s_ruber)
+SCML_data <- counts 
+for(i in seq(ncol(SCML_data))){
+    SCML_data[,i] <- round(SCML_data[,i] / size_factor[i])
+}
+
+assay(tse, 'counts_recal') <- SCML_data
 ```
 
+## Tranform counts and recalibrated counts with TSS (relative abundance) and CLR
+
 ```{r}
+tss_fun <- function(x) (x + 1) / sum((x + 1))
+clr_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
+
+## TSS - original counts
+assay(tse, "TSS") <- apply(assay(tse, 'counts'), 2,  tss_fun)
+
+## CLR - original counts
+assay(tse, "CLR") <- apply(assay(tse, 'counts'), 2, clr_fun) 
+
+## TSS - recalibrated counts
+assay(tse, "TSS_recal") <- apply(assay(tse, 'counts_recal'), 2, tss_fun)
+
+## CLR - recalibrated counts
+assay(tse, "CLR_recal") <- apply(assay(tse, 'counts_recal'), 2, clr_fun)
+```
+
+# Extract data of sipike-in bacteria
+
+```{r}
+spk_bac_tse <- tse[spk_bac,]
+rownames(spk_bac_tse) <- names(spk_bac)
 spk_bac_tse
 ```
 
 # Get tidy data
 
-Get sample metadata (for both TSS and CLR):
-
 ```{r, message=FALSE, warning=FALSE}
-## col data for both TSS and CLR
-col_data <- spk_bac_tse %>% 
+## sample metadata
+col_data <- tse %>% 
     colData() %>% 
     as.data.frame() %>% 
     rownames_to_column(var = "sample") %>% 
@@ -79,129 +93,81 @@ col_data <- spk_bac_tse %>%
     select(sample, subject_id, study_condition)
 
 ## data for relative abundance
-tss_data <- tidy.RangedSummarizedExperiment(spk_bac_tse, assay = "TSS") %>% 
-    rename(taxon = gene) %>% 
-    right_join(col_data)
-
-## data for CLR
-clr_data <- tidy.RangedSummarizedExperiment(spk_bac_tse, assay = "CLR") %>% 
-    rename(taxon = gene) %>% 
-    right_join(col_data)
-
-data <- bind_rows(list(TSS = tss_data, CLR = clr_data), .id = 'norm') %>% 
-    mutate(norm = ifelse(norm == 'TSS', 'TSS (relative abundance)', norm))
+output <- vector("list", length(assays(spk_bac_tse)))
+for (i in seq_along(output)) {
+    data_name <- names(assays(spk_bac_tse))[i]
+    names(output)[i] <- data_name
+    output[[i]] <- tidy.RangedSummarizedExperiment(
+        spk_bac_tse, assay = data_name
+    ) %>% 
+        magrittr::set_colnames(c('taxon', 'sample', data_name))
+}
+data <- purrr::reduce(output, left_join) %>% 
+    left_join(col_data) %>% 
+    relocate(subject_id, study_condition, .after = sample)
 
 DT::datatable(data, filter = 'top')
 ```
 
-
-
-
 # Calculate coefficient of variation
 
-## Define function for CV
+## Define formula for calculating coefficient of variation
 
 ```{r}
-get_cv <- function(df) {
+get_cv <- function(x) {
     cv <- function(x, n) { sd(x[n]) / mean(x[n]) * 100 } 
-    df |> 
-        {\(y) split(y, factor(y$taxon))}() |>
-        # lapply(., function(x) split(x, x$study_condition)) %>% 
-        # unlist(recursive = FALSE) %>% 
-        lapply(function(x) boot::boot(x$value, cv, R = 1000)) |>
-        lapply(function(x) broom::tidy(x)) |>
-        dplyr::bind_rows(.id = 'taxon') |>
+    boot::boot(x, cv, R = 1000) |>
+        broom::tidy() |>
         dplyr::rename(cv = statistic)
-}
-```
-
-## Coefficient of variation (all study conditions, preASCT, d0, d7, d14)
-
-```{r}
-cv_data <- data %>% 
-    split(factor(.$norm)) %>% 
-    lapply(get_cv) %>% 
-    bind_rows(.id = 'norm')
-DT::datatable(cv_data, filter = 'top')
+} 
 ```
 
 ```{r}
-cv_data %>% 
-    ggplot(aes(taxon, cv, color = norm)) +
-    geom_col(position = position_dodge(1), alpha = 0, size = 1) +
-    geom_errorbar(
-        aes(min = cv - std.error, max = cv + std.error, color = norm),
-        position = position_dodge(1), width = 0.2, size = 1
-    ) + 
-    labs(
-        x = "Spike-in bacteria",
-        y = "Coefficient of variation"
-    ) +
-    theme_bw() +
-    theme(axis.text.x = element_text(face = 'italic'))
-
-```
-
-
-
-## Coefficient of variation (only preASCT and d14 study conditions)
-
-```{r}
-cv_data_2 <- data %>% 
-    filter(study_condition %in% c('preASCT', 'd14')) %>%
-    split(factor(.$norm)) %>% 
-    lapply(get_cv) %>% 
-    bind_rows(.id = 'norm') 
-DT::datatable(cv_data_2, filter = 'top')
-```
-
-
-```{r}
-cv_data_2 %>% 
-    ggplot(aes(taxon, cv, color = norm)) +
-    geom_col(position = position_dodge(1), alpha = 0, size = 1) +
-    geom_errorbar(
-        aes(min = cv - std.error, max = cv + std.error, color = norm),
-        position = position_dodge(1), width = 0.2, size = 1
-    ) + 
-    labs(
-        x = "Spike-in bacteria",
-        y = "Coefficient of variation"
-    ) +
-    theme_bw() +
-    theme(axis.text.x = element_text(face = 'italic'))
-
-```
-
-# Plots of abundance values for the three spike-in bacteria
-
-```{r, message=FALSE, fig.height=9, fig.width=9}
-p <- data %>% 
-    mutate(
-        study_condition = factor(
-            study_condition, levels = c('preASCT', 'd0', 'd7', 'd14') 
-        )
+cv_res <- data %>% 
+    group_by(taxon) %>% 
+    summarize(across(.cols = counts:last_col(), .fns = get_cv)) %>% 
+    pivot_longer(
+        cols = 2:last_col(), names_to = 'norm', values_to = 'cv_res' 
     ) %>% 
-    arrange(study_condition) %>% 
-    mutate(sample = forcats::fct_inorder(sample)) %>% 
-    ggplot(aes(sample, value)) + 
-    geom_point(
-        aes(fill = study_condition), size = 3, shape = 21, color = 'black'
-    ) +
-    facet_wrap(~taxon+norm, ncol = 2, scales = "free") +
-    labs(
-        title = 'Comparison of CLR and relative abundance values',
-        x = 'Abundance value',
-        y = 'Sample name'
-    ) +
-    theme_bw() +
-    theme(
-        axis.text.x = element_text(angle = 45, hjust = 1)
-    )
-p
+    unnest(cols = 'cv_res')
+   
+DT::datatable(cv_res, filter = 'top')     
 ```
 
-```{r, include=FALSE, echo=FALSE, eval=FALSE}
-ggsave(filename = "Spikein.png", plot = p, width = 9, height = 9)
+
+# Compare coefficient of variation
+
+```{r, fig.width=8, fig.height=4}
+cv_res %>% 
+    mutate(
+        recal = ifelse(grepl('recal', norm), 'Recalibrated', 'Original'),
+        norm = factor(norm, levels = sort(unique(norm)))
+    ) %>% 
+    ggplot(aes(norm, cv)) +
+    geom_col(
+        aes(color = recal), position = position_dodge(), alpha = 0, size = 1
+    ) + 
+    geom_errorbar(
+        aes(ymin = cv - std.error, ymax = cv + std.error, color = recal),
+        width = 0.4, size = 1
+    ) +
+    scale_color_brewer(type = 'qual', palette = 'Dark2') +
+    facet_wrap(~taxon) + 
+    labs(
+        y = 'Coefficient of variation',
+        x = 'Data type'
+    ) + 
+    theme_bw() + 
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major.x = element_blank(),
+        strip.text = element_text(face = 'italic'),
+        legend.title = element_blank()
+    )
 ```
+
+
+
+
+
 
