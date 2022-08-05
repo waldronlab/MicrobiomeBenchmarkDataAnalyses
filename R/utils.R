@@ -232,11 +232,11 @@ log2_fold_change <- function(
         mean_condB <- mean(mat[features[i], condition_vector == condB])
         mean_condA <- mean(mat[features[i], condition_vector == condA])
         
-        if (log) {
+        if (log) { # CLR (already logged)
             log2FoldChange[i] <- mean_condA - mean_condB
             
         } else {
-            if (mean_condA >= mean_condB) {
+            if (mean_condA >= mean_condB) { # TSS - relative abundance
                 log2FoldChange[i] <- log2(mean_condA / mean_condB)
                 
             } else if (mean_condA < mean_condB) {

@@ -208,21 +208,89 @@ ggsave(filename = "Ravell_2011_b.png", plot = positives_plots, width = 10, heigh
 ```{r, warning=FALSE}
 new_tse <- mia::makeTreeSummarizedExperimentFromPhyloseq(ps)
 
-assays(new_tse)[[2]] <- apply(assays(new_tse)[[1]] + 1, 2, function(x) {
+assay(new_tse, 'TSS') <- apply(assay(new_tse) + 1, 2, function(x) {
     x / sum(x)
 })
-names(assays(new_tse))[2] <- 'TSS'
 
-assays(new_tse)[[3]] <- apply(assays(new_tse)[[1]] + 1, 2, function(x) {
+assay(new_tse, 'CLR') <- apply(assay(new_tse) + 1, 2, function(x) {
     x / exp(mean(log(x)))
 })
-names(assays(new_tse))[3] <- 'CLR'
 
 data <- tidySummarizedExperiment::as_tibble(new_tse) %>% 
     rename(taxon = .feature, sample = .sample) %>% 
     left_join(prior_info, by = c('taxon' = 'taxon_name'))
 head(data)
 ```
+
+# Box plots
+
+```{r}
+
+```
+
+
+## CLR
+
+```{r}
+data %>% 
+    filter(taxon_annotation == 'bv-associated') %>% 
+    mutate(taxon = sub("^genus:", "", taxon)) %>% 
+    ggplot(aes(taxon, CLR)) +
+    geom_boxplot(aes(color = study_condition)) + 
+    labs(title = 'CLR values of BV-associated bacteria') +
+    theme_bw() + 
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+```
+
+```{r}
+data %>% 
+    filter(taxon_annotation == 'bv-associated') %>% 
+    filter(CLR <= 100) %>% 
+    mutate(taxon = sub("^genus:", "", taxon)) %>% 
+    ggplot(aes(taxon, CLR)) +
+    geom_boxplot(aes(color = study_condition)) + 
+    labs(title = 'CLR values of BV-associated bacteria (filtered below 100)') +
+    theme_bw() + 
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+```
+
+
+## relab
+
+```{r}
+data %>% 
+    filter(taxon_annotation == 'bv-associated') %>% 
+    mutate(taxon = sub("^genus:", "", taxon)) %>% 
+    ggplot(aes(taxon, TSS)) +
+    geom_boxplot(aes(color = study_condition)) + 
+    labs(title = 'Relatibe abundance values of BV-associated bacteria',
+         y = 'relative abundance') +
+    theme_bw() + 
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+```
+
+```{r}
+data %>% 
+    filter(taxon_annotation == 'bv-associated') %>% 
+    filter(TSS <= 0.2) %>% 
+    mutate(taxon = sub("^genus:", "", taxon)) %>% 
+    ggplot(aes(taxon, TSS)) +
+    geom_boxplot(aes(color = study_condition)) + 
+    labs(title = 'Relative abundance values of BV-associated bacteria (filtered below 0.2)',
+         y = 'relative abundance') +
+    theme_bw() + 
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+```
+
+
 
 
 ## Compositions with TSS data
@@ -253,10 +321,8 @@ samples_order <- c(first_set, second_set)
 
 ```{r}
 p1 <- data %>% 
-    # arrange(nugent_score) %>%
     mutate(
         sample = factor(sample, levels = samples_order),
-        # sample = forcats::fct_inorder(sample),
         nugent_score_category = factor(
             nugent_score_category, levels = c('low', 'high'),
             labels = c('Low Nugent score', 'High Nugent score')
@@ -270,7 +336,6 @@ p1 <- data %>%
             taxon_annotation, levels = c('Health-associated', 'BV-associated', 'Unnanotated')[3:1]
         )
     ) %>%
-    # filter(!is.na(taxon_annotation)) %>% 
     ggplot(aes(sample, TSS )) +
     geom_col(aes(fill = taxon_annotation)) +
     scale_fill_manual(values = c('gray60', 'firebrick2', 'dodgerblue2')) +
@@ -291,10 +356,8 @@ p1
 
 ```{r}
 p2 <- data %>% 
-    # arrange(nugent_score) %>%
     mutate(
         sample = factor(sample, levels = samples_order),
-        # sample = forcats::fct_inorder(sample),
         nugent_score_category = factor(
             nugent_score_category, levels = c('low', 'high'),
             labels = c('Low Nugent score', 'High Nugent score')
@@ -308,13 +371,12 @@ p2 <- data %>%
             taxon_annotation, levels = c('Health-associated', 'BV-associated', 'Unnanotated')[3:1]
         )
     ) %>%
-    # filter(!is.na(taxon_annotation)) %>% 
     ggplot(aes(sample, CLR )) +
     geom_col(aes(fill = taxon_annotation)) +
     scale_fill_manual(values = c('gray60', 'firebrick2', 'dodgerblue2')) +
     labs(
         x = "Samples",
-        y = "Relative abundance values (TSS)"
+        y = "CLR transformed values"
     ) +
     facet_wrap(~nugent_score_category, ncol = 2, scales = "free_x") +
     theme_bw() +
@@ -326,8 +388,14 @@ p2 <- data %>%
 p2
 ```
 
+
 ```{r,, echo=FALSE, eval=FALSE, include=FALSE}
 ggsave("Ravell_2011_c.png", p1)
 ggsave("Ravell_2011_d.png", p2)
 ```
+
+
+
+
+
 

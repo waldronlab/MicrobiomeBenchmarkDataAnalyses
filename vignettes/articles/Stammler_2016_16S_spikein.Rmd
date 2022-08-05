@@ -54,23 +54,17 @@ for(i in seq(ncol(SCML_data))){
 assay(tse, 'counts_recal') <- SCML_data
 ```
 
-## Tranform counts and recalibrated counts with TSS (relative abundance) and CLR
+## Tranform with TSS (relative abundance) and CLR
 
 ```{r}
 tss_fun <- function(x) (x + 1) / sum((x + 1))
 clr_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
 
-## TSS - original counts
+## TSS (relative abundance)
 assay(tse, "TSS") <- apply(assay(tse, 'counts'), 2,  tss_fun)
 
-## CLR - original counts
+## CLR
 assay(tse, "CLR") <- apply(assay(tse, 'counts'), 2, clr_fun) 
-
-## TSS - recalibrated counts
-assay(tse, "TSS_recal") <- apply(assay(tse, 'counts_recal'), 2, tss_fun)
-
-## CLR - recalibrated counts
-assay(tse, "CLR_recal") <- apply(assay(tse, 'counts_recal'), 2, clr_fun)
 ```
 
 # Extract data of sipike-in bacteria
@@ -85,12 +79,12 @@ spk_bac_tse
 
 ```{r, message=FALSE, warning=FALSE}
 ## sample metadata
-col_data <- tse %>% 
-    colData() %>% 
-    as.data.frame() %>% 
-    rownames_to_column(var = "sample") %>% 
-    as_tibble() %>% 
-    select(sample, subject_id, study_condition)
+# col_data <- tse %>% 
+#     colData() %>% 
+#     as.data.frame() %>% 
+#     rownames_to_column(var = "sample") %>% 
+#     as_tibble() %>% 
+#     select(sample, subject_id, study_condition)
 
 ## data for relative abundance
 output <- vector("list", length(assays(spk_bac_tse)))
@@ -102,9 +96,9 @@ for (i in seq_along(output)) {
     ) %>% 
         magrittr::set_colnames(c('taxon', 'sample', data_name))
 }
-data <- purrr::reduce(output, left_join) %>% 
-    left_join(col_data) %>% 
-    relocate(subject_id, study_condition, .after = sample)
+data <- purrr::reduce(output, left_join)
+    # left_join(col_data) %>% 
+    # relocate(subject_id, study_condition, .after = sample)
 
 DT::datatable(data, filter = 'top')
 ```
@@ -139,33 +133,35 @@ DT::datatable(cv_res, filter = 'top')
 
 ```{r, fig.width=8, fig.height=4}
 cv_res %>% 
+    filter(norm != 'counts') %>%
+    mutate(norm = ifelse(norm == 'TSS', 'Relative abundance', norm)) %>%
+    mutate(norm = ifelse(norm == 'counts_recal', 'Recalibrated counts', norm)) %>%
     mutate(
-        recal = ifelse(grepl('recal', norm), 'Recalibrated', 'Original'),
         norm = factor(norm, levels = c(
-            'counts', 'counts_recal', 'TSS', 'TSS_recal', 'CLR', 'CLR_recal'
+            'counts', 'Recalibrated counts', 'Relative abundance',  'CLR'
             )
         )
-    ) %>% 
-    ggplot(aes(norm, cv)) +
-    geom_col(
-        aes(color = recal), position = position_dodge(), alpha = 0, size = 1
-    ) + 
+    ) %>%
+    mutate(taxon = forcats::fct_relevel(taxon, 'S. ruber')) %>% 
+    ggplot(aes(reorder(norm, cv), cv)) +
+    geom_point(aes(color = norm), size = 2) + 
     geom_errorbar(
-        aes(ymin = cv - std.error, ymax = cv + std.error, color = recal),
-        width = 0.4, size = 1
+        aes(ymin = cv - std.error, ymax = cv + std.error, color = norm),
+        width = 0.4, size = 0.5
     ) +
-    scale_color_brewer(type = 'qual', palette = 'Dark2') +
+    scale_color_brewer(type = 'qual', palette = 'Set2') +
     facet_wrap(~taxon) + 
     labs(
-        y = 'Coefficient of variation',
-        x = 'Data type'
+        y = 'Coefficient of variation across all samples',
+        x = 'Data transformation'
     ) + 
     theme_bw() + 
     theme(
         axis.text.x = element_text(angle = 45, hjust = 1),
         panel.grid.major.x = element_blank(),
         strip.text = element_text(face = 'italic'),
-        legend.title = element_blank()
+        # legend.title = element_blank()
+        legend.position = 'none'
     )
 ```
 
