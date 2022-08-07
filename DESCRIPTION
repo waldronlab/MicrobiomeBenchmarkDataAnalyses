@@ -16,13 +16,13 @@ Suggests:
     knitr,
     MicrobiomeBenchmarkData,
     rmarkdown,
-    tidySummarizedExperiment
+    tidySummarizedExperiment,
+    ZINQ
 VignetteBuilder: knitr
 Imports: 
     SummarizedExperiment,
     microbiome,
     stats,
-    ZINQ,
     dplyr,
     magrittr,
     phyloseq,
