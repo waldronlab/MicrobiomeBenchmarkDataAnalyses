@@ -10,3 +10,4 @@
 ^docs$
 ^pkgdown$
 ^extra_files$
+^\.github$
