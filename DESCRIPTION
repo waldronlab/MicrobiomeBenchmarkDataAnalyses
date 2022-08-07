@@ -16,8 +16,7 @@ Suggests:
     knitr,
     MicrobiomeBenchmarkData,
     rmarkdown,
-    tidySummarizedExperiment,
-    ZINQ
+    tidySummarizedExperiment
 VignetteBuilder: knitr
 Imports: 
     SummarizedExperiment,
