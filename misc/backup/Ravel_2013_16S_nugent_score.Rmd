@@ -106,18 +106,8 @@ Get counts for abundance matrix
 
 ```{r}
 total_reads <- sample_metadata$`Total Reads`
-abundance_matrix <- 
-    relative_abundance_to_counts(relative_abundance_matrix, total_reads)
+abundance_matrix <- round(t(t(relative_abundance_matrix) * total_reads / 100))
 abundance_matrix[1:5, 1:5]
-```
-
-```{r, eval=FALSE, include=FALSE}
-# abundance_matrix_fname <- 
-#     "../../inst/extdata/Ravel_2013_bv_abundance_matrix.tsv"
-# write.table(
-#     abundance_matrix, abundance_matrix_fname,
-#     sep = "\t", col.names = TRUE, row.names = TRUE
-# )
 ```
 
 Import taxonomy table
