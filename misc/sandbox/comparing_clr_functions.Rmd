@@ -7,24 +7,47 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-There are a few packages that can be used for centered-log transformation of
-a matrix.
 
+```{r, message=FALSE}
+if (!'MicrobiomeBenchmarkData' %in% installed.packages()[, 'Package']) {
+    BiocManager::install('waldronlab/MicrobiomeBenchmarkData')
+}
 
-```{r}
-library(curatedMetagenomicData)
+library(MicrobiomeBenchmarkData)
 ```
 
-I chose this dataset because it was used in the lefser package (Bioconductor)
+```{r, warning=FALSE}
+tse <- getBenchmarkData('Stammler_2016_16S_spikein', dryrun = FALSE)[[1]]
+m <- assay(tse, 'counts')
+m[1:4, 1:4]
+```
+
+# Calculation of geometric mean
+
+There are a few options for calculating the geometric mean in R.
+
+Option 1:
 
 ```{r}
-tse <- curatedMetagenomicData(
-    "ZellerG_2014.relative_abundance", dryrun = FALSE, counts = TRUE, 
-    rownames = "short"
-)[[1]]
-tse_subset <- tse[,colData(tse)$study_condition != "adenoma"]
-m <- assays(tse_subset)$relative_abundance
+gm1 <- apply(m + 1, 2, function(x) exp(mean(log(x))))
+gm1
 ```
+
+Option 2:
+
+```{r}
+gm2 <- apply(m + 1, 2, function(x) prod(x)^(1/length(x)))
+gm2
+```
+
+Note that the second option gives some infinite values. This is because 
+the output of `prod` can get really big and cannot be handled by R. The 
+`Hotelling:clr` function uses this approach (it can be checked in the function's
+definition), so it's better to avoid it. Using the `gmp` package might help (see 
+https://www.r-bloggers.com/2019/08/really-large-numbers-in-r/), but the
+first approach (`exp(mean(log(x)))`) is better.
+
+# Calculate CLR with other functions
 
 Comparing different functions
 
@@ -32,12 +55,6 @@ Comparing different functions
 ## Defined function in global environment
 my_clr <- function(x) log(x / exp(mean(log(x))))
 res <- apply(m + 1, 2, my_clr)
-
-## Hotelling pkg
-res_hot <- m |>
-    t() |>
-    {\(y) Hotelling::clr(y + 1)}() |>
-    t()
 
 ## compositions pkg
 res_com <- m |>
@@ -56,7 +73,6 @@ class(res_mix) <- NULL # This is needed to remove the "clr" class
 ```
 
 ```{r}
-all.equal(res, res_hot)
 all.equal(res, res_com)
 all.equal(res, res_mix)
 ```
@@ -78,7 +94,3 @@ mat_mix <- t(mixOmics::logratio.transfo(t(mat), logratio = "CLR", offset = 1)) |
     {\(y) `class<-`(y, "matrix")}()
 mat_mix
 ```
-
-## Conclusion
-`mixOmics::logratio.transfo` with transposition of the matrix should be chosen.
-The "clr" class should be removed, though.
