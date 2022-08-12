@@ -44,7 +44,7 @@ head(prior_info)
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
-ps <- filter_phyloseq(ps)
+ps <- filterTaxa(ps)
 phyloseq::sample_data(ps)$body_subsite <- 
     factor(phyloseq::sample_data(ps)$body_subsite)
 ps

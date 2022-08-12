@@ -114,7 +114,7 @@ Convert to phyloseq
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(x_sub)
-ps <- filter_phyloseq(ps)
+ps <- filterTaxa(ps)
 sample_data(ps)[[conditions_col]] <- 
     factor(sample_data(ps)[[conditions_col]], levels = conditions)
 ps
