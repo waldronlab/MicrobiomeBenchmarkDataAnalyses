@@ -63,7 +63,8 @@ lefser2 <-
              groupCol = "GROUP",
              blockCol = NULL,
              assay = 1L,
-             trim.names = FALSE)
+             trim.names = FALSE, log = FALSE
+             )
     {
         groupf <- colData(expr)[[groupCol]]
         if (is.null(groupf))
@@ -96,7 +97,12 @@ lefser2 <-
         
         # transposes matrix and add a "class" (i.e., group) column
         # matrix converted to dataframe
-        expr_sub_t <- t(expr_sub)
+        
+        if (log) {
+            expr_sub_t <- t(exp(expr_sub)) ## added this line
+        } else {
+            expr_sub_t <- t(expr_sub)
+        }
         expr_sub_t_df <- as.data.frame(expr_sub_t)
         expr_sub_t_df <- createUniqueValues(expr_sub_t_df, groupf)
         expr_sub_t_df <- cbind(expr_sub_t_df, class = group)

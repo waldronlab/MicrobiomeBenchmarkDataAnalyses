@@ -12,7 +12,8 @@ lefser2(
   groupCol = "GROUP",
   blockCol = NULL,
   assay = 1L,
-  trim.names = FALSE
+  trim.names = FALSE,
+  log = FALSE
 )
 }
 \arguments{
