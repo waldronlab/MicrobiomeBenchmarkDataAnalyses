@@ -5,11 +5,11 @@ output:
         toc: yes
 ---
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, message=FALSE, warning=FALSE}
+```{r setup, message=FALSE, warning=FALSE}
 library(MicrobiomeBenchmarkDataAnalyses)
 library(MicrobiomeBenchmarkData)
 library(mia)
@@ -22,9 +22,13 @@ library(gridExtra)
 library(tidySummarizedExperiment)
 ```
 
-# Import data
+# Data
 
-```{r, warning=FALSE, message=FALSE}
+## Import, summarzied by genus, and filter
+
+Import the dataset from `MicrobiomeBenchmarkData`:
+
+```{r import data, warning=FALSE, message=FALSE}
 dat_name <- 'Ravel_2011_16S_BV'
 conditions_col <- 'study_condition'
 conditions <- c(condB = 'healthy', condA = 'bacterial_vaginosis')
@@ -32,69 +36,70 @@ conditions <- c(condB = 'healthy', condA = 'bacterial_vaginosis')
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 
 ################################################################
-## Select equal number of samples per ethnicity group
+
+## This section if for selecting am equal number of samples per ethnicity group
 col_data <- as.data.frame(colData(tse)) %>% 
     filter(study_condition %in% conditions)
 
-row_names <- col_data %>% 
+row_names_list <- col_data %>% 
     split(factor(.$ethnicity)) %>% 
     map(~split(., .x$study_condition)) %>% 
     unlist(recursive = FALSE) %>% 
     map(rownames)
 
-min_n <- row_names %>% 
+min_n <- row_names_list %>% 
     map_int(length) %>% 
     min()
 
 set.seed(4567)
-select_samples <- map(row_names, ~ sample(.x, min_n, replace = FALSE)) %>% 
+select_samples <- row_names_list |> 
+    map(~ sample(.x, min_n, replace = FALSE)) |>  
     unlist(use.names = FALSE)
 
-##############################################
 tse <- tse[, select_samples]
-tse <- tse[rowSums(assay(tse)) > 1, ] 
+##############################################
 
-## Summarize abundances by genus
 tse_genus <- agglomerateByRank(tse, rank = 'genus', na.rm = FALSE)
+tse_genus <- filterTaxa(tse_genus, min_ab = 1, min_per = 0.2)
 tse_genus
 ```
+
 ## Get prior info 
+
+This is the biological information about the taxa
 
 ```{r}
 prior_info <- as.data.frame(rowData(tse_genus)[, c('genus', 'taxon_annotation')])
-prior_info$new_names <- paste0(rownames(prior_info), '|', prior_info$genus)
+# prior_info$new_names <- paste0(rownames(prior_info), '|', prior_info$genus)
+prior_info <- prior_info |> 
+    rename(taxon_name = genus)
 head(prior_info)
 ```
 
-# Convert to phyloseq
+## Convert to phyloseq
 
 ```{r}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse_genus)
 sample_data(ps)[[conditions_col]] <- 
     factor(sample_data(ps)[[conditions_col]], levels = conditions)
-
-## Filter low abundance taxa
-ps <- filter_phyloseq(ps)
+ps
 ```
 
-Update prior information (necessary after filtering low abundace taxa)
+# Benchdamic workflow
 
-```{r}
-prior_info <- prior_info[taxa_names(ps), ]
-prior_info$taxon_name <- rownames(prior_info)
-```
+This sections mostly follows the benchdamic workflow. This includes other
+methods not in benchdamic and modified plots.
 
-# run differential abundance analysis
+## Run differential abundance analysis
 
-da analysis:
+DA analysis:
 
-```{r, message=FALSE, warning=FALSE}
-## running this in three separate functions to remove aldex2
-## aldex2 throws an error.
-ps <- runNormalizations(set_norm_list(),ps, verbose = FALSE)
+```{r run DA benchdamic, message=FALSE, warning=FALSE}
+ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
-
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
+
+## ALDEX2 throws an error, so it had to be removed
 DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
 
 ## run methods
@@ -108,25 +113,7 @@ remove_output <- c(
 DA_output <- DA_output[!names(DA_output) %in% remove_output]
 ```
 
-```{r, warning=FALSE, message=FALSE, eval=FALSE, echo=FALSE, include=FALSE}
-## for now, don't include this code. it seems that running the da doesn't take
-## long
-fname <- paste0('./', dat_name, '.rds')
-fname2 <- paste0('../../misc/articles_data/', dat_name, '.rds')
-if (file.exists(fname)) {
-    message('da output exists in current directory. importing...')
-    # da_output <- readrds(fname)
-} else if (file.exists(fname2)) {
-    message('da ouptut exists in misc directory. importing...')
-    # da_output <- readrds(fname2)
-} else {
-    # da_output <- runda(da_methods, ps, weights = zw, verbose = FALSE) 
-    # saverds(da_output, fname)
-} 
-```
-
-
-# enrichment
+# Enrichment
 
 Get direction
 
@@ -140,7 +127,7 @@ enrichment <- createEnrichment(
     object = DA_output,
     priorKnowledge = prior_info,
     enrichmentCol = "taxon_annotation",
-    namesCol = "new_names",
+    namesCol = "taxon_name",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
     threshold_pvalue = 0.1,
@@ -152,7 +139,7 @@ enrichment <- createEnrichment(
 ```
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 enrich_plot <- plot_enrichment(
     enrichment = enrichment, 
     enrichment_col = "taxon_annotation",
@@ -168,7 +155,7 @@ enrich_plot
 positives <- createPositives(
     object = DA_output, 
     priorKnowledge = prior_info, 
-    enrichmentCol = "taxon_annotation", namesCol = "new_names",
+    enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
     threshold_pvalue = 1,
@@ -203,30 +190,397 @@ ggsave(filename = "Ravell_2011_b.png", plot = positives_plots, width = 10, heigh
 ```
 
 
-# Stacked plot of compositions
+# Perform DA with lefse, Wilcox, and ZINQ-Cauchy manually
 
 ```{r, warning=FALSE}
-new_tse <- mia::makeTreeSummarizedExperimentFromPhyloseq(ps)
 
-assay(new_tse, 'TSS') <- apply(assay(new_tse) + 1, 2, function(x) {
-    x / sum(x)
+## Relative abundance (TSS - total sum scaling)
+assay(tse_genus, 'TSS') <- apply(assay(tse_genus), 2, function(x) {
+    (x + 1) / sum(x + 1) * 1e6
 })
 
-assay(new_tse, 'CLR') <- apply(assay(new_tse) + 1, 2, function(x) {
+## CLR transform
+assay(tse_genus, 'CLR') <- apply(assay(tse_genus), 2, function(x) {
+    (x + 1) / exp(mean(log(x + 1)))
+    # log((x + 1) / exp(mean(log(x + 1))))
+})
+
+## Relative abundance + CLR transform
+assay(tse_genus, 'TSS + CLR') <- apply(assay(tse_genus, 'TSS'), 2, function(x) {
     x / exp(mean(log(x)))
+    # log(x / exp(mean(log(x))))
 })
 
-data <- tidySummarizedExperiment::as_tibble(new_tse) %>% 
-    rename(taxon = .feature, sample = .sample) %>% 
-    left_join(prior_info, by = c('taxon' = 'taxon_name'))
+data <- tidySummarizedExperiment::as_tibble(tse_genus) |> 
+    rename(taxon_name = .feature, sample = .sample) |> 
+    mutate(
+        taxon_annotation = ifelse(
+            is.na(taxon_annotation), 'Unannotated', taxon_annotation
+        )
+    )
 head(data)
 ```
 
-# Box plots
+## Wilcox
+
+Define function:
 
 ```{r}
+calcWilcox <- function(dat, val_col, log = FALSE) {
+    
+    ## Separate components
+    taxa <- split(dat, factor(dat$taxon_name))
+    taxa_names <- names(taxa)
+    taxa_annotations <- 
+        dplyr::distinct(dplyr::select(data, dplyr::starts_with('taxon')))
+    
+    ## Perform Wilcoxon test 
+    pvalues <- vector('double', length(taxa))
+    names(pvalues) <- taxa_names 
+    formula_chr <- paste0(val_col, ' ~ study_condition')
+    for (i in seq_along(pvalues)) {
+        df <- taxa[[i]]
+        res <- stats::wilcox.test(formula = as.formula(formula_chr), data = df)
+        pvalues[[i]] <- res$p.value
+    }
+    
+    ## Adjust P-values
+    adj_pvalues <- stats::p.adjust(pvalues, method = 'fdr')
+    
+    ## Calculate fold change
+    log_fold_change <- vector('double', length(taxa))
+    for (i in seq_along(log_fold_change)) {
+        df <- taxa[[i]]
+        healthy <- df |> 
+            dplyr::filter(study_condition == 'healthy') |> 
+            {\(y) y[[val_col]]}()
+        bv <- df |> 
+            dplyr::filter(study_condition == 'bacterial_vaginosis') |> 
+            {\(y) y[[val_col]]}()
+        
+        if (log) { # If log, revert with exp
+           healthy <- mean(exp(healthy))
+           bv <- mean(exp(bv))
+        } else{
+            healthy <- mean(healthy)
+            bv <- mean(bv)
+        }
+        
+        if (bv >= healthy) { # control is healthy, condition of interest is bv
+                log_fold_change[i] <- log2(bv / healthy)
+        } else if (bv < healthy) {
+                log_fold_change[i] <- -log2(healthy / bv)
+        }
+    }
+    
+    ## Combine results and annotations
+    pval_results <- data.frame(
+        taxon_name = taxa_names,
+        rawP = pvalues,
+        adjP = adj_pvalues,
+        logFC = log_fold_change
+    )
+    
+    dplyr::left_join(pval_results, taxa_annotations, by = 'taxon_name')
+}
+```
+
+Perform statistical test:
+
+```{r, warning=FALSE}
+wilcox <- list(
+    wilcox_counts = calcWilcox(data, 'counts'),
+    wilcox_relab = calcWilcox(data, 'TSS'),
+    wilcox_clr = calcWilcox(data, 'CLR', log = FALSE),
+    wilcox_relab_clr = calcWilcox(data, 'TSS + CLR', log = FALSE)
+) |> 
+    bind_rows(.id = 'method')
+```
+
+Filter DA taxa
+
+```{r}
+wilcox_DA <- wilcox |> 
+    dplyr::filter(adjP <= 0.1, !logFC == 0) |> 
+    mutate(DA = ifelse(logFC > 0, "OA", "UA"))
+```
+
+Plot
+
+```{r}
+wilcox_DA |> 
+    dplyr::filter(taxon_annotation != 'Unannotated') |> 
+    count(method, taxon_annotation, DA) |> 
+    mutate(n = ifelse(DA == 'UA', -n, n)) |> 
+    mutate(method = sub('wilcox_', '', method)) |> 
+    ggplot(aes(method, n)) + 
+    geom_col(aes(fill = taxon_annotation), position = 'dodge') +
+    geom_hline(yintercept = 0) +
+    labs(
+        title = 'Wilcoxon test',
+        y = 'Number of DA taxa', x = 'Transformation method' 
+    ) +
+    scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))
+```
+
+Plot the abundances of the taxa that were incorrect
+
+```{r}
+incorrect_taxa_wilcox_clr <- wilcox_DA |> 
+    dplyr::filter(
+        method == 'wilcox_clr', DA == 'UA', 
+        taxon_annotation == 'bv-associated'
+    ) |> 
+    pull(taxon_name)
+```
+
+Let's plot their values for each matrix
+
+```{r}
+transformations <- c('counts', 'TSS', 'CLR', 'TSS + CLR')
+l1 <- vector('list', length(transformations))
+names(l1) <- transformations
+for (i in seq_along(transformations)) {
+    mat <- assay(new_tse, transformations[i])
+    l1[[i]] <- mat[incorrect_taxa_wilcox_clr,] |> 
+        as.data.frame() |> 
+        tibble::rownames_to_column(var = 'taxon_name') |> 
+        as_tibble()
+    
+}
+
+wilcox_raw <- bind_rows(l1, .id = 'transformation') |> 
+    {\(y) pivot_longer(
+        y, cols = 3:ncol(y), values_to = 'value', names_to = 'sample'
+    )}() |> 
+    left_join(data[,c('sample', 'study_condition')], by = 'sample')
+
+head(wilcox_raw)
+```
+
+Box plot of incorrect values:
+
+```{r}
+wilcox_raw |> 
+    mutate(taxon_name = sub('genus:', '', taxon_name)) |>
+    # mutate(
+    #     value = case_when(
+    #         transformation == 'CLR' | transformation == 'TSS + CLR' ~ exp(value),
+    #         TRUE ~ value
+    #     )
+    # ) |> 
+    mutate(value = log(value + 1)
+        # value = case_when(
+        #     transformation == 'TSS' | transformation == 'counts' ~ log(value + 1),
+        #     TRUE ~ value
+        # )
+    ) |>
+    ggplot(aes(taxon_name, value)) + 
+    geom_boxplot(aes(color = study_condition)) +
+    facet_wrap(~ transformation, scales = 'free') +
+    labs(
+        title = 'BV-associated bacteria identified (incorrectly) as UA by CLR',
+        subtitle = 'CLR had an effect in both logFC (direction) and Wilcox test',
+        y = 'Abundance value', y = 'Transformation method'
+    )
+## counts, TSS, CLR, TSS + CLR Add as Figure 
+## Add 100
+```
+
+
+
+```{r}
+wilcox |> 
+    mutate(
+        sig = ifelse(adjP <= 0.1, '*', '')
+    ) |> 
+    mutate(sig2 = paste0(round(logFC, 2), ' ', sig)) |> 
+    mutate(taxon_name = sub('genus:', '', taxon_name)) |>
+    mutate(taxon_name = as.factor(taxon_name)) |> 
+    filter(taxon_name %in% c('Actinomyces', 'Corynebacterium')) |> 
+    ggplot(aes(taxon_name, logFC)) +
+    geom_col(aes(fill = method), position = position_dodge(width = 0.9)) +
+    geom_text(
+        aes(label = sig2, group = method), 
+        position = position_dodge(width = 0.9), vjust = -0.5
+    ) +
+    labs(
+        title = 'LogFC of taxa identified as significant (adjP <= 0.1) by CLR',
+        subtitle = 'logFC is indicated on top of bars. * means significant'
+    )
+```
+
+>It seems that the CLR transformation, made these two bacteria look as if they
+were under-abundant in bacterial vaginosis (adjP <= 0.1). 
+This could still be noted when the log of the CLR was not used. 
+The fold change was really small, so probably establishing a threshold for
+log FC would eliminate this, and the CLR would perform as well as the others.
+
+## Lefse
+
+Define a function for running Lefse:
+
+```{r lefse function}
+calcLefse <- function(dat, assay) {
+    res <- lefser2(
+        dat, kruskal.threshold = 0.05, wilcox.threshold = 0.05, 
+        lda.threshold = 0, groupCol = 'study_condition', assay = assay
+    )
+    
+    dplyr::mutate(res, rawP = 0.05, adjP = 0.1)
+    
+    # res <- lefser2(
+    #     dat, kruskal.threshold = 0.05, wilcox.threshold = 0.05, 
+    #     lda.threshold = 0, groupCol = 'study_condition', assay = assay ,
+    #     log = log
+    # )
+    
+    ## Add some made up rawP and adjP
+    # res |> 
+    #     dplyr::mutate(
+    #         rawP = kw_pvalues,
+    #         adjP = stats::p.adjust(rawP, method = 'fdr')
+    #     )
+}
 
 ```
+
+Run lefse
+
+```{r lefse run, warning=FALSE}
+taxa_annotations <-
+        dplyr::distinct(dplyr::select(data, dplyr::starts_with('taxon')))
+lefse <- list(
+    lefse_counts = calcLefse(new_tse, 'counts'),
+    lefse_relab = calcLefse(new_tse, 'TSS'),
+    lefse_clr = calcLefse(new_tse, 'CLR'),
+    lefse_relab_clr = calcLefse(new_tse, 'TSS + CLR')
+)  |> 
+    bind_rows(.id = 'method') |> 
+    mutate(
+        DA = ifelse(scores > 0, 'OA', 'UA')
+    ) |> 
+    left_join(taxa_annotations, by = c('Names' = 'taxon_name'))
+
+head(lefse)
+```
+
+Plot lefse results:
+
+```{r}
+lefse |> 
+    dplyr::filter(taxon_annotation != 'Unannotated') |> 
+    count(method, taxon_annotation, DA) |> 
+    mutate(n = ifelse(DA == 'UA', -n, n)) |> 
+    mutate(method = sub('lefse_', '', method)) |> 
+    ggplot(aes(method, n)) + 
+    geom_col(aes(fill = taxon_annotation), position = 'dodge') +
+    geom_hline(yintercept = 0) +
+    labs(
+        title = 'Wilcoxon test',
+        y = 'Number of DA taxa', x = 'Transformation method' 
+    ) +
+    scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))
+```
+
+```{r}
+incorrect_taxa_lefse_clr <- wilcox_DA |> 
+    dplyr::filter(
+        method %in% c('wilcox_clr', 'wilcox_realb_clr'), DA == 'UA', 
+        taxon_annotation == 'bv-associated'
+    ) |> 
+    pull(taxon_name)
+incorrect_taxa_lefse_clr ## the same as in wilcox.
+```
+
+> it seems that the problem with the direction is how LDA scores are calculated
+when input is log transformed. Everything is solved when the log transformed
+values are converted to exp.
+
+## ZINQ
+
+
+```{r}
+calcZINQ <- function(dat, val_col, y_CorD, log = FALSE) {
+    
+    ## Separate components
+    taxa <- split(dat, factor(dat$taxon_name))
+    taxa_names <- names(taxa)
+    taxa_annotations <- 
+        dplyr::distinct(dplyr::select(data, dplyr::starts_with('taxon')))
+    
+    ## Perform Wilcoxon test 
+    pvalues <- vector('double', length(taxa))
+    names(pvalues) <- taxa_names 
+    formula_chr <- paste0(val_col, ' ~ study_condition')
+    for (i in seq_along(pvalues)) {
+        df <- taxa[[i]]
+        
+        ## Y = counts
+        ## C = continuous
+        
+        res <- tryCatch(
+            error = function(e) NULL, {
+                ZINQ::ZINQ_tests(
+                    formula.logistic = formula_chr,
+                    formula.quantile = formula_chr,
+                    C = 'study_condition', y_CorD = y_CorD, data = df
+                )
+            })
+        return(res)
+        pvalues[[i]] <- ZINQ::ZINQ_combination(res, method = 'Cauchy') 
+        
+    }
+    
+    ## Adjust P-values
+    adj_pvalues <- stats::p.adjust(pvalues, method = 'fdr')
+    
+    ## Calculate fold change
+    log_fold_change <- vector('double', length(taxa))
+    for (i in seq_along(log_fold_change)) {
+        df <- taxa[[i]]
+        healthy <- df |> 
+            dplyr::filter(study_condition == 'healthy') |> 
+            {\(y) y[[val_col]]}()
+        bv <- df |> 
+            dplyr::filter(study_condition == 'bacterial_vaginosis') |> 
+            {\(y) y[[val_col]]}()
+        
+        if (log) { # If log, revert with exp
+           healthy <- mean(exp(healthy))
+           bv <- mean(exp(bv))
+        } else{
+            healthy <- mean(healthy)
+            bv <- mean(bv)
+        }
+        
+        if (bv >= healthy) { # control is healthy, condition of interest is bv
+                log_fold_change[i] <- log2(bv / healthy)
+        } else if (bv < healthy) {
+                log_fold_change[i] <- -log2(healthy / bv)
+        }
+    }
+    
+    ## Combine results and annotations
+    pval_results <- data.frame(
+        taxon_name = taxa_names,
+        rawP = pvalues,
+        adjP = adj_pvalues,
+        logFC = log_fold_change
+    )
+    
+    dplyr::left_join(pval_results, taxa_annotations, by = 'taxon_name')
+}
+```
+
+Run ZINQ
+
+```{r}
+calcZINQ(data, 'counts', y_CorD = 'D', log = FALSE)
+```
+
+
+
 
 
 ## CLR
@@ -289,9 +643,6 @@ data %>%
         axis.text.x = element_text(angle = 45, hjust = 1)
     )
 ```
-
-
-
 
 ## Compositions with TSS data
 
@@ -394,6 +745,9 @@ ggsave("Ravell_2011_c.png", p1)
 ggsave("Ravell_2011_d.png", p2)
 ```
 
+```{r}
+sessionInfo()
+```
 
 
 
