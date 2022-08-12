@@ -1,4 +1,40 @@
 
+#' Edit the taxa names by mia
+#' 
+#' \code{editMiaTaxaNames} corrects the taxonomic names of the 
+#' `agglomerateByRank` function of the `mia` package. For some reason,the names
+#' are coming bad for some datasets. This is a workaround.
+#'
+#' @param x A TreeSummarizedExperiment agglomerated by the `agglomerateByRank`
+#' function of the mia package.
+#'
+#' @return A character vector with new names
+#' @export
+#'
+editMiaTaxaNames <- function(x) {
+    taxa_names <- rownames(x)
+    taxa_ranks <- mia::taxonomyRanks(x)
+    row_data <- as.data.frame(rowData(x))
+    used_index <- 0
+    counter <- length(taxa_ranks) + 1
+    for (i in seq_along(taxa_ranks)) {
+        x <- row_data[, taxa_ranks[counter - 1], drop = TRUE]
+        index <- which(!is.na(x))
+        index <- setdiff(index, used_index)
+        taxa_names <-
+            purrr::map_at(
+                taxa_names, index, ~ paste0(taxa_ranks[counter-1], ':', .x)
+            ) |> 
+            as.character()
+        used_index <- c(used_index, index)
+        counter <- counter - 1
+        
+    }
+    taxa_names |> 
+        {\(y) gsub('_NA', '', y)}() |> 
+        {\(y) sub('([a-z]:).*_([a-zA-Z]+)$', '\\1\\2', y)}()
+}
+
 #' Quiet
 #' 
 #' \code{quiet} hides messages. This was taken from stackOverflow (reference
