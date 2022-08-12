@@ -24,9 +24,7 @@ library(tidySummarizedExperiment)
 
 # Data
 
-## Import, summarzied by genus, and filter
-
-Import the dataset from `MicrobiomeBenchmarkData`:
+## Import, summarazie by genus, and filter
 
 ```{r import data, warning=FALSE, message=FALSE}
 dat_name <- 'Ravel_2011_16S_BV'
@@ -37,9 +35,9 @@ tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 
 ################################################################
 
-## This section if for selecting am equal number of samples per ethnicity group
-col_data <- as.data.frame(colData(tse)) %>% 
-    filter(study_condition %in% conditions)
+## This section if for selecting equal number of samples per ethnicity group
+col_data <- as.data.frame(colData(tse)) |> 
+    dplyr::filter(study_condition %in% conditions)
 
 row_names_list <- col_data %>% 
     split(factor(.$ethnicity)) %>% 
@@ -56,11 +54,12 @@ select_samples <- row_names_list |>
     map(~ sample(.x, min_n, replace = FALSE)) |>  
     unlist(use.names = FALSE)
 
-tse <- tse[, select_samples]
+tse_subset <- tse[, select_samples]
 ##############################################
 
-tse_genus <- agglomerateByRank(tse, rank = 'genus', na.rm = FALSE)
+tse_genus <- agglomerateByRank(tse_subset, rank = 'genus', na.rm = FALSE)
 tse_genus <- filterTaxa(tse_genus, min_ab = 1, min_per = 0.2)
+rownames(tse_genus) <- editMiaTaxaNames(tse_genus)
 tse_genus
 ```
 
@@ -70,9 +69,7 @@ This is the biological information about the taxa
 
 ```{r}
 prior_info <- as.data.frame(rowData(tse_genus)[, c('genus', 'taxon_annotation')])
-# prior_info$new_names <- paste0(rownames(prior_info), '|', prior_info$genus)
-prior_info <- prior_info |> 
-    rename(taxon_name = genus)
+prior_info <- rename(prior_info, taxon_name = genus)
 head(prior_info)
 ```
 
@@ -341,7 +338,7 @@ transformations <- c('counts', 'TSS', 'CLR', 'TSS + CLR')
 l1 <- vector('list', length(transformations))
 names(l1) <- transformations
 for (i in seq_along(transformations)) {
-    mat <- assay(new_tse, transformations[i])
+    mat <- assay(tse_genus, transformations[i])
     l1[[i]] <- mat[incorrect_taxa_wilcox_clr,] |> 
         as.data.frame() |> 
         tibble::rownames_to_column(var = 'taxon_name') |> 
@@ -451,10 +448,10 @@ Run lefse
 taxa_annotations <-
         dplyr::distinct(dplyr::select(data, dplyr::starts_with('taxon')))
 lefse <- list(
-    lefse_counts = calcLefse(new_tse, 'counts'),
-    lefse_relab = calcLefse(new_tse, 'TSS'),
-    lefse_clr = calcLefse(new_tse, 'CLR'),
-    lefse_relab_clr = calcLefse(new_tse, 'TSS + CLR')
+    lefse_counts = calcLefse(tse_genus, 'counts'),
+    lefse_relab = calcLefse(tse_genus, 'TSS'),
+    lefse_clr = calcLefse(tse_genus, 'CLR'),
+    lefse_relab_clr = calcLefse(tse_genus, 'TSS + CLR')
 )  |> 
     bind_rows(.id = 'method') |> 
     mutate(
@@ -588,8 +585,8 @@ calcZINQ(data, 'counts', y_CorD = 'D', log = FALSE)
 ```{r}
 data %>% 
     filter(taxon_annotation == 'bv-associated') %>% 
-    mutate(taxon = sub("^genus:", "", taxon)) %>% 
-    ggplot(aes(taxon, CLR)) +
+    mutate(taxon_name = sub("^genus:", "", taxon_name)) %>% 
+    ggplot(aes(taxon_name, CLR)) +
     geom_boxplot(aes(color = study_condition)) + 
     labs(title = 'CLR values of BV-associated bacteria') +
     theme_bw() + 
@@ -602,8 +599,8 @@ data %>%
 data %>% 
     filter(taxon_annotation == 'bv-associated') %>% 
     filter(CLR <= 100) %>% 
-    mutate(taxon = sub("^genus:", "", taxon)) %>% 
-    ggplot(aes(taxon, CLR)) +
+    mutate(taxon = sub("^genus:", "", taxon_name)) %>% 
+    ggplot(aes(taxon_name, CLR)) +
     geom_boxplot(aes(color = study_condition)) + 
     labs(title = 'CLR values of BV-associated bacteria (filtered below 100)') +
     theme_bw() + 
@@ -618,8 +615,8 @@ data %>%
 ```{r}
 data %>% 
     filter(taxon_annotation == 'bv-associated') %>% 
-    mutate(taxon = sub("^genus:", "", taxon)) %>% 
-    ggplot(aes(taxon, TSS)) +
+    mutate(taxon_name = sub("^genus:", "", taxon_name)) %>% 
+    ggplot(aes(taxon_name, TSS)) +
     geom_boxplot(aes(color = study_condition)) + 
     labs(title = 'Relatibe abundance values of BV-associated bacteria',
          y = 'relative abundance') +
@@ -633,8 +630,8 @@ data %>%
 data %>% 
     filter(taxon_annotation == 'bv-associated') %>% 
     filter(TSS <= 0.2) %>% 
-    mutate(taxon = sub("^genus:", "", taxon)) %>% 
-    ggplot(aes(taxon, TSS)) +
+    mutate(taxon_name = sub("^genus:", "", taxon_name)) %>% 
+    ggplot(aes(taxon_name, TSS)) +
     geom_boxplot(aes(color = study_condition)) + 
     labs(title = 'Relative abundance values of BV-associated bacteria (filtered below 0.2)',
          y = 'relative abundance') +
