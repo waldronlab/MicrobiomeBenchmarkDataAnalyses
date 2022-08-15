@@ -8,7 +8,7 @@ fname <- system.file(
 )
 
 methods_classification <- read.table(
-    file = fname, header = TRUE, sep = '\t', row.names = NULL
+    file = fname, header = TRUE, sep = '\t', row.names = NULL, comment.char = ""
 )
 
 

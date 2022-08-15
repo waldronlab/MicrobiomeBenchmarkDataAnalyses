@@ -1,27 +1,19 @@
-method	method_class	base_method	norm	effect_size_col
-ALDEx2.none.iqlr.wilcox	Compositional	ALDEx2_wilcox	none	effect
-ALDEx2.none.iqlr.t	Compositional	ALDEx2_t-test	none	effect
-DESeq2.poscounts	RNA-Seq	DESeq2	poscounts	log2FoldChange
-DESeq2.poscounts.weighted	scRNA-Seq	DESeq2	poscounts	log2FoldChange
-edgeR.TMM	RNA-Seq	edgeR	TMM	logFC
-edgeR.TMM.weighted	scRNA-Seq	edgeR	TMM	logFC
-limma.TMM	RNA-Seq	limma	TMM	logFC
-limma.TMM.weighted	scRNA-Seq	limma	TMM	logFC
-wilcox.CLR	Compositional	wilcox	CLR	log2FoldChange
-wilcox.none	Classical	wilcox	none	log2FoldChange
-wilcox.TSS	Classical	wilcox	TSS	log2FoldChange
-metagenomeSeq.CSSmedian	Metagenomics	metagenomeSeq	CSSmedian	XXXX
-metagenomeSeq.CSSdefault	Metagenomics	metagenomeSeq	CSSdefault	XXXX
-corncob.none.Wald	Metagenomics	corncob	none	Estimate
-MAST.none.median	scRNA-Seq	MAST	none	logFC
-Seurat.none.wilcox	scRNA-Seq	Seurat	none	avg_log2FC
-ZINQ.none.MinP	Metagenomics	ZINQ	none	log2FoldChange
-ZINQ.CLR.MinP	Compositional	ZINQ	CLR	log2FoldChange
-ZINQ.TSS.MinP	Metagenomics	ZINQ	TSS	log2FoldChange
-ZINQ.none.Cauchy	Metagenomics	ZINQ	none	log2FoldChange
-ZINQ.CLR.Cauchy	Compositional	ZINQ	CLR	log2FoldChange
-ZINQ.TSS.Cauchy	Metagenomics	ZINQ	TSS	log2FoldChange
-ancombc.none	Compositional	ANCOMBC	none	lfc
-lefse.none	Classical	lefse	none	LDA_scores
-lefse.CLR	Compositional	lefse	CLR	LDA_scores
-lefse.TSS	Classical	lefse	TSS	LDA_scores
+method	method_class	base_method	norm	effect_size_col	color	color2
+ALDEx2.none.iqlr.wilcox	Compositional	ALDEx2_wilcox	none	effect	#800000	#800000
+DESeq2.poscounts	RNA-Seq	DESeq2	poscounts	log2FoldChange	#9A6324	#9A6324
+DESeq2.poscounts.weighted	scRNA-Seq	DESeq2	poscounts	log2FoldChange	#808000	#9A6324
+edgeR.TMM	RNA-Seq	edgeR	TMM	logFC	#469990	#808000
+edgeR.TMM.weighted	scRNA-Seq	edgeR	TMM	logFC	#000075	#808000
+limma.TMM	RNA-Seq	limma	TMM	logFC	#e6194B	#469990
+limma.TMM.weighted	scRNA-Seq	limma	TMM	logFC	#f58231	#469990
+wilcox.CLR	Compositional	wilcox	CLR	log2FoldChange	#ffe119	#000075
+wilcox.TSS	Classical	wilcox	TSS	log2FoldChange	#bfef45	#000075
+metagenomeSeq.CSSmedian	Metagenomics	metagenomeSeq	CSSmedian	XXXX	#3cb44b	#e6194B
+corncob.none.Wald	Metagenomics	corncob	none	Estimate	#42d4f4	#f58231
+MAST.none.median	scRNA-Seq	MAST	none	logFC	#4363d8	#ffe119
+Seurat.none.wilcox	scRNA-Seq	Seurat	none	avg_log2FC	#911eb4	#bfef45
+ZINQ.CLR.Cauchy	Compositional	ZINQ	CLR	log2FoldChange	#f032e6	#3cb44b
+ZINQ.TSS.Cauchy	Metagenomics	ZINQ	TSS	log2FoldChange	#a9a9a9	#3cb44b
+ancombc.none	Compositional	ANCOMBC	none	lfc	#ffd8b1	#42d4f4
+lefse.CLR	Compositional	lefse	CLR	LDA_scores	#aaffc3	#911eb4
+lefse.TSS	Classical	lefse	TSS	LDA_scores	#dcbeff	#911eb4
