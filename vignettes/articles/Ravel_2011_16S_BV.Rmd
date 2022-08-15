@@ -101,25 +101,18 @@ DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
 
 ## run methods
 DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
-
-## remove methods that won't be considered
-remove_output <- c(
-    "metagenomeseq.cssdefault", "wilcox.none", "zinq.none.minp", 
-    "zinq.tss.minp", "zinq.clr.minp", "zinq.none.cauchy", "lefse.none"
-)
-DA_output <- DA_output[!names(DA_output) %in% remove_output]
 ```
 
 # Enrichment
 
 Get direction
 
-```{r}
+```{r get direction (effect size)}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
 ```
 
 
-```{r}
+```{r enrichment}
 enrichment <- createEnrichment(
     object = DA_output,
     priorKnowledge = prior_info,
@@ -136,7 +129,7 @@ enrichment <- createEnrichment(
 ```
 
 
-```{r, warning=FALSE, message=FALSE}
+```{r enrichment plot, warning=FALSE, message=FALSE}
 enrich_plot <- plot_enrichment(
     enrichment = enrichment, 
     enrichment_col = "taxon_annotation",
@@ -148,7 +141,7 @@ enrich_plot
 
 # Plot putative true positves and true negatives ratio
 
-```{r}
+```{r putative positives}
 positives <- createPositives(
     object = DA_output, 
     priorKnowledge = prior_info, 
@@ -162,19 +155,14 @@ positives <- createPositives(
     verbose = FALSE,
     TP = list(c("DOWN Abundant", "hv-associated"), c("UP Abundant", "bv-associated")),
     FP = list(c("DOWN Abundant", "bv-associated"), c("UP Abundant", "hv-associated"))
-)
-```
-
-
-```{r}
-meth_class <- get_meth_class() 
-positives2 <- left_join(positives, meth_class, by = 'method') %>% 
+) |> 
+    left_join(get_meth_class(), by = 'method') |> 
     relocate(method_class)
 ```
 
 
-```{r}
-plots <- plot_positives(positives2)
+```{r, fig.width=10, fig.height=6}
+plots <- plot_positives(positives)
 grid.arrange(grobs = plots, ncol = 3)
 ```
 
