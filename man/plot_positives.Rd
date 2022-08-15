@@ -7,7 +7,7 @@
 plot_positives(x)
 }
 \arguments{
-\item{x}{A dataframe}
+\item{x}{A dataframe. Positives with additional columns.}
 }
 \value{
 List of plots

@@ -1,19 +1,19 @@
-method	method_class	base_method	norm	effect_size_col	color	color2
-ALDEx2.none.iqlr.wilcox	Compositional	ALDEx2_wilcox	none	effect	#800000	#800000
-DESeq2.poscounts	RNA-Seq	DESeq2	poscounts	log2FoldChange	#9A6324	#9A6324
-DESeq2.poscounts.weighted	scRNA-Seq	DESeq2	poscounts	log2FoldChange	#808000	#9A6324
-edgeR.TMM	RNA-Seq	edgeR	TMM	logFC	#469990	#808000
-edgeR.TMM.weighted	scRNA-Seq	edgeR	TMM	logFC	#000075	#808000
-limma.TMM	RNA-Seq	limma	TMM	logFC	#e6194B	#469990
-limma.TMM.weighted	scRNA-Seq	limma	TMM	logFC	#f58231	#469990
-wilcox.CLR	Compositional	wilcox	CLR	log2FoldChange	#ffe119	#000075
-wilcox.TSS	Classical	wilcox	TSS	log2FoldChange	#bfef45	#000075
-metagenomeSeq.CSSmedian	Metagenomics	metagenomeSeq	CSSmedian	XXXX	#3cb44b	#e6194B
-corncob.none.Wald	Metagenomics	corncob	none	Estimate	#42d4f4	#f58231
-MAST.none.median	scRNA-Seq	MAST	none	logFC	#4363d8	#ffe119
-Seurat.none.wilcox	scRNA-Seq	Seurat	none	avg_log2FC	#911eb4	#bfef45
-ZINQ.CLR.Cauchy	Compositional	ZINQ	CLR	log2FoldChange	#f032e6	#3cb44b
-ZINQ.TSS.Cauchy	Metagenomics	ZINQ	TSS	log2FoldChange	#a9a9a9	#3cb44b
-ancombc.none	Compositional	ANCOMBC	none	lfc	#ffd8b1	#42d4f4
-lefse.CLR	Compositional	lefse	CLR	LDA_scores	#aaffc3	#911eb4
-lefse.TSS	Classical	lefse	TSS	LDA_scores	#dcbeff	#911eb4
+method	method_class	base_method	norm	effect_size_col	color	color2	linetype	shape
+wilcox.TSS	Classical	wilcox	TSS	log2FoldChange	#bfef45	#000075	1	1
+lefse.TSS	Classical	lefse	TSS	LDA_scores	#dcbeff	#911eb4	2	2
+ALDEx2.none.iqlr.wilcox	Compositional	ALDEx2_wilcox	none	effect	#800000	#800000	1	1
+wilcox.CLR	Compositional	wilcox	CLR	log2FoldChange	#ffe119	#000075	2	2
+ZINQ.CLR.Cauchy	Compositional	ZINQ	CLR	log2FoldChange	#f032e6	#3cb44b	3	3
+ancombc.none	Compositional	ANCOMBC	none	lfc	#ffd8b1	#42d4f4	4	4
+lefse.CLR	Compositional	lefse	CLR	LDA_scores	#aaffc3	#911eb4	5	5
+metagenomeSeq.CSSmedian	Metagenomics	metagenomeSeq	CSSmedian	XXXX	#3cb44b	#e6194B	1	1
+corncob.none.Wald	Metagenomics	corncob	none	Estimate	#42d4f4	#f58231	2	2
+ZINQ.TSS.Cauchy	Metagenomics	ZINQ	TSS	log2FoldChange	#a9a9a9	#3cb44b	3	3
+DESeq2.poscounts	RNA-Seq	DESeq2	poscounts	log2FoldChange	#9A6324	#9A6324	1	1
+edgeR.TMM	RNA-Seq	edgeR	TMM	logFC	#469990	#808000	2	2
+limma.TMM	RNA-Seq	limma	TMM	logFC	#e6194B	#469990	3	3
+DESeq2.poscounts.weighted	scRNA-Seq	DESeq2	poscounts	log2FoldChange	#808000	#9A6324	1	1
+edgeR.TMM.weighted	scRNA-Seq	edgeR	TMM	logFC	#000075	#808000	2	2
+limma.TMM.weighted	scRNA-Seq	limma	TMM	logFC	#f58231	#469990	3	3
+MAST.none.median	scRNA-Seq	MAST	none	logFC	#4363d8	#ffe119	4	4
+Seurat.none.wilcox	scRNA-Seq	Seurat	none	avg_log2FC	#911eb4	#bfef45	5	5

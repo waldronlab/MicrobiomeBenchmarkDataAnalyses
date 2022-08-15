@@ -483,35 +483,33 @@ plot_enrichment <- function(
 #'
 get_meth_class <- function() {
     
-    df <- methods_classification %>% 
+    methods_classification %>% 
         dplyr::select(-effect_size_col) %>% 
         dplyr::relocate(method_class, base_method, method) %>% 
         dplyr::arrange(method_class, base_method, method)
     
     ## create mappings for color
-    base_methods <- sort(unique(df$base_method))
-    set.seed(12345)
-    colors <- randomcoloR::distinctColorPalette(length(base_methods))
-    base_methods_colors <- 
-        data.frame(base_method = base_methods, color = colors)
+    # base_methods <- sort(unique(df$base_method))
+    # set.seed(12345)
+    # colors <- randomcoloR::distinctColorPalette(length(base_methods))
+    # base_methods_colors <- 
+    #     data.frame(base_method = base_methods, color = colors)
     
     ## Create mappings for shape
-    norm <- sort(unique(df$norm))
-    shapes <- seq_along(norm)
-    norm_shapes <- 
-        data.frame(norm = norm, shape = shapes)
-    
-   dplyr::left_join(df, base_methods_colors, by = 'base_method') %>% 
-       dplyr::left_join(norm_shapes, by = 'norm')
+   #  norm <- sort(unique(df$norm))
+   #  shapes <- seq_along(norm)
+   #  norm_shapes <- 
+   #      data.frame(norm = norm, shape = shapes)
+   #  
+   # dplyr::left_join(df, norm_shapes, by = 'norm') 
     
 }
-
 
 #' Plot positives
 #' 
 #' \code{plot_positives} is a version of plotPositives
 #'
-#' @param x A dataframe
+#' @param x A dataframe. Positives with additional columns.
 #'
 #' @return List of plots
 #' @export
@@ -524,18 +522,22 @@ plot_positives <- function(x) {
     list_of_tables <- split(x, x$method_class)
     
     list_of_plots <- purrr::map(list_of_tables, ~ {
+        
         df <- .x %>% 
             dplyr::mutate(
                 dplyr::across(.cols = tidyselect:::where(is.character), .fns = ~ forcats::fct_inorder(.x)),
-                shape = forcats::fct_inorder(as.character(shape))
+                linetype = forcats::fct_inorder(as.character(linetype))
             )
+        
         p1 <- df %>%
             ggplot2::ggplot(ggplot2::aes(x = top, y = TP - FP)) +
             ggplot2::geom_path(
-                ggplot2::aes(color = color, group = method) #linetype = norm
+                ggplot2::aes(
+                    color = color, group = method, linetype = method
+                )
             ) +
             ggplot2::geom_point(
-                ggplot2::aes(color = color), #shape = norm
+                ggplot2::aes(color = color, shape = method), 
                 size = 3
             ) +
             ggplot2::facet_wrap(.~ method_class) +
@@ -543,22 +545,29 @@ plot_positives <- function(x) {
                 limits = c(min_top - 3, max_top + 3)
             ) +
             ggplot2::scale_color_manual(
-                values = levels(df$color), labels = levels(df$base_method)
+                name = 'method',
+                values = as.character(df$color), 
+                labels = as.character(df$method)
                 
             ) +
-            # ggplot2::scale_shape_manual(
-            #     values = as.integer(levels(df$shape)), labels = levels(df$norm)
-            # ) +
-            # ggplot2::scale_linetype_manual(
-            #     values = as.integer(levels(df$shape)), labels = levels(df$norm)
-            # ) +
+            ggplot2::scale_shape_manual(
+                name = 'method',
+                values = as.integer(df$shape),
+                labels = as.character(df$method)
+                # values = as.integer(levels(df$shape)), labels = levels(df$norm)
+            ) +
+            ggplot2::scale_linetype_manual(
+                name = 'method',
+                labels = unique(as.character(df$method)),
+                values = as.integer(df$linetype)
+            ) +
             ggplot2::labs(
                 x = 'Top', y = 'TP - FP'
             ) +
-            ggplot2::guides(color=guide_legend(override.aes=list(fill=NA))) +
-            guides(
-                color = ggplot2::guide_legend(order = 1)
-            ) +
+            # ggplot2::guides(color=guide_legend(override.aes=list(fill=NA))) +
+            # ggplot2::guides(
+            #     color = ggplot2::guide_legend(order = 1)
+            # ) +
             ggplot2::theme_bw() +
             ggplot2::theme(
                 legend.position = c(0.01, 0.97),
@@ -569,7 +578,8 @@ plot_positives <- function(x) {
                 # ),
                 legend.box.background = ggplot2::element_blank(),
                 legend.key = ggplot2::element_blank(),
-                legend.background = ggplot2::element_blank()
+                legend.background = ggplot2::element_blank(),
+                legend.title = ggplot2::element_blank()
             )
         p1
     })
