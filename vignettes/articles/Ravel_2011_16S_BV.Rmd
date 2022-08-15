@@ -60,6 +60,11 @@ tse_subset <- tse[, select_samples]
 tse_genus <- agglomerateByRank(tse_subset, rank = 'genus', na.rm = FALSE)
 tse_genus <- filterTaxa(tse_genus, min_ab = 1, min_per = 0.2)
 rownames(tse_genus) <- editMiaTaxaNames(tse_genus)
+
+## Get the right order of study conditions
+colData(tse_genus)$study_condition <- 
+    factor(colData(tse_genus)$study_condition, levels = conditions)
+
 tse_genus
 ```
 
@@ -218,7 +223,7 @@ head(data)
 
 Define function:
 
-```{r}
+```{r define calcWilcox}
 calcWilcox <- function(dat, val_col, log = FALSE) {
     
     ## Separate components
@@ -280,27 +285,27 @@ calcWilcox <- function(dat, val_col, log = FALSE) {
 
 Perform statistical test:
 
-```{r, warning=FALSE}
+```{r run calcWilcox, warning=FALSE}
 wilcox <- list(
     wilcox_counts = calcWilcox(data, 'counts'),
     wilcox_relab = calcWilcox(data, 'TSS'),
-    wilcox_clr = calcWilcox(data, 'CLR', log = FALSE),
-    wilcox_relab_clr = calcWilcox(data, 'TSS + CLR', log = FALSE)
+    wilcox_clr = calcWilcox(data, 'CLR'),
+    wilcox_relab_clr = calcWilcox(data, 'TSS + CLR')
 ) |> 
     bind_rows(.id = 'method')
 ```
 
 Filter DA taxa
 
-```{r}
+```{r filter taxa}
 wilcox_DA <- wilcox |> 
-    dplyr::filter(adjP <= 0.1, !logFC == 0) |> 
+    dplyr::filter(adjP <= 0.1, abs(logFC) > 0) |> 
     mutate(DA = ifelse(logFC > 0, "OA", "UA"))
 ```
 
 Plot
 
-```{r}
+```{r plot numbers of taxa}
 wilcox_DA |> 
     dplyr::filter(taxon_annotation != 'Unannotated') |> 
     count(method, taxon_annotation, DA) |> 
@@ -318,18 +323,19 @@ wilcox_DA |>
 
 Plot the abundances of the taxa that were incorrect
 
-```{r}
+```{r incorrect taxa wilcox}
 incorrect_taxa_wilcox_clr <- wilcox_DA |> 
     dplyr::filter(
         method == 'wilcox_clr', DA == 'UA', 
         taxon_annotation == 'bv-associated'
     ) |> 
     pull(taxon_name)
+incorrect_taxa_wilcox_clr
 ```
 
 Let's plot their values for each matrix
 
-```{r}
+```{r get abundance values}
 transformations <- c('counts', 'TSS', 'CLR', 'TSS + CLR')
 l1 <- vector('list', length(transformations))
 names(l1) <- transformations
@@ -353,38 +359,37 @@ head(wilcox_raw)
 
 Box plot of incorrect values:
 
-```{r}
-wilcox_raw |> 
+```{r plot abundance values}
+wilcox_genus_plot <- wilcox_raw |> 
     mutate(taxon_name = sub('genus:', '', taxon_name)) |>
     mutate(value = log(value + 1)) |> 
     mutate(transformation = factor(
-        transformation, levels = c('TSS', 'counts', 'CLR', 'TSS + CLR' ),
-        labels = c('Relative abundance', 'Counts', 'CLR', 'Relative abundace + CLR')
+        transformation, levels = c('counts', 'TSS', 'CLR', 'TSS + CLR' ),
+        labels = c('Counts', 'Relative abundance', 'CLR', 'Relative abundace + CLR')
     )) |> 
     mutate(study_condition = factor(
-        study_condition, levels = c('bacterial_vaginosis', 'healthy'),
-        labels = c('BV', 'HV')
+        study_condition, levels = c('healthy', 'bacterial_vaginosis'),
+        labels = c('HV', 'BV')
     )) |> 
     ggplot(aes(taxon_name, value)) + 
     geom_boxplot(aes(color = study_condition)) +
     facet_wrap(~ transformation, scales = 'free') +
     labs(
-        # title = 'BV-associated bacteria identified (incorrectly) as UA by CLR',
-        # subtitle = 'CLR had an effect in both logFC (direction) and Wilcox test',
-        y = 'log2(Abundance value)', x = 'Genus'
+        y = 'log2(Abundance values)', x = 'Genus'
+    ) +
+    scale_color_manual(
+        values = c('dodgerblue1', 'firebrick1')
     ) +
     theme_bw() +
     theme(
         panel.grid.major.x = element_blank(),
         legend.title = element_blank()
     )
-## counts, TSS, CLR, TSS + CLR Add as Figure 
-## Add 100
+wilcox_genus_plot
 ```
 
 
-
-```{r}
+```{r plot fold change}
 wilcox |> 
     mutate(
         sig = ifelse(adjP <= 0.1, '*', '')
@@ -422,7 +427,9 @@ calcLefse <- function(dat, assay) {
         lda.threshold = 0, groupCol = 'study_condition', assay = assay
     )
     
-    dplyr::mutate(res, rawP = 0.05, adjP = 0.1)
+    adj_pvalues <- p.adjust(res$kw_pvalues)
+    
+    dplyr::mutate(res, rawP = kw_pvalues, adjP = adj_pvalues)
     
     # res <- lefser2(
     #     dat, kruskal.threshold = 0.05, wilcox.threshold = 0.05, 
@@ -455,7 +462,8 @@ lefse <- list(
     mutate(
         DA = ifelse(scores > 0, 'OA', 'UA')
     ) |> 
-    left_join(taxa_annotations, by = c('Names' = 'taxon_name'))
+    rename(taxon_name = 'Names') |> 
+    left_join(taxa_annotations, by = 'taxon_name')
 
 head(lefse)
 ```
@@ -479,12 +487,17 @@ lefse |>
 ```
 
 ```{r}
-incorrect_taxa_lefse_clr <- wilcox_DA |> 
+lefse_DA <- lefse |> 
+    dplyr::filter(adjP <= 0.1, abs(scores) > 0) |> 
+    mutate(DA = ifelse(scores > 0, "OA", "UA"))
+
+incorrect_taxa_lefse_clr <- lefse_DA |> 
     dplyr::filter(
-        method %in% c('wilcox_clr', 'wilcox_realb_clr'), DA == 'UA', 
+        method %in% c('lefse_clr', 'lefse_relab_clr'), DA == 'UA', 
         taxon_annotation == 'bv-associated'
     ) |> 
-    pull(taxon_name)
+    pull(taxon_name) |> 
+    unique()
 incorrect_taxa_lefse_clr ## the same as in wilcox.
 ```
 
@@ -575,8 +588,10 @@ calcZINQ(data, 'counts', y_CorD = 'D', log = FALSE)
 ```
 
 
+# Plots of BV-associated genera
 
-
+These are all of the BV-associated bacteria present in the Ravel_2011 dataset.
+This is independent of any statistical test or effect size calculation.
 
 ## CLR
 
@@ -584,54 +599,29 @@ calcZINQ(data, 'counts', y_CorD = 'D', log = FALSE)
 data |> 
     filter(taxon_annotation == 'bv-associated') |> 
     mutate(taxon_name = sub("^genus:", "", taxon_name)) |> 
+    mutate(CLR = log(CLR + 1)) |> 
     ggplot(aes(taxon_name, CLR)) +
     geom_boxplot(aes(color = study_condition)) + 
-    labs(title = 'CLR values of BV-associated bacteria') +
+    labs(
+        title = 'CLR values of BV-associated bacteria',
+        x = 'Genus', y = 'Abundance values (CLR)'
+    ) +
     theme_bw() + 
     theme(
         axis.text.x = element_text(angle = 45, hjust = 1)
     )
 ```
 
-```{r}
-data |> 
-    filter(taxon_annotation == 'bv-associated') |> 
-    filter(CLR <= 100) |> 
-    mutate(taxon = sub("^genus:", "", taxon_name)) |> 
-    ggplot(aes(taxon_name, CLR)) +
-    geom_boxplot(aes(color = study_condition)) + 
-    labs(title = 'CLR values of BV-associated bacteria (filtered below 100)') +
-    theme_bw() + 
-    theme(
-        axis.text.x = element_text(angle = 45, hjust = 1)
-    )
-```
-
-
-## relab
+## Relative abundance
 
 ```{r}
 data |> 
     filter(taxon_annotation == 'bv-associated') |> 
     mutate(taxon_name = sub("^genus:", "", taxon_name)) |> 
+    mutate(TSS = log(TSS + 1)) |> 
     ggplot(aes(taxon_name, TSS)) +
     geom_boxplot(aes(color = study_condition)) + 
-    labs(title = 'Relatibe abundance values of BV-associated bacteria',
-         y = 'relative abundance') +
-    theme_bw() + 
-    theme(
-        axis.text.x = element_text(angle = 45, hjust = 1)
-    )
-```
-
-```{r}
-data |> 
-    filter(taxon_annotation == 'bv-associated') |> 
-    filter(TSS <= 0.2) |> 
-    mutate(taxon_name = sub("^genus:", "", taxon_name)) |> 
-    ggplot(aes(taxon_name, TSS)) +
-    geom_boxplot(aes(color = study_condition)) + 
-    labs(title = 'Relative abundance values of BV-associated bacteria (filtered below 0.2)',
+    labs(title = 'Relative abundance values of BV-associated bacteria',
          y = 'relative abundance') +
     theme_bw() + 
     theme(
@@ -676,10 +666,10 @@ p1 <- data |>
         taxon_annotation = case_when(
             taxon_annotation == "hv-associated" ~ "Health-associated",
             taxon_annotation == "bv-associated" ~ "BV-associated",
-            is.na(taxon_annotation) ~ "Unnanotated"
+            TRUE ~ taxon_annotation
         ),
         taxon_annotation = factor(
-            taxon_annotation, levels = c('Health-associated', 'BV-associated', 'Unnanotated')[3:1]
+            taxon_annotation, levels = c('Health-associated', 'BV-associated', 'Unannotated')[3:1]
         )
     ) |>
     ggplot(aes(sample, TSS )) +
@@ -711,10 +701,10 @@ p2 <- data |>
         taxon_annotation = case_when(
             taxon_annotation == "hv-associated" ~ "Health-associated",
             taxon_annotation == "bv-associated" ~ "BV-associated",
-            is.na(taxon_annotation) ~ "Unnanotated"
+            TRUE ~ taxon_annotation
         ),
         taxon_annotation = factor(
-            taxon_annotation, levels = c('Health-associated', 'BV-associated', 'Unnanotated')[3:1]
+            taxon_annotation, levels = c('Health-associated', 'BV-associated', 'Unannotated')[3:1]
         )
     ) |>
     ggplot(aes(sample, CLR )) +
@@ -733,7 +723,6 @@ p2 <- data |>
     )
 p2
 ```
-
 
 ```{r,, echo=FALSE, eval=FALSE, include=FALSE}
 ggsave("Ravell_2011_c.png", p1)
