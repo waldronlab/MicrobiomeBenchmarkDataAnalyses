@@ -516,6 +516,12 @@ get_meth_class <- function() {
 #'
 plot_positives <- function(x) {
     
+    if (any(!c('linetype', 'shape', 'color') %in% colnames(x)))
+        stop(
+            'Dataframe must include color, shape and linetype. Be sure to use the plot_positives function.', 
+            call. = FALSE
+        )
+    
     max_top <- max(x$TP - x$FP, na.rm = TRUE)
     min_top <- min(x$TP - x$FP, na.rm = TRUE)
     
@@ -533,11 +539,11 @@ plot_positives <- function(x) {
             ggplot2::ggplot(ggplot2::aes(x = top, y = TP - FP)) +
             ggplot2::geom_path(
                 ggplot2::aes(
-                    color = color, group = method, linetype = method
+                    color = method, group = method, linetype = method
                 )
             ) +
             ggplot2::geom_point(
-                ggplot2::aes(color = color, shape = method), 
+                ggplot2::aes(color = method, shape = method), 
                 size = 3
             ) +
             ggplot2::facet_wrap(.~ method_class) +
@@ -546,7 +552,7 @@ plot_positives <- function(x) {
             ) +
             ggplot2::scale_color_manual(
                 name = 'method',
-                values = as.character(df$color), 
+                values = as.character(df$color2), 
                 labels = as.character(df$method)
                 
             ) +
