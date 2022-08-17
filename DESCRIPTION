@@ -45,4 +45,5 @@ Imports:
     tidyr
 Depends: 
     R (>= 4.2)
-URL: http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/
+URL: https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses
+BugReports: https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses/issues
