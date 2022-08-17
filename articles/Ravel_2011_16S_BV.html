@@ -49,7 +49,7 @@
     <a class="dropdown-item" href="../articles/HMP_2012_16S_gingival_V35_subset.html">HMP_2012_16S_gingival_V35_subset - subgingival vs supragingival</a>
     <a class="dropdown-item" href="../articles/HMP_2012_WMS_gingival.html">HMP_2012_WMS_gingiva - Supragingival vs subgingival plaque</a>
     <a class="dropdown-item" href="../articles/Ravel_2011_16S_BV.html">Ravel_2011_16S_BV - Bacterial vaginosis</a>
-    <a class="dropdown-item" href="../articles/Stammler_2016_16S_spikein.html">Analysis of the Sammler_2016_16S_spikein dataset</a>
+    <a class="dropdown-item" href="../articles/Stammler_2016_16S_spikein.html">Sammler_2016_16S_spikein - Spike-in bacteria</a>
   </div>
 </li>
       </ul>
@@ -501,7 +501,8 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>        sd_TSS_CLR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">`TSS + CLR`</span><span class="op">)</span>,</span>
 <span>        median_TSS_CLR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">`TSS + CLR`</span><span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">taxon_name</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
@@ -554,22 +555,6 @@ new DA methods added to the original workflow and modified plots.</p>
 <td align="right">0.6366870</td>
 </tr>
 <tr class="even">
-<td align="left">healthy</td>
-<td align="left">Corynebacterium</td>
-<td align="right">6.525</td>
-<td align="right">29.117787</td>
-<td align="right">0</td>
-<td align="right">0.4129741</td>
-<td align="right">1.6621998</td>
-<td align="right">0.0570684</td>
-<td align="right">1.9094377</td>
-<td align="right">4.0385754</td>
-<td align="right">0.6989058</td>
-<td align="right">1.9094377</td>
-<td align="right">4.0385754</td>
-<td align="right">0.6989058</td>
-</tr>
-<tr class="odd">
 <td align="left">bacterial_vaginosis</td>
 <td align="left">Actinomyces</td>
 <td align="right">2.775</td>
@@ -584,6 +569,22 @@ new DA methods added to the original workflow and modified plots.</p>
 <td align="right">0.6624157</td>
 <td align="right">1.3870388</td>
 <td align="right">0.2151677</td>
+</tr>
+<tr class="odd">
+<td align="left">healthy</td>
+<td align="left">Corynebacterium</td>
+<td align="right">6.525</td>
+<td align="right">29.117787</td>
+<td align="right">0</td>
+<td align="right">0.4129741</td>
+<td align="right">1.6621998</td>
+<td align="right">0.0570684</td>
+<td align="right">1.9094377</td>
+<td align="right">4.0385754</td>
+<td align="right">0.6989058</td>
+<td align="right">1.9094377</td>
+<td align="right">4.0385754</td>
+<td align="right">0.6989058</td>
 </tr>
 <tr class="even">
 <td align="left">bacterial_vaginosis</td>
