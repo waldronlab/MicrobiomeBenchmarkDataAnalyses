@@ -1,5 +1,5 @@
 ---
-title: "Analysis of the HMP_2012_WMS_gingiva dataset"
+title: "HMP_2012_WMS_gingiva - Supragingival vs subgingival plaque"
 output: 
     html_document:
         toc: true
@@ -10,8 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 
-```{r}
-
+```{r setup}
 library(MicrobiomeBenchmarkDataAnalyses)
 library(MicrobiomeBenchmarkData)
 library(mia)
@@ -21,18 +20,25 @@ library(ggplot2)
 library(gridExtra)
 ```
 
-
 # Import data
 
-```{r}
+```{r import data, message=FALSE, warning=FALSE}
 dat_name <-'HMP_2012_WMS_gingival'
+conditions_col <- 'body_subsite'
+conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
+
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
+tse <- filterTaxa(tse)
+
+colData(tse)[[conditions_col]] <- 
+    factor(colData(tse)[[conditions_col]], levels = conditions)
+
 tse
 ```
 
 # Prior knowledge
 
-```{r}
+```{r prior info}
 row_data <- as.data.frame(rowData(tse))
 prior_info <- row_data[, c('genus', 'taxon_annotation')]
 prior_info$taxon_name <- rownames(prior_info)
@@ -42,9 +48,8 @@ head(prior_info)
 
 # Convert to phyloseq
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
-ps <- filterTaxa(ps)
 phyloseq::sample_data(ps)$body_subsite <- 
     factor(phyloseq::sample_data(ps)$body_subsite)
 ps
@@ -52,32 +57,8 @@ ps
 
 # Run DA
 
-```{r, message=TRUE}
-conditions_col <- 'body_subsite'
-conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
-
-## This can take a while. It's better to save the results and import them back
-## later
-DA_output_file <-  paste0('./', dat_name, '.rds')
-DA_output_flie_2 <- paste0('../../misc/articles_data/', dat_name, '.rds')
-
-if (file.exists(DA_output_file)) {
-    message('DA results exist in directory. Importing...')
-    DA_output <- readRDS(DA_output_file)
-} else if (file.exists(DA_output_flie_2)) {
-    message('DA results exist in misc. Importing')
-    DA_output <- readRDS(DA_output_flie_2)
-} else if (!file.exists(DA_output_file)) {
-    message('Performing DA results.')
-    DA_output <- run_DA(ps, conditions_col, conditions)
-    saveRDS(DA_output, DA_output_file) 
-}
-
-```
-
-
-```{r}
-names(DA_output)
+```{r, message=FALSE, warning=FALSE}
+DA_output <- run_DA(ps, conditions_col, conditions)
 ```
 
 # Enrichment
@@ -88,7 +69,7 @@ Get direction
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
 ```
 
-## Enrichment (adjP >= 0.1)
+## Enrichment (adjP <= 0.1)
 
 ```{r}
 enrichment <- createEnrichment(
@@ -115,42 +96,41 @@ enrich_plot <- plot_enrichment(
     levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
     conditions = conditions
 )
-enrich_plot
+enrich_plot +
+    labs(y = 'Number of species')
 
 ```
 
 # Putative true positives - putative false positives
 
-## Calculate TP - FP ratio (adP <= 0.1)
+## Calculate TP - FP ratio (no threshold)
 
-```{r}
+```{r positives}
 positives <- createPositives(
     object = DA_output, 
     priorKnowledge = prior_info, 
     enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     direction = direction,
-    threshold_pvalue = 0.1,
+    threshold_pvalue = 1,
     threshold_logfc = 0,
     top = seq.int(from = 0, to = 50, by = 5),
     alternative = "greater",
     verbose = FALSE,
     TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
-    FP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "anaerobic"))
-)
+    FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
+) |> 
+    left_join(get_meth_class(), by = 'method')
 ```
 
 ## Plot TP - FP 
 
-```{r}
-meth_class <- get_meth_class() 
-positives2 <- left_join(meth_class, positives, by = 'method') %>% 
-    relocate(method_class)
+```{r, fig.height = 6, fig.width=10}
+positive_plots <- plot_positives(positives)
+grid.arrange(grobs = positive_plots, ncol = 3)
+```
+```{r session info}
+sessionInfo()
 ```
 
 
-```{r, fig.height = 12, fig.width=10}
-plots <- plot_positives(positives2)
-grid.arrange(grobs = plots, ncol = 2)
-
-```
