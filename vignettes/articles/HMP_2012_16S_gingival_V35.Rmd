@@ -148,16 +148,17 @@ enrichment <- createEnrichment(
 enrich_plot <- plot_enrichment(
     enrichment = enrichment, 
     enrichment_col = "taxon_annotation",
-    levels_to_plot = c("aerobic", "anaerobic", "facultative_naerobic"),
+    levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
     conditions = conditions
 )
-enrich_plot
+enrich_plot +
+    labs(y = "Number of OTUs")
 
 ```
 
 # Putative true positives - putative false positives
 
-## Calculate TP - FP ratio (adP <= 0.1)
+## Calculate TP - FP ratio (no threshold)
 
 ```{r}
 positives <- createPositives(
@@ -173,29 +174,18 @@ positives <- createPositives(
     verbose = FALSE,
     TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
     FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
-)
+) |> 
+    left_join(get_meth_class(), by = 'method')
 ```
 
 ## Plot TP - FP 
 
+```{r, fig.width=10, fig.height=6}
+positive_plots <- plot_positives(positives)
+grid.arrange(grobs = positive_plots, ncol = 3)
+```
+
 ```{r}
-meth_class <- get_meth_class() 
-positives2 <- left_join(positives, meth_class, by = 'method') %>% 
-    relocate(method_class)
-```
-
-
-```{r, fig.height = 12, fig.width=10}
-plots <- plot_positives(positives2)
-grid.arrange(grobs = plots, ncol = 2)
-
-```
-
-
-```{r,eval=FALSE, include=FALSE, echo=FALSE}
-ggsave(filename = "HMP_2012_a.png", plot = enrich_plot, width = 8, height = 5)
-
-positives_plots <- grid.arrange(grobs = plots, ncol = 3)
-ggsave(filename = "HMP_2012_b.png", plot = positives_plots, width = 10, height = 6)
+sessionInfo()
 ```
 
