@@ -1,5 +1,5 @@
 ---
-title: "Analysis of the Sammler_2016_16S_spikein dataset"
+title: "Sammler_2016_16S_spikein - Spike-in bacteria"
 subtitle: "Comparison of coefficient of variation"
 output:
     html_document:
@@ -23,9 +23,6 @@ library(biobroom)
 library(ggplot2)
 ```
 
-# Source code
-
-[Source](https://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/articles/Stammler_2016_16S_spikein.html)
 
 # Data
 
@@ -164,9 +161,3 @@ cv_res %>%
         legend.position = 'none'
     )
 ```
-
-
-
-
-
-
