@@ -178,15 +178,6 @@ plots <- plot_positives(positives)
 grid.arrange(grobs = plots, ncol = 3)
 ```
 
-
-```{r export enrichment plots, eval=FALSE, include=FALSE, echo=FALSE}
-## This code is just for exporting the plots.
-ggsave(filename = "Ravell_2011_a.png", plot = enrich_plot, width = 8, height = 5)
-positives_plots <- grid.arrange(grobs = plots, ncol = 3)
-ggsave(filename = "Ravell_2011_b.png", plot = positives_plots, width = 10, height = 6)
-```
-
-
 # Perform DA with lefse, Wilcox, and ZINQ-Cauchy manually
 
 ```{r manual transformations}
@@ -831,11 +822,6 @@ p2 <- data |>
         panel.grid = element_blank()
     )
 p2
-```
-
-```{r,, echo=FALSE, eval=FALSE, include=FALSE}
-ggsave("Ravell_2011_c.png", p1)
-ggsave("Ravell_2011_d.png", p2)
 ```
 
 ```{r}
