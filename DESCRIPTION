@@ -20,7 +20,7 @@ Suggests:
     tidySummarizedExperiment
 Remotes:
     waldronlab/MicrobiomeBenchmarkData,
-    wdl2459/ZINQ-v2,
+    sdgamboa/ZINQ,
     mcalgaro93/benchdamic
 Imports: 
     SummarizedExperiment,
