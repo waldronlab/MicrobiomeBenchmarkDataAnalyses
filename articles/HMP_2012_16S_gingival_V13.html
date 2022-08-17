@@ -86,7 +86,7 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/" class="external-link">MicrobiomeBenchmarkDataAnalyses</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses" class="external-link">MicrobiomeBenchmarkDataAnalyses</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/waldronlab/MicrobiomeBenchmarkData" class="external-link">MicrobiomeBenchmarkData</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/microbiome/mia" class="external-link">mia</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217" class="external-link">phyloseq</a></span><span class="op">)</span></span>
@@ -222,7 +222,7 @@
 <span><span class="va">time_end</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">time_elapsed</span> <span class="op">&lt;-</span> <span class="va">time_end</span> <span class="op">-</span> <span class="va">time_start</span></span>
 <span><span class="va">time_elapsed</span></span>
-<span><span class="co">#&gt; Time difference of 5.272471 mins</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 5.262112 mins</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="enrichment-analysis">Enrichment analysis<a class="anchor" aria-label="anchor" href="#enrichment-analysis"></a>
@@ -284,7 +284,7 @@
 <span>    alternative <span class="op">=</span> <span class="st">"greater"</span>,</span>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    TP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    FP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    FP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_meth_class.html">get_meth_class</a></span><span class="op">(</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'method'</span><span class="op">)</span></span></code></pre></div>
 </div>
