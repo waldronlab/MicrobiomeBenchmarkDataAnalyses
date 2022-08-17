@@ -387,6 +387,31 @@ wilcox_genus_plot <- wilcox_raw |>
 wilcox_genus_plot
 ```
 
+```{r, message=FALSE}
+stats <- data |> 
+    mutate(taxon_name = sub('genus:', '', taxon_name)) |> 
+    filter(taxon_name %in% c('Actinomyces', 'Corynebacterium')) |> 
+    group_by(study_condition, taxon_name) |> 
+    summarise(
+        mean_counts = mean(counts),
+        sd_counts = sd(counts),
+        median_counts = median(counts),
+        
+        mean_TSS = mean(TSS),
+        sd_TSS = sd(TSS),
+        median_TSS = median(TSS),
+        
+        mean_CLR = mean(CLR),
+        sd_CLR = sd(CLR),
+        median_CLR = median(CLR),
+        
+        mean_TSS_CLR = mean(`TSS + CLR`),
+        sd_TSS_CLR = sd(`TSS + CLR`),
+        median_TSS_CLR = median(`TSS + CLR`)
+    ) |> 
+    ungroup()
+knitr::kable(stats)
+```
 
 ```{r plot fold change}
 wilcox |> 
