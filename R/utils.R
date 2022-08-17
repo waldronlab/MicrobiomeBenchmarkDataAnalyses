@@ -203,7 +203,7 @@ norm_tss <- function(mat, total_sum = 1e6) {
 #' \code{apply_clr} applies a centered-log ratio transformation to a matrix.
 #' Features (e.g. taxa, OTUs) must be in the rows and samples in the columns.
 #'
-#' @param x A count matrix.
+#' @param mat A count matrix.
 #' @param pseudocount A pseudocount to add. Default = 1.
 #' @param log If TRUE, CLR will be logged. Default = FALSE.
 #'
@@ -251,6 +251,7 @@ norm_clr <- function(mat, pseudocount = 0, log = FALSE) {
 #' @param condB Condition used as reference. E.g. control condition.
 #' @param log If log is TRUE, it's assumed that the matrix is already log
 #' transformed.
+#' @param pseudocount Numeric value indicating pseudocount to be added.
 #'
 #' @return
 #' A named vector of log2 fold changes per feature.
@@ -320,6 +321,7 @@ log2_fold_change <- function(
 plot_enrichment <- function(
     enrichment, enrichment_col, levels_to_plot = NULL, conditions
 ) {
+    method <- n <- ypos <- symb <- NULL
     
     enrichment_col_var <- rlang::sym(enrichment_col)
     
@@ -483,6 +485,8 @@ plot_enrichment <- function(
 #'
 get_meth_class <- function() {
     
+    effect_size_col <- method_class <- base_method <- method <- NULL
+    
     methods_classification %>% 
         dplyr::select(-effect_size_col) %>% 
         dplyr::relocate(method_class, base_method, method) %>% 
@@ -529,11 +533,16 @@ plot_positives <- function(x) {
     
     list_of_plots <- purrr::map(list_of_tables, ~ {
         
-        df <- .x %>% 
-            dplyr::mutate(
-                dplyr::across(.cols = tidyselect:::where(is.character), .fns = ~ forcats::fct_inorder(.x)),
-                linetype = forcats::fct_inorder(as.character(linetype))
+        df <- .x |> 
+            purrr::modify_if(
+                .p = is.character, .f = function(.y) forcats::fct_inorder(.y)
             )
+        
+        # df <- .x %>% 
+        #     dplyr::mutate(
+        #         dplyr::across(.cols = tidyselect:::where(is.character), .fns = ~ forcats::fct_inorder(.x)),
+        #         linetype = forcats::fct_inorder(as.character(linetype))
+        #     )
         
         p1 <- df %>%
             ggplot2::ggplot(ggplot2::aes(x = top, y = TP - FP)) +

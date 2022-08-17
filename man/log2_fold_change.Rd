@@ -23,6 +23,8 @@ same order. Two and only two conditions (levels) are needed.}
 
 \item{log}{If log is TRUE, it's assumed that the matrix is already log
 transformed.}
+
+\item{pseudocount}{Numeric value indicating pseudocount to be added.}
 }
 \value{
 A named vector of log2 fold changes per feature.

@@ -7,11 +7,11 @@
 norm_clr(mat, pseudocount = 0, log = FALSE)
 }
 \arguments{
+\item{mat}{A count matrix.}
+
 \item{pseudocount}{A pseudocount to add. Default = 1.}
 
 \item{log}{If TRUE, CLR will be logged. Default = FALSE.}
-
-\item{x}{A count matrix.}
 }
 \value{
 A matrix with CLR normalization

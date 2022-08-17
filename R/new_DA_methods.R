@@ -10,13 +10,17 @@
 #' (ZINQ). Microbiome 9, 181 (2021). https://doi.org/10.1186/s40168-021-01129-3
 #'
 #' @param object A (Tree)SummarizedExperiment or a phyloseq object.
-#' @param grp The name of the grouping column, which is located in the colData
-#' (SummarizedExperiment) or the sample_data (phyloseq).
-#' @param ref A character string indicating the group that should be used as
-#' reference.
+#' @param pseudo_count Whether include or not a pseudo_count. Default = FALSE.
+#' @param conditions_col The name of the grouping column, which is located in
+#' the colData (SummarizedExperiment) or the sample_data (phyloseq).
+#' @param conditions A character vector indicating the conditions. Example:
+#' `c(condB = 'control', condA = 'treatment')`
+#' @param norm A character string indicating the normalization method to be used
+#' prior analysis. Default is 'none'.
 #' @param pval_method A character string indicating the type of pvalue to use.
 #' Options: Cauchy or MinP. Default: Cauchy.
-#' @inheritParams ZINQ::ZINQ_tests
+#' @param y_CorD Indicate if data are counts 'D' or continuous 'C'.
+#' @param verbose Whether include messages or not. Default is FALSE.
 #'
 #' @return
 #' A list in the format used in the benhcdamic pipeline.
@@ -113,7 +117,7 @@ DA_ZINQ <- function(
     rawP <- vector("double", ncol(abundances_t))
     names(rawP) <- colnames(abundances_t)
     
-    form <- as.formula('X ~ Y')
+    form <- stats::as.formula('X ~ Y')
     
     for (i in seq_along(rawP)) {
         
@@ -264,6 +268,7 @@ DA_lefse <- function(
 #' \code{DA_wilcox} performs Wilcoxon test on a phyloseq object.
 #'
 #' @param object A phyloseq object.
+#' @param pseudo_count Whether include a pseudocount or not. Default is FASLE.
 #' @param norm String character. Choose between three normalization methods: 
 #' 'none', 'CLR', or 'TSS'.
 #' @param conditions_col String character.
@@ -294,7 +299,7 @@ DA_wilcox <-
         sample_metadata <- microbiome::meta(object)
         
         sample_metadata[[conditions_col]] <- 
-            factor(sample_metadata[[conditions_col]], level = conditions)
+            factor(sample_metadata[[conditions_col]], levels = conditions)
         
         if (pseudo_count) {
             if (verbose)
@@ -463,7 +468,7 @@ DA_ancombc <- function(
     
     ## Pseudocount
     if (any(counts == 0) && pseudo_count) {
-        if (vervose)
+        if (verbose)
             message('A pseudocount of 1 was added to the abundance matrix.')
         counts <- counts + 1
     }

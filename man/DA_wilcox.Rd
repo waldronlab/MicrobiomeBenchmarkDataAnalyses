@@ -16,6 +16,8 @@ DA_wilcox(
 \arguments{
 \item{object}{A phyloseq object.}
 
+\item{pseudo_count}{Whether include a pseudocount or not. Default is FASLE.}
+
 \item{norm}{String character. Choose between three normalization methods:
 'none', 'CLR', or 'TSS'.}
 

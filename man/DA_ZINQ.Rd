@@ -18,16 +18,23 @@ DA_ZINQ(
 \arguments{
 \item{object}{A (Tree)SummarizedExperiment or a phyloseq object.}
 
+\item{pseudo_count}{Whether include or not a pseudo_count. Default = FALSE.}
+
+\item{conditions_col}{The name of the grouping column, which is located in
+the colData (SummarizedExperiment) or the sample_data (phyloseq).}
+
+\item{conditions}{A character vector indicating the conditions. Example:
+\code{c(condB = 'control', condA = 'treatment')}}
+
+\item{norm}{A character string indicating the normalization method to be used
+prior analysis. Default is 'none'.}
+
 \item{pval_method}{A character string indicating the type of pvalue to use.
 Options: Cauchy or MinP. Default: Cauchy.}
 
-\item{y_CorD}{An indicator: use "D" if Y is count, a perturbation from U(0, 1) will be added to the response; use "C" if Y is continuous; default is "C".}
+\item{y_CorD}{Indicate if data are counts 'D' or continuous 'C'.}
 
-\item{grp}{The name of the grouping column, which is located in the colData
-(SummarizedExperiment) or the sample_data (phyloseq).}
-
-\item{ref}{A character string indicating the group that should be used as
-reference.}
+\item{verbose}{Whether include messages or not. Default is FALSE.}
 }
 \value{
 A list in the format used in the benhcdamic pipeline.

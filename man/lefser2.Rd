@@ -38,11 +38,14 @@ indicating the blocks, usually a factor with two levels (e.g.,
 \item{assay}{The i-th assay matrix in the \code{SummarizedExperiment} ('expr';
 default 1).}
 
-\item{trim.names}{If \code{TRUE} extracts the most specific taxonomic rank of organism.}
+\item{trim.names}{If \code{TRUE} extracts the most specific taxonomic rank of
+organism.}
+
+\item{log}{If TRUE, matrix is exponentiated (exp). Default is FALSE.}
 }
 \value{
-The function returns a dataframe with two columns, which are
-names of microorganisms and their LDA scores.
+The function returns a data frame with three columns, which are
+names of microorganisms, their LDA scores, and kruskal wallis p-values.
 }
 \description{
 \code{lefser2} is an adaptation from the

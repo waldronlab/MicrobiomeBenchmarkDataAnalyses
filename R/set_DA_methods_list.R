@@ -20,7 +20,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         # edgeR
         my_edger <- benchdamic::set_edgeR(
             group_name = conditions_col,
-            design = as.formula(paste0("~", conditions_col)),
+            design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM",
             coef = 2,
             weights_logical = FALSE
@@ -30,7 +30,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         
         my_edger <- benchdamic::set_edgeR(
             group_name = conditions_col,
-            design = as.formula(paste0("~", conditions_col)),
+            design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM",
             coef = 2,
             weights_logical = TRUE
@@ -40,7 +40,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         # DESeq2
         my_deseq2 <- benchdamic::set_DESeq2(
             contrast = c(conditions_col, conditions['condA'], conditions['condB']),
-            design = as.formula(paste0("~", conditions_col)),
+            design = stats::as.formula(paste0("~", conditions_col)),
             norm = "poscounts",
             weights_logical = FALSE
         ),
@@ -48,14 +48,14 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         # DESeq2 + weights
         my_deseq2 <- benchdamic::set_DESeq2(
             contrast = c(conditions_col, conditions['condA'], conditions['condB']),
-            design = as.formula(paste0("~", conditions_col)),
+            design = stats::as.formula(paste0("~", conditions_col)),
             norm = "poscounts",
             weights_logical = TRUE
         ),
         
         # limma 
         my_limma <- benchdamic::set_limma( # I get a warning
-            design = as.formula(paste0("~", conditions_col)),
+            design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM",
             coef = 2,
             weights_logical = FALSE
@@ -63,7 +63,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         
         # limma + weights 
         my_limma <- benchdamic::set_limma(
-            design = as.formula(paste0("~", conditions_col)),
+            design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM", 
             coef = 2,
             weights_logical = TRUE
@@ -71,7 +71,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         
         ## metagenomeSeq
         my_metagenomeseq <- benchdamic::set_metagenomeSeq(
-            design = as.formula(paste0("~", conditions_col)),
+            design = stats::as.formula(paste0("~", conditions_col)),
             norm = c("CSSmedian"),
             coef = 2
         ),
@@ -92,10 +92,10 @@ set_DA_methods_list <- function(conditions_col, conditions) {
 
         ## corncob
         my_corncob <- benchdamic::set_corncob(
-            formula = as.formula(paste0("~", conditions_col)),
-            phi.formula = as.formula(paste0("~", conditions_col)),
+            formula = stats::as.formula(paste0("~", conditions_col)),
+            phi.formula = stats::as.formula(paste0("~", conditions_col)),
             formula_null = ~ 1,
-            phi.formula_null = as.formula(paste0("~", conditions_col)),
+            phi.formula_null = stats::as.formula(paste0("~", conditions_col)),
             test = "Wald",
             coefficient = paste0(conditions_col, conditions['condA']),
             norm = "none"
@@ -104,7 +104,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         ## MAST
         my_mast <- benchdamic::set_MAST(
             rescale = "median",
-            design = as.formula(paste0("~", conditions_col)),
+            design = stats::as.formula(paste0("~", conditions_col)),
             coefficient = paste0(conditions_col, conditions['condA']),
             norm = "none"
         ),

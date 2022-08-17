@@ -5,7 +5,7 @@
 filterKruskal2 <- function(expr, group, p.value) {
     
     kw.res.pvalues <- apply(expr, 1L, function(x) {
-        kruskal.test(x ~ group)[["p.value"]]
+        stats::kruskal.test(x ~ group)[["p.value"]]
     })
     
     kw.res.pvalues <- kw.res.pvalues[kw.res.pvalues <= p.value] 
@@ -40,10 +40,12 @@ filterKruskal2 <- function(expr, group, p.value) {
 #' `c("adult", "senior")`; default NULL).
 #' @param assay The i-th assay matrix in the `SummarizedExperiment` ('expr';
 #' default 1).
-#' @param trim.names If `TRUE` extracts the most specific taxonomic rank of organism.
+#' @param trim.names If `TRUE` extracts the most specific taxonomic rank of
+#' organism.
+#' @param log If TRUE, matrix is exponentiated (exp). Default is FALSE.
 #' @return
-#' The function returns a dataframe with two columns, which are
-#' names of microorganisms and their LDA scores.
+#' The function returns a data frame with three columns, which are
+#' names of microorganisms, their LDA scores, and kruskal wallis p-values.
 #'
 #' @importFrom stats kruskal.test reorder rnorm
 #' @importFrom coin pvalue statistic wilcox_test
