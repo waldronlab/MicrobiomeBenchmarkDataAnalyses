@@ -185,6 +185,8 @@ positive_plots <- plot_positives(positives)
 grid.arrange(grobs = positive_plots, ncol = 3)
 ```
 
+# Session info
+
 ```{r}
 sessionInfo()
 ```

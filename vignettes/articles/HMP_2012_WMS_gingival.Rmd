@@ -129,6 +129,9 @@ positives <- createPositives(
 positive_plots <- plot_positives(positives)
 grid.arrange(grobs = positive_plots, ncol = 3)
 ```
+
+# Session Info
+
 ```{r session info}
 sessionInfo()
 ```

@@ -161,3 +161,10 @@ cv_res %>%
         legend.position = 'none'
     )
 ```
+
+# Session info
+```{r}
+sessionInfo()
+```
+
+

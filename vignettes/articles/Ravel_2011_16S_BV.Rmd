@@ -825,6 +825,8 @@ p2 <- data |>
 p2
 ```
 
+# Session info
+
 ```{r}
 sessionInfo()
 ```
