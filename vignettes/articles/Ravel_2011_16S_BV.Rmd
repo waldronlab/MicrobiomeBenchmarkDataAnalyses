@@ -400,7 +400,8 @@ stats <- data |>
         sd_TSS_CLR = sd(`TSS + CLR`),
         median_TSS_CLR = median(`TSS + CLR`)
     ) |> 
-    ungroup()
+    ungroup() |> 
+    arrange(taxon_name)
 knitr::kable(stats)
 ```
 
