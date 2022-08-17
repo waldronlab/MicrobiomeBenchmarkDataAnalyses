@@ -170,7 +170,7 @@ positives <- createPositives(
     alternative = "greater",
     verbose = FALSE,
     TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
-    FP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "anaerobic"))
+    FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
 ) |> 
     left_join(get_meth_class(), by = 'method')
 ```
