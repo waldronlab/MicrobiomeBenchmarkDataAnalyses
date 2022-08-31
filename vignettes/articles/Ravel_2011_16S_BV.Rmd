@@ -101,8 +101,9 @@ ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
-## ALDEX2 throws an error, so remove it
+## These methods throw an error, so they must be removed
 DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
+DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
 
 ## run methods
 DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
@@ -823,6 +824,228 @@ p2 <- data |>
         panel.grid = element_blank()
     )
 p2
+```
+
+# Distributions
+
+Get Latobacillus relative abundance per sample
+
+```{r}
+sample_sizes <- filter(data, taxon_name == 'genus:Lactobacillus') |> 
+    select(sample, lact_tss = TSS, lact_clr = CLR)
+data_with_lact <- left_join(data, sample_sizes, by = 'sample')
+```
+
+
+Relative abundance vs CLR all taxa
+
+```{r}
+data_with_lact |> 
+    ggplot(aes(TSS, CLR)) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3, position = 'jitter'
+    ) + 
+    labs(
+        title = 'Relative abundace vs CLR per genus',
+        x = 'Relative abundance'
+    ) +
+    theme_bw()
+```
+
+Relative abundance vs CLR BV-associated
+
+```{r}
+data_with_lact |> 
+    filter(taxon_annotation == 'bv-associated') |> 
+    ggplot(aes(TSS, CLR)) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3, position = 'jitter'
+    ) + 
+    labs(
+        title = 'Relative abundace vs CLR',
+        subtitle = 'BV-associated genera only',
+        x = 'Relative abundance'
+    ) +
+    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    theme_bw()
+```
+
+```{r, eval=FALSE, include=FALSE, echo=FALSE}
+# Plotting CLR vs Relab of Lactobacillus, Prevotella, Actinomyces, and
+# Corynebacterium
+
+plot_1 <- data_with_lact |> 
+    filter(taxon_name == 'genus:Actinomyces') |> 
+    ggplot(aes(TSS, CLR)) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3, position = 'jitter'
+    ) + 
+    labs(
+        # title = 'Relative abundace vs CLR',
+        title = 'Actinomyces (BV-associated)',
+        x = 'Relative abundance'
+    ) +
+    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    theme_bw()
+
+plot_2 <- data_with_lact |> 
+    filter(taxon_name == 'genus:Corynebacterium') |> 
+    ggplot(aes(TSS, CLR)) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3, position = 'jitter'
+    ) + 
+    labs(
+        # title = 'Relative abundace vs CLR',
+        title = 'Corynebacterium (BV-associated)',
+        x = 'Relative abundance'
+    ) +
+    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    theme_bw()
+
+plot_3 <- data_with_lact |> 
+    filter(taxon_name == 'genus:Prevotella') |> 
+    ggplot(aes(TSS, CLR)) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3, position = 'jitter'
+    ) + 
+    labs(
+        # title = 'Relative abundace vs CLR',
+        title = 'Prevotella (BV-associated)',
+        x = 'Relative abundance'
+    ) +
+    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    theme_bw()
+
+plot_4 <- data_with_lact |> 
+    filter(taxon_name == 'genus:Lactobacillus') |> 
+    ggplot(aes(TSS, CLR)) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3, position = 'jitter'
+    ) + 
+    labs(
+        # title = 'Relative abundace vs CLR',
+        title = 'Lactobacillus (HV)',
+        x = 'Relative abundance'
+    ) +
+    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    theme_bw()
+
+plots <- ggpubr::ggarrange(
+    plot_4, plot_3, plot_1, plot_2, align = 'hv',
+    common.legend = TRUE, legend = 'bottom'
+)
+```
+
+Plotting log(CLR) vs log(Relab) of Lactobacillus, Prevotella, Actinomyces, and
+Corynebacterium.
+
+```{r}
+plot_1b <- data_with_lact |> 
+    filter(taxon_name == 'genus:Actinomyces') |> 
+    mutate(
+        study_condition = factor(
+            study_condition, levels = c('bacterial_vaginosis', 'healthy'),
+            labels = c('BV', 'HV')
+        )
+    ) |> 
+    ggplot(aes(log(TSS + 1), log(CLR + 1))) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3
+    ) + 
+    labs(
+        # title = 'Relative abundace vs CLR',
+        title = 'Actinomyces (BV-associated)',
+        x = 'log(Relative abundance + 1)'
+    ) +
+    scale_color_discrete(name = 'Condition') +
+    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    theme_bw()
+
+plot_2b <- data_with_lact |> 
+    filter(taxon_name == 'genus:Corynebacterium') |> 
+    mutate(
+        study_condition = factor(
+            study_condition, levels = c('bacterial_vaginosis', 'healthy'),
+            labels = c('BV', 'HV')
+        )
+    ) |> 
+    ggplot(aes(log(TSS + 1), log(CLR + 1))) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3
+    ) + 
+    labs(
+        # title = 'Relative abundace vs CLR',
+        title = 'Corynebacterium (BV-associated)',
+        x = 'log(Relative abundance + 1)'
+    ) +
+    scale_color_discrete(name = 'Condition') +
+    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    theme_bw()
+
+plot_3b <- data_with_lact |> 
+    filter(taxon_name == 'genus:Prevotella') |> 
+    mutate(
+        study_condition = factor(
+            study_condition, levels = c('bacterial_vaginosis', 'healthy'),
+            labels = c('BV', 'HV')
+        )
+    ) |> 
+    ggplot(aes(log(TSS + 1), log(CLR + 1))) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3
+    ) + 
+    labs(
+        # title = 'Relative abundace vs CLR',
+        title = 'Prevotella (BV-associated)',
+        x = 'log(Relative abundance + 1)'
+    ) +
+    scale_color_discrete(name = 'Condition') +
+    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    theme_bw()
+
+plot_4b <- data_with_lact |> 
+    filter(taxon_name == 'genus:Lactobacillus') |> 
+    mutate(
+        study_condition = factor(
+            study_condition, levels = c('bacterial_vaginosis', 'healthy'),
+            labels = c('BV', 'HV')
+        )
+    ) |> 
+    ggplot(aes(log(TSS + 1), log(CLR + 1))) +
+    geom_point(
+        aes(color = study_condition, size = lact_tss), 
+        alpha = 0.3
+    ) + 
+    labs(
+        # title = 'Relative abundace vs CLR',
+        title = 'Lactobacillus (HV)',
+        x = 'log(Relative abundance + 1)'
+    ) +
+    scale_color_discrete(name = 'Condition') +
+    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    theme_bw()
+
+plotsb <- ggpubr::ggarrange(
+    plot_4b, plot_3b, plot_1b, plot_2b, align = 'hv',
+    common.legend = TRUE, legend = 'bottom', 
+    labels = c('a)', 'b)', 'c)', 'd)')
+) + ggpubr::bgcolor("white")
+```
+
+```{r, eval=FALSE, include=FALSE, echo=FALSE}
+ggsave(
+    plotsb, filename = 'distributions_plot.png',
+    width = 10, height = 8
+)
 ```
 
 # Session info
