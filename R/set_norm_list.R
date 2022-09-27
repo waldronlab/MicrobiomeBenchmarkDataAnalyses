@@ -32,8 +32,9 @@ set_norm_list <- function() {
     
     normalization_methods <- tibble::tribble(
         ~fun, ~method,
-        "norm_CSS", "default",
-        "norm_CSS", "median",
+        # "norm_CSS", "default",
+        # "norm_CSS", "median",
+        "norm_CSS", "CSS",
         "norm_edgeR", "TMM",
         # "norm_edgeR", "TMMwsp",
         # "norm_edgeR", "RLE", # same as DESEq2's poscounts

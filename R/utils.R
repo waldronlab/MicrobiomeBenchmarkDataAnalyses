@@ -174,7 +174,7 @@ get_direction_cols <- function(x, conditions_col, conditions) {
     
     for (i in seq_along(effect_size_cols)) {
         if (grepl('metagenomeSeq', names(effect_size_cols)[i])) {
-            effect_size_cols[i] <- mgs
+            effect_size_cols[i] <- 'logFC'
         }
     }
     
@@ -425,8 +425,17 @@ plot_enrichment <- function(
     
     max_DA <- max(abs(summary_tbl$n))
     max_DA <- max_DA + 10
-   
-    summary_tbl %>% ggplot2::ggplot(
+    
+    summary_tbl[[enrichment_col]] <- 
+        factor(
+            summary_tbl[[enrichment_col]],
+            levels = levels_to_plot
+        )
+    
+    return(summary_tbl)
+    
+    summary_tbl %>%
+        ggplot2::ggplot(
         mapping = ggplot2::aes(x = method, y = n)
     ) +
         ggplot2::geom_col(
@@ -601,5 +610,51 @@ plot_positives <- function(x) {
     list_of_plots
 }
 
-
-
+#' Plot enrichment
+#' 
+#' \code{plot_entichment_2}
+#' 
+#' @param data A data.frame
+#' @param dir Direction
+#'
+#' @return A ggplot object.
+#' @export
+#'
+plot_enrichment_2 <- function(data, dir) {
+    data |> 
+        dplyr::mutate(
+            direction = ifelse(n > 0, dir[['up']], dir[['down']]),
+            direction = factor(direction, levels = dir),
+            taxon_annotation = factor(taxon_annotation),
+            n = ifelse(n < 0, n * -1, n)
+        ) |> 
+        ggplot2::ggplot(mapping = ggplot2::aes(method, n)) +
+        ggplot2::geom_col(
+            mapping = ggplot2::aes(method, n, fill = taxon_annotation),
+            position = ggplot2::position_dodge2(0.9, preserve = 'single')
+        ) +
+        ggplot2::geom_text(
+            mapping = ggplot2::aes(label = symb, color = taxon_annotation),
+            position = ggplot2::position_dodge2(0.9, preserve = 'single'),
+            show.legend = FALSE
+        ) +
+        ggplot2::facet_grid(
+            direction ~ method_class, space = 'free', scales = 'free_x'
+        ) +
+        ggplot2::labs(
+            x = 'Method',
+            y = 'Number of taxa'
+        ) +
+        ggplot2::scale_fill_brewer(name = 'Taxon annotaion', type = 'qual', palette = 'Set1') +
+        ggplot2::scale_color_brewer(name = 'Taxon annotation', type = 'qual', palette = 'Set1') +
+        ggplot2::theme_bw() +
+        ggplot2::theme(
+            axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+            axis.title = ggplot2::element_text(face = 'bold'),
+            legend.position = 'bottom', 
+            # legend.title = ggplot2::element_blank(),
+            strip.text = ggplot2::element_text(face = 'bold', size = 10),
+            strip.background = ggplot2::element_blank()
+            
+        )
+}

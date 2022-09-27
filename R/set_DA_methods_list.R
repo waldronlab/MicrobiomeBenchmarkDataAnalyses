@@ -72,7 +72,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         ## metagenomeSeq
         my_metagenomeseq <- benchdamic::set_metagenomeSeq(
             design = stats::as.formula(paste0("~", conditions_col)),
-            norm = c("CSSmedian"),
+            norm = c("CSS"),
             coef = 2
         ),
 
@@ -85,33 +85,35 @@ set_DA_methods_list <- function(conditions_col, conditions) {
 
         ## ALDEx2 with wilcox
         my_aldex2 <- benchdamic::set_ALDEx2(
-            conditions = conditions_col,
+            # conditions = conditions_col,
+            contrast = c(conditions_col, conditions[[2]], conditions[[1]]),
             test = "wilcox",
-            norm = "none"
+            design = conditions_col
+            # norm = "none"
         ),
 
-        ## corncob
-        my_corncob <- benchdamic::set_corncob(
-            formula = stats::as.formula(paste0("~", conditions_col)),
-            phi.formula = stats::as.formula(paste0("~", conditions_col)),
-            formula_null = ~ 1,
-            phi.formula_null = stats::as.formula(paste0("~", conditions_col)),
-            test = "Wald",
-            coefficient = paste0(conditions_col, conditions['condA']),
-            norm = "none"
-        ),
+        ## corncob Corncob stopped working and was removed from benchdamic (temporarily maybe)
+        # my_corncob <- benchdamic::set_corncob(
+        #     formula = stats::as.formula(paste0("~", conditions_col)),
+        #     phi.formula = stats::as.formula(paste0("~", conditions_col)),
+        #     formula_null = ~ 1,
+        #     phi.formula_null = stats::as.formula(paste0("~", conditions_col)),
+        #     test = "Wald",
+        #     coefficient = paste0(conditions_col, conditions['condA']),
+        #     norm = "none"
+        # ),
         
         ## MAST
         my_mast <- benchdamic::set_MAST(
             rescale = "median",
             design = stats::as.formula(paste0("~", conditions_col)),
-            coefficient = paste0(conditions_col, conditions['condA']),
-            norm = "none"
+            coefficient = paste0(conditions_col, conditions['condA'])
+            # norm = "none"
         ),
         
         ## Seurat
         my_seurat <- benchdamic::set_Seurat(
-            test.use = "wilcox",
+            test = "wilcox",
             contrast = c(conditions_col, conditions['condA'], conditions['condB']),
             norm = "none"
         ),
