@@ -144,8 +144,8 @@ enrich_plot <- plot_enrichment(
     levels_to_plot = c("hv-associated", "bv-associated"),
     conditions = c(condB = "HV", condA = "BV") 
 )
-enrich_plot <- enrich_plot +
-    labs(y = 'Number of genera')
+# enrich_plot <- enrich_plot +
+    # labs(y = 'Number of genera')
 enrich_plot
 ```
 

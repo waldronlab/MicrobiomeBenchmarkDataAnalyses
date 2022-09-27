@@ -41,7 +41,6 @@ tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 tse
 ```
 
-
 Filter data
 
 + Subjects from the same run center and the first visit.
@@ -107,7 +106,17 @@ ps
 
 ```{r run DA, message=FALSE, warning=FALSE}
 time_start <- Sys.time()
-DA_output <- run_DA(ps, conditions_col, conditions)
+
+ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
+zw <- weights_ZINB(ps, design = conditions_col)
+DA_methods <- set_DA_methods_list(conditions_col, conditions)
+
+## These methods throw an error, so they must be removed
+# DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
+
+## run methods
+DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
+
 time_end <- Sys.time()
 time_elapsed <- time_end - time_start
 time_elapsed
@@ -148,9 +157,13 @@ enrich_plot <- plot_enrichment(
     levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
     conditions = conditions
 )
-enrich_plot <- enrich_plot +
-    labs(y = 'Number of OTUs')
-enrich_plot
+
+p <- plot_enrichment_2(
+    enrich_plot, 
+    dir = c(up = 'Supragingival Plaque', down = 'Subgingival Plaque')
+)
+
+p
 ```
 
 # Putative true positives - putative false positives

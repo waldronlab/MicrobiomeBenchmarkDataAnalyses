@@ -58,7 +58,17 @@ ps
 # Run DA
 
 ```{r, message=FALSE, warning=FALSE}
-DA_output <- run_DA(ps, conditions_col, conditions)
+# DA_output <- run_DA(ps, conditions_col, conditions)
+ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
+zw <- weights_ZINB(ps, design = conditions_col)
+DA_methods <- set_DA_methods_list(conditions_col, conditions)
+
+## These methods throw an error, so they must be removed
+DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
+DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
+
+## run methods
+DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
 ```
 
 # Enrichment
@@ -96,7 +106,7 @@ enrich_plot <- plot_enrichment(
     levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
     conditions = conditions
 )
-enrich_plot +
+enrich_plot + 
     labs(y = 'Number of species')
 
 ```
