@@ -133,6 +133,7 @@ enrichment <- createEnrichment(
     alternative = "greater",
     verbose = FALSE 
 )
+
 ```
 
 Create enrichment plot
@@ -144,9 +145,13 @@ enrich_plot <- plot_enrichment(
     levels_to_plot = c("hv-associated", "bv-associated"),
     conditions = c(condB = "HV", condA = "BV") 
 )
-# enrich_plot <- enrich_plot +
-    # labs(y = 'Number of genera')
-enrich_plot
+
+enrich_plot2 <- plot_enrichment_2(
+    enrich_plot,
+    dir = c(up = 'BV', down = 'HV')
+)
+
+enrich_plot2
 ```
 
 # Plot putative true positves and true negatives ratio
@@ -660,13 +665,14 @@ ancombc |>
 MetagenomeSeq
 
 ```{r}
-metagenomeseq <- as.data.frame(DA_output$metagenomeSeq.CSSmedian$statInfo)
+metagenomeseq <- 
+    as.data.frame(DA_output$metagenomeSeq.CSS.fitFeatureModel$statInfo)
 metagenomeseq$taxon_name <- rownames(metagenomeseq)
 metagenomeseq <- left_join(metagenomeseq, taxa_annotations, by = "taxon_name") |> 
     relocate(taxon_name, taxon_annotation)
 metagenomeseq |> 
     filter(
-        adjPvalues <= 0.1, study_conditionbacterial_vaginosis < 0,
+        adjPvalues <= 0.1, logFC < 0,
            taxon_annotation == 'bv-associated'
     ) |> 
     pull(taxon_name)

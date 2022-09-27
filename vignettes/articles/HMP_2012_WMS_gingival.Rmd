@@ -106,9 +106,11 @@ enrich_plot <- plot_enrichment(
     levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
     conditions = conditions
 )
-enrich_plot + 
-    labs(y = 'Number of species')
-
+enrich_plot2 <- plot_enrichment_2(
+    enrich_plot,
+    dir = c(up = 'Supragingival Plaque', down = 'Subgingvial Plaque')
+)
+enrich_plot2
 ```
 
 # Putative true positives - putative false positives
