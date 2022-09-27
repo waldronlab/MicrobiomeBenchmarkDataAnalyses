@@ -160,7 +160,7 @@ enrich_plot <- plot_enrichment(
 
 p <- plot_enrichment_2(
     enrich_plot, 
-    dir = c(up = 'Supragingival Plaque', down = 'Subgingival Plaque')
+    dir = c(up = 'Sup Plq', down = 'Sub Plq')
 )
 
 p
