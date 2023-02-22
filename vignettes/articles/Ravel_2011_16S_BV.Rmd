@@ -1045,6 +1045,8 @@ plotsb <- ggpubr::ggarrange(
     common.legend = TRUE, legend = 'bottom', 
     labels = c('a)', 'b)', 'c)', 'd)')
 ) + ggpubr::bgcolor("white")
+
+plotsb
 ```
 
 ```{r, eval=FALSE, include=FALSE, echo=FALSE}
