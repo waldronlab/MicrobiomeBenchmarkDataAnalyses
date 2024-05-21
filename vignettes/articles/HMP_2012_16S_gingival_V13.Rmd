@@ -39,6 +39,9 @@ conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
 
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 tse
+
+## Test
+# colData(tse)$body_subsite <- sub("_", "", colData(tse)$body_subsite)
 ```
 
 Filter data
@@ -111,11 +114,32 @@ ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
+for (i in seq_along(DA_methods)) {
+    if (grepl("Seurat", names(DA_methods)[i])) {
+        names(DA_methods[[i]]$contrast) <- NULL
+    } else {
+        next
+    }
+}
+names(DA_methods)
+
+# DA_methods <- DA_methods[1]
+
 ## These methods throw an error, so they must be removed
 # DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
 
 ## run methods
-DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
+DA_output <- vector("list", length(DA_methods))
+for (i in seq_along(DA_output)) {
+    DA_output[[i]] <- tryCatch(
+        error = function(e) NULL,
+        runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
+    )
+}
+DA_output <- purrr::list_flatten(DA_output, name_spec = "{inner}")
+DA_output <- purrr::discard(DA_output, is.null)
+
+# DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
 
 time_end <- Sys.time()
 time_elapsed <- time_end - time_start
@@ -139,7 +163,7 @@ enrichment <- createEnrichment(
     enrichmentCol = "taxon_annotation",
     namesCol = "new_names",
     slot = "pValMat", colName = "adjP", type = "pvalue",
-    direction = direction,
+    # direction = direction,
     threshold_pvalue = 0.1,
     threshold_logfc = 0,
     top = NULL, # No top feature selected
@@ -176,7 +200,7 @@ positives <- createPositives(
     priorKnowledge = prior_info, 
     enrichmentCol = "taxon_annotation", namesCol = "new_names",
     slot = "pValMat", colName = "adjP", type = "pvalue",
-    direction = direction,
+    # direction = direction,
     threshold_pvalue = 1,
     threshold_logfc = 0,
     top = seq.int(from = 0, to = 50, by = 5),
