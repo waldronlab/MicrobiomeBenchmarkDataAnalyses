@@ -57,12 +57,39 @@ ps
 
 # Run DA
 
-```{r run DA, message=FALSE, warning=FALSE}
-time_start <- Sys.time()
-DA_output <- run_DA(ps, conditions_col, conditions)
-time_end <- Sys.time()
-time_elapsed <- time_end - time_start
-time_elapsed
+```{r}
+ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
+zw <- weights_ZINB(ps, design = conditions_col)
+DA_methods <- set_DA_methods_list(conditions_col, conditions)
+
+for (i in seq_along(DA_methods)) {
+    if (grepl("Seurat", names(DA_methods)[i])) {
+        names(DA_methods[[i]]$contrast) <- NULL
+    } else {
+        next
+    }
+}
+names(DA_methods)
+```
+
+Run all of the differential analysis (DA) methods:
+
+```{r, warning=FALSE, message=FALSE}
+tim <- system.time({
+    DA_output <- vector("list", length(DA_methods))
+    for (i in seq_along(DA_output)) {
+        # message(
+        #     "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
+        # )
+        DA_output[[i]] <- tryCatch(
+            error = function(e) NULL,
+            runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
+        )
+    }
+    DA_output <- purrr::list_flatten(DA_output, name_spec = "{inner}")
+    DA_output <- purrr::discard(DA_output, is.null)
+})
+tim
 ```
 
 # Enrichment
@@ -131,7 +158,7 @@ positives <- createPositives(
 
 ## Plot TP - FP 
 
-```{r, fig.height = 6, fig.width=10}
+```{r, fig.height = 10, fig.width=15}
 positive_plots <- plot_positives(positives)
 grid.arrange(grobs = positive_plots, ncol = 3)
 

@@ -257,7 +257,7 @@ positives <- createPositives(
 
 ## Plot TP - FP 
 
-```{r, fig.height = 11, fig.width=15}
+```{r, fig.height = 10, fig.width=15}
 positive_plots <- plot_positives(positives)
 grid.arrange(grobs = positive_plots, ncol = 3)
 ```
