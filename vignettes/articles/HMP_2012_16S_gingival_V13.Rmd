@@ -126,50 +126,6 @@ tse_subset <- tse[, selected_samples]
 tse_subset <- filterTaxa(tse_subset)
 tse_subset
 ```
-
-## Filter data
-
-+ Subjects from the same run center and the first visit.
-
-```{r}
-# col_data <- tse |> 
-#     colData() |> 
-#     as.data.frame() |> 
-#     as_tibble()
-# 
-# 
-# col_data_sub <-
-#     dplyr::filter(col_data, run_center == 'WUGC', visit_number == 1)
-# col_data_split <- split(col_data_sub, factor(col_data_sub$body_subsite))
-# subjects <- intersect(
-#     col_data_split$subgingival_plaque$subject_id,
-#     col_data_split$supragingival_plaque$subject_id
-# )
-# 
-# male_subjects <- dplyr::filter(
-#     col_data_sub,
-#     subject_id %in% subjects, gender == 'male'
-# ) |> 
-#     dplyr::pull(subject_id) |> 
-#     unique()
-# 
-# female_subjects <- dplyr::filter(
-#     col_data_sub,
-#     subject_id %in% subjects, gender == 'female'
-# ) |> 
-#     dplyr::pull(subject_id) |> 
-#     unique()
-# n <- min(length(male_subjects), length(female_subjects))
-# set.seed(1234)
-# select_subjects <- c(sample(male_subjects, n), sample(female_subjects, n))
-# select_samples <- rownames(col_data_sub)[
-#     col_data_sub$subject_id %in% select_subjects
-# ]
-# tse_subset <- tse[,select_samples]
-# tse_subset <- filterTaxa(tse_subset)
-# tse_subset
-```
-
 # Prior information
 
 OTU level:
@@ -212,56 +168,15 @@ for (i in seq_along(DA_methods)) {
 names(DA_methods)
 ```
 
-```{r run DA, message=FALSE, warning=FALSE}
-# time_start <- Sys.time()
-# 
-# ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
-# zw <- weights_ZINB(ps, design = conditions_col)
-# DA_methods <- set_DA_methods_list(conditions_col, conditions)
-# 
-# for (i in seq_along(DA_methods)) {
-#     if (grepl("Seurat", names(DA_methods)[i])) {
-#         names(DA_methods[[i]]$contrast) <- NULL
-#     } else {
-#         next
-#     }
-# }
-# names(DA_methods)
-
-# DA_methods <- DA_methods[1]
-
-## These methods throw an error, so they must be removed
-# DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
-
-## run methods
-# DA_output <- vector("list", length(DA_methods))
-# for (i in seq_along(DA_output)) {
-#     message("Running method ", i, " ", names(DA_methods)[i], " ", Sys.time())
-#     DA_output[[i]] <- tryCatch(
-#         error = function(e) NULL,
-#         runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
-#     )
-# }
-# Sys.time()
-# DA_output <- purrr::list_flatten(DA_output, name_spec = "{inner}")
-# DA_output <- purrr::discard(DA_output, is.null)
-
-# DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
-
-# time_end <- Sys.time()
-# time_elapsed <- time_end - time_start
-# time_elapsed
-```
-
 Run all of the differential analysis (DA) methods:
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 tim <- system.time({
     DA_output <- vector("list", length(DA_methods))
     for (i in seq_along(DA_output)) {
-        message(
-            "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
-        )
+        # message(
+        #     "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
+        # )
         DA_output[[i]] <- tryCatch(
             error = function(e) NULL,
             runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
