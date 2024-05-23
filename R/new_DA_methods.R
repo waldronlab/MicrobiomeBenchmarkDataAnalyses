@@ -498,12 +498,16 @@ DA_ancombc <- function(
     
     # Create pValMat and statInfo
     
-    features_names <- rownames(res$p_val) # names are the same for all outputs
+    # features_names <- rownames(res$p_val) # names are the same for all outputs
+    features_names <- res$p_val[[1]] # change when code of the acnbombc package changed
     
-    pValMat <- data.frame(rawP = res$p_val[[1]], adjP = res$q_val[[1]])
+    ## I had to change the column in p_val, q_val, etc from 1 to 3
+    pValMat <- data.frame(rawP = res$p_val[[3]], adjP = res$q_val[[3]])
+    pValMat <- as.data.frame(pValMat)
     rownames(pValMat) <- features_names
    
-    statInfo <- do.call('cbind', lapply(res, function(x) x[[1]]))
+    statInfo <- do.call('cbind', lapply(res, function(x) x[[3]]))
+    statInfo <- as.data.frame(statInfo)
     rownames(statInfo) <- features_names
     
     list(pValMat = pValMat, statInfo = statInfo, name = name)
