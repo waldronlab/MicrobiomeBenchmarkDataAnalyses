@@ -1,8 +1,8 @@
 ---
-title: "HMP_2012_16S_gingival_V35 - supgragingival vs sugingival plaque"
-output:
+title: " HMP_2012_16S_gingival_V13 - subgingival vs supgragingival plaque"
+output: 
     html_document:
-        toc: yes
+        toc: true
 ---
 
 ```{r, include = FALSE}
@@ -14,15 +14,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 library(MicrobiomeBenchmarkDataAnalyses)
 library(MicrobiomeBenchmarkData)
 library(mia)
 library(phyloseq)
-library(magrittr)
 library(benchdamic)
-
 library(dplyr)
+library(purrr)
 library(ggplot2)
 library(gridExtra)
 ```
@@ -39,48 +38,94 @@ conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 tse
 ```
-Filter data
 
-+ Subjects from the same run center and the first visit.
+## Exploring some of the data
 
-```{r filter data}
-col_data <- as.data.frame(colData(tse))
-col_data_sub <-
-    dplyr::filter(col_data, run_center == 'WUGC', visit_number == 1)
-col_data_split <- split(col_data_sub, factor(col_data_sub$body_subsite))
-subjects <- intersect(
-    col_data_split$subgingival_plaque$subject_id,
-    col_data_split$supragingival_plaque$subject_id
-)
+Let's convert the col_data into a tibble (jsut for ease of handling):
 
-male_subjects <- dplyr::filter(
-    col_data_sub,
-    subject_id %in% subjects, gender == 'male'
-) %>% 
-    dplyr::pull(subject_id) %>% 
-    unique()
-
-female_subjects <- dplyr::filter(
-    col_data_sub,
-    subject_id %in% subjects, gender == 'female'
-) %>% 
-    dplyr::pull(subject_id) %>% 
-    unique()
-n <- min(length(male_subjects), length(female_subjects))
-set.seed(1234)
-select_subjects <- c(sample(male_subjects, n), sample(female_subjects, n))
-select_samples <- rownames(col_data_sub)[
-    col_data_sub$subject_id %in% select_subjects
-]
-tse_subset <- tse[,select_samples]
-tse_subset <- filterTaxa(tse_subset)
-
-colData(tse_subset)[[conditions_col]] <- 
-    factor(colData(tse_subset)[[conditions_col]], levels = conditions)
-
-tse_subset
+```{r}
+col_data <- tse |> 
+    colData() |> 
+    as.data.frame() |> 
+    tibble::rownames_to_column("sample_name") |> 
+    as_tibble()
 ```
 
+Total number of subjects:
+
+```{r}
+subjects <- col_data |> 
+    pull(subject_id) |> 
+    unique()
+length(subjects)
+```
+
+The number of male and female subjects:
+
+```{r}
+col_data |> 
+    select(subject_id, gender) |> 
+    unique() |> 
+    count(gender) |> 
+    arrange(-n)
+```
+
+Number of subjects per visit number:
+
+```{r}
+col_data |> 
+    select(subject_id, visit_number) |> 
+    unique() |> 
+    count(visit_number) |> 
+    arrange(-n)
+```
+
+Number of subjects per run_center:
+
+```{r}
+col_data |> 
+    select(subject_id, run_center) |> 
+    unique() |> 
+    count(run_center) |> 
+    arrange(-n)
+```
+
+```{r}
+sample_names <- vector("list", length(subjects))
+names(sample_names) <- subjects
+for (i in seq_along(subjects))  {
+    current_subject <- subjects[i]
+    sub_dat <- col_data |> 
+        filter(subject_id == current_subject) |> 
+        slice_max(order_by = visit_number, with_ties = TRUE, n = 1)
+    if (nrow(sub_dat) < 2) {
+        next
+    }
+    
+    lgl_vct <- all(sort(sub_dat[["body_subsite"]]) == conditions)
+    if (isFALSE(lgl_vct)) {
+        next
+    }
+    sample_names[[i]] <- sub_dat
+}
+sample_names <- discard(sample_names, is.null)
+col_data_subset <- bind_rows(sample_names)
+```
+
+The number of female and male samples is still practically the same
+
+```{r}
+col_data_subset |> 
+    count(gender)
+```
+
+```{r}
+selected_samples <- col_data_subset |> 
+    pull(sample_name)
+tse_subset <- tse[, selected_samples]
+tse_subset <- filterTaxa(tse_subset)
+tse_subset
+```
 # Prior information
 
 OTU level:
@@ -95,8 +140,6 @@ prior_info <-
 head(prior_info)
 ```
 
-# Benchmarking at the OTU level
-
 Convert to phyloseq
 
 ```{r}
@@ -108,25 +151,55 @@ ps
 
 ## Differential abundance analysis
 
-```{r run DA, warning=FALSE, message=FALSE}
-time_start <- Sys.time()
-DA_output <- run_DA(ps, conditions_col, conditions)
-time_end <- Sys.time()
-elapsed_time <- time_end - time_start
-elapsed_time
+Select methods for DA:
+
+```{r}
+ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
+zw <- weights_ZINB(ps, design = conditions_col)
+DA_methods <- set_DA_methods_list(conditions_col, conditions)
+
+for (i in seq_along(DA_methods)) {
+    if (grepl("Seurat", names(DA_methods)[i])) {
+        names(DA_methods[[i]]$contrast) <- NULL
+    } else {
+        next
+    }
+}
+names(DA_methods)
 ```
 
-# Enrichment analysis
+Run all of the differential analysis (DA) methods:
 
-Get direction 
+```{r, warning=FALSE, message=FALSE}
+tim <- system.time({
+    DA_output <- vector("list", length(DA_methods))
+    for (i in seq_along(DA_output)) {
+        # message(
+        #     "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
+        # )
+        DA_output[[i]] <- tryCatch(
+            error = function(e) NULL,
+            runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
+        )
+    }
+    DA_output <- purrr::list_flatten(DA_output, name_spec = "{inner}")
+    DA_output <- purrr::discard(DA_output, is.null)
+})
+tim
+```
+
+## Enrichment analysis
+
+Get the column name indicating the direction of the features
+(increased or decreased). This is the stats output.
 
 ```{r}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
 ```
 
-## Enrichment (FDR <= 0.1)
+## Enrichment (adjP <= 0.1)
 
-```{r}
+```{r enrichment}
 enrichment <- createEnrichment(
     object = DA_output,
     priorKnowledge = prior_info,
@@ -151,11 +224,11 @@ enrich_plot <- plot_enrichment(
     levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
     conditions = conditions
 )
-enrich_plot2 <- plot_enrichment_2(
-    enrich_plot,
+p <- plot_enrichment_2(
+    enrich_plot, 
     dir = c(up = 'Sup Plq', down = 'Sub Plq')
 )
-enrich_plot2
+p
 ```
 
 # Putative true positives - putative false positives
@@ -164,11 +237,13 @@ enrich_plot2
 
 ```{r}
 positives <- createPositives(
-    object = DA_output, 
+    # object = DA_output, 
+    object = DA_output[c(1:10, 12:15)],
     priorKnowledge = prior_info, 
     enrichmentCol = "taxon_annotation", namesCol = "new_names",
     slot = "pValMat", colName = "adjP", type = "pvalue",
-    direction = direction,
+    # direction = direction,
+    direction = direction[c(1:10, 12:15)],
     threshold_pvalue = 1,
     threshold_logfc = 0,
     top = seq.int(from = 0, to = 50, by = 5),
@@ -182,14 +257,13 @@ positives <- createPositives(
 
 ## Plot TP - FP 
 
-```{r, fig.width=10, fig.height=6}
+```{r, fig.height = 11, fig.width=15}
 positive_plots <- plot_positives(positives)
 grid.arrange(grobs = positive_plots, ncol = 3)
 ```
 
-# Session info
+# Session Info
 
 ```{r}
 sessionInfo()
 ```
-
