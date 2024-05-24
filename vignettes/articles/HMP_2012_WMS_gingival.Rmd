@@ -14,8 +14,10 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(MicrobiomeBenchmarkDataAnalyses)
 library(MicrobiomeBenchmarkData)
 library(mia)
+library(phyloseq)
 library(benchdamic)
 library(dplyr)
+library(purrr)
 library(ggplot2)
 library(gridExtra)
 ```
@@ -32,7 +34,6 @@ tse <- filterTaxa(tse)
 
 colData(tse)[[conditions_col]] <- 
     factor(colData(tse)[[conditions_col]], levels = conditions)
-
 tse
 ```
 
@@ -55,20 +56,57 @@ phyloseq::sample_data(ps)$body_subsite <-
 ps
 ```
 
-# Run DA
+## Differential abundance analysis
+
+Select methods for DA:
 
 ```{r, message=FALSE, warning=FALSE}
-# DA_output <- run_DA(ps, conditions_col, conditions)
 ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
+for (i in seq_along(DA_methods)) {
+    if (grepl("Seurat", names(DA_methods)[i])) {
+        names(DA_methods[[i]]$contrast) <- NULL
+    } else {
+        next
+    }
+}
+names(DA_methods)
+```
+
+```{r, warning=FALSE, message=FALSE}
+tim <- system.time({
+    DA_output <- vector("list", length(DA_methods))
+    for (i in seq_along(DA_output)) {
+        message(
+            "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
+        )
+        DA_output[[i]] <- tryCatch(
+            error = function(e) NULL,
+            runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
+        )
+    }
+    DA_output <- purrr::list_flatten(DA_output, name_spec = "{inner}")
+    DA_output <- purrr::discard(DA_output, is.null)
+})
+tim
+```
+
+# Run DA
+
+```{r, message=FALSE, warning=FALSE}
+# DA_output <- run_DA(ps, conditions_col, conditions)
+# ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
+# zw <- weights_ZINB(ps, design = conditions_col)
+# DA_methods <- set_DA_methods_list(conditions_col, conditions)
+
 ## These methods throw an error, so they must be removed
-DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
-DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
+# DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
+# DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
 
 ## run methods
-DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
+# DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
 ```
 
 # Enrichment
