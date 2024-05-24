@@ -170,13 +170,13 @@ names(DA_methods)
 
 Run all of the differential analysis (DA) methods:
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE}
 tim <- system.time({
     DA_output <- vector("list", length(DA_methods))
     for (i in seq_along(DA_output)) {
-        # message(
-        #     "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
-        # )
+        message(
+            "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
+        )
         DA_output[[i]] <- tryCatch(
             error = function(e) NULL,
             runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
@@ -257,7 +257,7 @@ positives <- createPositives(
 
 ## Plot TP - FP 
 
-```{r, fig.height = 11, fig.width=15}
+```{r, fig.height = 10, fig.width=15}
 positive_plots <- plot_positives(positives)
 grid.arrange(grobs = positive_plots, ncol = 3)
 ```
