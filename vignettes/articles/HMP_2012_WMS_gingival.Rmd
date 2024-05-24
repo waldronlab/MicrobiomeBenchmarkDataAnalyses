@@ -79,7 +79,7 @@ DA_methods <- DA_methods[!names(DA_methods) == 'DA_edgeR.1']
 names(DA_methods)
 ```
 
-```{r, warning=FALSE, message=TRU}
+```{r, warning=FALSE, message=TRUE}
 tim <- system.time({
     DA_output <- vector("list", length(DA_methods))
     for (i in seq_along(DA_output)) {
