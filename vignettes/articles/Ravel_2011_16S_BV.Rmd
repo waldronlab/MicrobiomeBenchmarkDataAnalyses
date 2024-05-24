@@ -94,19 +94,61 @@ methods added to the original workflow and modified plots.
 
 ## Run differential abundance analysis
 
+
 DA analysis:
 
-```{r run DA benchdamic, message=FALSE, warning=FALSE}
+```{r}
 ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
+for (i in seq_along(DA_methods)) {
+    if (grepl("Seurat", names(DA_methods)[i])) {
+        names(DA_methods[[i]]$contrast) <- NULL
+    } else {
+        next
+    }
+}
+# These methods throw an error, so they must be removed
+# DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
+# DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
+# DA_methods <- DA_methods[!names(DA_methods) == 'DA_edgeR.1']
+names(DA_methods)
+```
+
+
+
+```{r, warning=FALSE, message=TRUE}
+tim <- system.time({
+    DA_output <- vector("list", length(DA_methods))
+    for (i in seq_along(DA_output)) {
+        message(
+            "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
+        )
+        DA_output[[i]] <- tryCatch(
+            error = function(e) NULL,
+            runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
+        )
+    }
+    DA_output <- purrr::list_flatten(DA_output, name_spec = "{inner}")
+    DA_output <- purrr::discard(DA_output, is.null)
+})
+tim
+```
+
+
+
+```{r run DA benchdamic, message=FALSE, warning=FALSE}
+# ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
+# zw <- weights_ZINB(ps, design = conditions_col)
+# DA_methods <- set_DA_methods_list(conditions_col, conditions)
+
 ## These methods throw an error, so they must be removed
-DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
-DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
+# DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
+# DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
 
 ## run methods
-DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
+# DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
 ```
 
 # Enrichment
@@ -179,7 +221,7 @@ positives <- createPositives(
 
 Create putative positives plot
 
-```{r plot positves, fig.width=10, fig.height=6}
+```{r plot positves, fig.width=15, fig.height=10}
 plots <- plot_positives(positives)
 grid.arrange(grobs = plots, ncol = 3)
 ```
@@ -205,7 +247,8 @@ assay(tse_genus, 'TSS + CLR') <- apply(assay(tse_genus, 'TSS'), 2, function(x) {
     # log(x / exp(mean(log(x))))
 })
 
-data <- tidySummarizedExperiment::as_tibble(tse_genus) |> 
+data <- tse_genus |> 
+    as_tibble() |> 
     rename(taxon_name = .feature, sample = .sample) |> 
     mutate(
         taxon_annotation = ifelse(
