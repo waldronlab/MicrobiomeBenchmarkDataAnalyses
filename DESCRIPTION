@@ -17,9 +17,9 @@ Suggests:
     knitr,
     MicrobiomeBenchmarkData,
     rmarkdown,
-    tidySummarizedExperiment
+    tidySummarizedExperiment,
+    ggpubr
 Remotes:
-    waldronlab/MicrobiomeBenchmarkData,
     sdgamboa/ZINQ,
     mcalgaro93/benchdamic
 Imports: 
