@@ -20,7 +20,7 @@ BiocManager::install("waldronlab/MicrobiomeBenchmarkDataAnalyses")
 # Links
 
 + Data on Zenodo: https://zenodo.org/record/6911027
-+ R package on Bioconductor: <<<Insert link here when created>>>
++ R package on Bioconductor: https://www.bioconductor.org/packages/release/data/experiment/html/MicrobiomeBenchmarkData.html
 + R package source code: https://github.com/waldronlab/MicrobiomeBenchmarkData
 + R package issues: https://github.com/waldronlab/MicrobiomeBenchmarkData/issues
 + Scripts for preparing the datasets: https://github.com/waldronlab/MicrobiomeBenchmarkDataPrep
