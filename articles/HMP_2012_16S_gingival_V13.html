@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MicrobiomeBenchmarkDataAnalyses</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.3</span>
       </span>
     </div>
 
@@ -334,7 +334,7 @@ same</p>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="va">tim</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt; 252.422  34.306 256.066</span></span></code></pre></div>
+<span><span class="co">#&gt; 251.701  31.621 252.622</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="enrichment-analysis">Enrichment analysis<a class="anchor" aria-label="anchor" href="#enrichment-analysis"></a>
@@ -389,12 +389,12 @@ same</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createPositives.html" class="external-link">createPositives</a></span><span class="op">(</span></span>
 <span>    <span class="co"># object = DA_output, </span></span>
-<span>    object <span class="op">=</span> <span class="va">DA_output</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">12</span><span class="op">:</span><span class="fl">15</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>    object <span class="op">=</span> <span class="va">DA_output</span>,</span>
 <span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>, </span>
 <span>    enrichmentCol <span class="op">=</span> <span class="st">"taxon_annotation"</span>, namesCol <span class="op">=</span> <span class="st">"new_names"</span>,</span>
 <span>    slot <span class="op">=</span> <span class="st">"pValMat"</span>, colName <span class="op">=</span> <span class="st">"adjP"</span>, type <span class="op">=</span> <span class="st">"pvalue"</span>,</span>
 <span>    <span class="co"># direction = direction,</span></span>
-<span>    direction <span class="op">=</span> <span class="va">direction</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">12</span><span class="op">:</span><span class="fl">15</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>    direction <span class="op">=</span> <span class="va">direction</span>,</span>
 <span>    threshold_pvalue <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    threshold_logfc <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>    top <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">50</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
@@ -468,7 +468,7 @@ same</p>
 <span><span class="co">#&gt; [23] BiocGenerics_0.50.0                   </span></span>
 <span><span class="co">#&gt; [24] MatrixGenerics_1.16.0                 </span></span>
 <span><span class="co">#&gt; [25] matrixStats_1.3.0                     </span></span>
-<span><span class="co">#&gt; [26] MicrobiomeBenchmarkDataAnalyses_0.99.2</span></span>
+<span><span class="co">#&gt; [26] MicrobiomeBenchmarkDataAnalyses_0.99.3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;   [1] igraph_2.0.3                ica_1.0-3                  </span></span>
