@@ -1,5 +1,5 @@
 ---
-title: " HMP_2012_16S_gingival_V13 - subgingival vs supgragingival plaque"
+title: " HMP_2012_16S_gingival_V35 - subgingival vs supgragingival plaque"
 output: 
     html_document:
         toc: true
