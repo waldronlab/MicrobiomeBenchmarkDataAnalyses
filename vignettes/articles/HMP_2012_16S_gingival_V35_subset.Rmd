@@ -17,6 +17,7 @@ library(benchdamic)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
+library(purrr)
 ```
 
 # Import data
