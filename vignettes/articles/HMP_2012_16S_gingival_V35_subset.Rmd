@@ -159,7 +159,16 @@ positives <- createPositives(
 ## Plot TP - FP 
 
 ```{r, fig.height = 10, fig.width=15}
-positive_plots <- plot_positives(positives)
+positive_plots <- plot_positives(positives) |> 
+    map( ~ {
+        .x +
+            theme(
+                axis.title = element_text(size = 17),
+                axis.text = element_text(size = 15),
+                legend.text = element_text(size = 13),
+                strip.text = element_text(size = 17)
+            )
+    })
 grid.arrange(grobs = positive_plots, ncol = 3)
 
 ```
