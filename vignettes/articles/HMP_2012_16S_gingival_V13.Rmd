@@ -238,12 +238,12 @@ p
 ```{r}
 positives <- createPositives(
     # object = DA_output, 
-    object = DA_output[c(1:10, 12:15)],
+    object = DA_output,
     priorKnowledge = prior_info, 
     enrichmentCol = "taxon_annotation", namesCol = "new_names",
     slot = "pValMat", colName = "adjP", type = "pvalue",
     # direction = direction,
-    direction = direction[c(1:10, 12:15)],
+    direction = direction,
     threshold_pvalue = 1,
     threshold_logfc = 0,
     top = seq.int(from = 0, to = 50, by = 5),
