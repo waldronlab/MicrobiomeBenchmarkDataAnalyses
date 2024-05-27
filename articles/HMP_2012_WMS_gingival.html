@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MicrobiomeBenchmarkDataAnalyses</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -59,7 +59,7 @@
       <a href="../articles/HMP_2012_16S_gingival_V35_subset.html">HMP_2012_16S_gingival_V35_subset - subgingival vs supragingival</a>
     </li>
     <li>
-      <a href="../articles/HMP_2012_16S_gingival_V35.html"> HMP_2012_16S_gingival_V13 - subgingival vs supgragingival plaque</a>
+      <a href="../articles/HMP_2012_16S_gingival_V35.html"> HMP_2012_16S_gingival_V35 - subgingival vs supgragingival plaque</a>
     </li>
     <li>
       <a href="../articles/HMP_2012_WMS_gingival.html">HMP_2012_WMS_gingiva - Supragingival vs subgingival plaque</a>
@@ -230,14 +230,14 @@ subgingival plaque</h1>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_flatten.html" class="external-link">list_flatten</a></span><span class="op">(</span><span class="va">DA_output</span>, name_spec <span class="op">=</span> <span class="st">"{inner}"</span><span class="op">)</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/keep.html" class="external-link">discard</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">is.null</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-05-27 17:14:43.227918</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-05-27 17:14:48.282429</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-05-27 17:14:54.835067</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-05-27 17:14:54.857368</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-05-27 17:14:54.872844</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-05-27 17:14:55.351612</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-05-27 17:14:57.118893</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-05-27 17:14:58.395369</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-05-27 17:15:35.007814</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-05-27 17:15:40.083429</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-05-27 17:15:46.668658</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-05-27 17:15:46.693255</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-05-27 17:15:46.708691</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-05-27 17:15:47.171268</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-05-27 17:15:48.972211</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-05-27 17:15:50.253315</span></span></code></pre>
 <pre><code><span><span class="co">## For a (much!) faster implementation of the Wilcoxon Rank Sum Test,</span></span>
 <span><span class="co">## (default method for FindMarkers) please install the presto package</span></span>
 <span><span class="co">## --------------------------------------------</span></span>
@@ -247,7 +247,7 @@ subgingival plaque</h1>
 <span><span class="co">## After installation of presto, Seurat will automatically use the more </span></span>
 <span><span class="co">## efficient implementation (no further action necessary).</span></span>
 <span><span class="co">## This message will be shown once per session</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-05-27 17:14:58.858681</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-05-27 17:15:50.710372</span></span></code></pre>
 <pre><code><span><span class="co">## 'ancombc' has been fully evolved to 'ancombc2'. </span></span>
 <span><span class="co">## Explore the enhanced capabilities of our refined method!</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: foreach</span></span></code></pre>
@@ -257,16 +257,16 @@ subgingival plaque</h1>
 <span><span class="co">## </span></span>
 <span><span class="co">##     accumulate, when</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: rngtools</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-05-27 17:15:22.027391</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-05-27 17:15:22.199069</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-05-27 17:15:22.323756</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-05-27 17:15:23.209333</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-05-27 17:15:23.955345</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-05-27 17:15:25.526003</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-05-27 17:16:14.623169</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-05-27 17:16:14.798759</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-05-27 17:16:14.927735</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-05-27 17:16:15.83209</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-05-27 17:16:16.604476</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-05-27 17:16:18.208625</span></span></code></pre>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  45.340   8.216  44.284</span></span></code></pre>
+<span><span class="co">##  46.262   8.087  45.211</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -397,7 +397,7 @@ subgingival plaque</h1>
 <span><span class="co">## [23] BiocGenerics_0.50.0                   </span></span>
 <span><span class="co">## [24] MatrixGenerics_1.16.0                 </span></span>
 <span><span class="co">## [25] matrixStats_1.3.0                     </span></span>
-<span><span class="co">## [26] MicrobiomeBenchmarkDataAnalyses_0.99.1</span></span>
+<span><span class="co">## [26] MicrobiomeBenchmarkDataAnalyses_0.99.2</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] igraph_2.0.3                ica_1.0-3                  </span></span>
