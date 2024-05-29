@@ -1013,7 +1013,7 @@ plots <- ggpubr::ggarrange(
 Plotting log(CLR) vs log(Relab) of Lactobacillus, Prevotella, Actinomyces, and
 Corynebacterium.
 
-```{r}
+```{r, fig.height=5, fig.width=7}
 plot_1b <- data_with_lact |> 
     filter(taxon_name == 'genus:Actinomyces') |> 
     mutate(
@@ -1106,7 +1106,8 @@ plotsb <- ggpubr::ggarrange(
     plot_4b, plot_3b, plot_1b, plot_2b, align = 'hv',
     common.legend = TRUE, legend = 'bottom', 
     labels = c('a)', 'b)', 'c)', 'd)')
-) + ggpubr::bgcolor("white")
+) 
+    # ggpubr::bgcolor("white")
 
 plotsb
 ```
