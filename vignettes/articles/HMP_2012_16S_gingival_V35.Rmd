@@ -227,7 +227,13 @@ enrich_plot <- plot_enrichment(
 p <- plot_enrichment_2(
     enrich_plot, 
     dir = c(up = 'Sup Plq', down = 'Sub Plq')
-)
+) +
+    theme(
+        axis.title = element_text(size = 17),
+        axis.text = element_text(size = 15),
+        legend.text = element_text(size = 13),
+        strip.text = element_text(size = 17)
+    )
 p
 ```
 
@@ -268,7 +274,12 @@ positive_plots <- plot_positives(positives) |>
                 strip.text = element_text(size = 17)
             )
     })
-grid.arrange(grobs = positive_plots, ncol = 3)
+k <- grid.arrange(grobs = positive_plots, ncol = 3)
+```
+
+
+```{r, fig.width=15, fig.height=15, warning=FALSE}
+ggarrange(p, k, ncol = 1, labels = c("a)", "b)"), heights = c(8, 10))
 ```
 
 # Session Info
