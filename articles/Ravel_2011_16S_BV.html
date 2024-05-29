@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MicrobiomeBenchmarkDataAnalyses</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.8</span>
       </span>
     </div>
 
@@ -113,6 +113,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">gridExtra</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rpkgs.datanovia.com/ggpubr/" class="external-link">ggpubr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stemangiola/tidySummarizedExperiment" class="external-link">tidySummarizedExperiment</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
@@ -255,16 +256,16 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_flatten.html" class="external-link">list_flatten</a></span><span class="op">(</span><span class="va">DA_output</span>, name_spec <span class="op">=</span> <span class="st">"{inner}"</span><span class="op">)</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/keep.html" class="external-link">discard</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">is.null</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running method 1: DA_edgeR.1 - 2024-05-29 18:31:25.435113</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 2: DA_edgeR.1 - 2024-05-29 18:31:25.601359</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 3: DA_DESeq2.1 - 2024-05-29 18:31:25.752331</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 4: DA_DESeq2.1 - 2024-05-29 18:31:28.817655</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 5: DA_limma.1 - 2024-05-29 18:31:31.924849</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 6: DA_limma.1 - 2024-05-29 18:31:31.938529</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 7: DA_metagenomeSeq.1 - 2024-05-29 18:31:31.945742</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 8: DA_ALDEx2.1 - 2024-05-29 18:31:32.16456</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 9: DA_MAST.1 - 2024-05-29 18:31:33.128345</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 10: DA_Seurat.1 - 2024-05-29 18:31:33.719315</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 1: DA_edgeR.1 - 2024-05-29 20:06:21.607167</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 2: DA_edgeR.1 - 2024-05-29 20:06:21.769817</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 3: DA_DESeq2.1 - 2024-05-29 20:06:21.856462</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 4: DA_DESeq2.1 - 2024-05-29 20:06:24.952644</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 5: DA_limma.1 - 2024-05-29 20:06:28.025464</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 6: DA_limma.1 - 2024-05-29 20:06:28.039479</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 7: DA_metagenomeSeq.1 - 2024-05-29 20:06:28.046904</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 8: DA_ALDEx2.1 - 2024-05-29 20:06:28.243421</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 9: DA_MAST.1 - 2024-05-29 20:06:29.231439</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 10: DA_Seurat.1 - 2024-05-29 20:06:29.817428</span></span></code></pre>
 <pre><code><span><span class="co">## For a (much!) faster implementation of the Wilcoxon Rank Sum Test,</span></span>
 <span><span class="co">## (default method for FindMarkers) please install the presto package</span></span>
 <span><span class="co">## --------------------------------------------</span></span>
@@ -274,7 +275,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span><span class="co">## After installation of presto, Seurat will automatically use the more </span></span>
 <span><span class="co">## efficient implementation (no further action necessary).</span></span>
 <span><span class="co">## This message will be shown once per session</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 11: ancombc.1 - 2024-05-29 18:31:34.262525</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 11: ancombc.1 - 2024-05-29 20:06:30.283442</span></span></code></pre>
 <pre><code><span><span class="co">## 'ancombc' has been fully evolved to 'ancombc2'. </span></span>
 <span><span class="co">## Explore the enhanced capabilities of our refined method!</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: foreach</span></span></code></pre>
@@ -284,16 +285,16 @@ new DA methods added to the original workflow and modified plots.</p>
 <span><span class="co">## </span></span>
 <span><span class="co">##     accumulate, when</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: rngtools</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 12: wilcox.3 - 2024-05-29 18:31:37.728216</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 13: wilcox.4 - 2024-05-29 18:31:37.778863</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 14: ZINQ.9 - 2024-05-29 18:31:37.805573</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 15: ZINQ.10 - 2024-05-29 18:31:38.187811</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 16: lefse.12 - 2024-05-29 18:31:38.335785</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 17: lefse.13 - 2024-05-29 18:31:38.691678</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 12: wilcox.3 - 2024-05-29 20:06:33.720887</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 13: wilcox.4 - 2024-05-29 20:06:33.77218</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 14: ZINQ.9 - 2024-05-29 20:06:33.803789</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 15: ZINQ.10 - 2024-05-29 20:06:34.194734</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 16: lefse.12 - 2024-05-29 20:06:34.342132</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 17: lefse.13 - 2024-05-29 20:06:35.851288</span></span></code></pre>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  13.674   1.674  13.681</span></span></code></pre>
+<span><span class="co">##  14.728   1.553  14.627</span></span></code></pre>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ps &lt;- runNormalizations(set_norm_list(), ps, verbose = FALSE)</span></span>
 <span><span class="co"># zw &lt;- weights_ZINB(ps, design = conditions_col)</span></span>
@@ -340,8 +341,13 @@ new DA methods added to the original workflow and modified plots.</p>
 <span><span class="va">enrich_plot2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_enrichment_2.html">plot_enrichment_2</a></span><span class="op">(</span></span>
 <span>    <span class="va">enrich_plot</span>,</span>
 <span>    dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>up <span class="op">=</span> <span class="st">'BV'</span>, down <span class="op">=</span> <span class="st">'HV'</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>        axis.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">17</span><span class="op">)</span>,</span>
+<span>        axis.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>,</span>
+<span>        legend.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>,</span>
+<span>        strip.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">17</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
 <span><span class="va">enrich_plot2</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/enrichment%20plot-1.png" width="700"></p>
 </div>
@@ -368,14 +374,26 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/relocate.html" class="external-link">relocate</a></span><span class="op">(</span><span class="va">method_class</span><span class="op">)</span></span></code></pre></div>
 <p>Create putative positives plot</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_positives.html">plot_positives</a></span><span class="op">(</span><span class="va">positives</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">grid.arrange</a></span><span class="op">(</span>grobs <span class="op">=</span> <span class="va">plots</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_positives.html">plot_positives</a></span><span class="op">(</span><span class="va">positives</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span> <span class="op">~</span> <span class="op">{</span></span>
+<span>        <span class="va">.x</span> <span class="op">+</span></span>
+<span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>                axis.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">17</span><span class="op">)</span>,</span>
+<span>                axis.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>,</span>
+<span>                legend.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>,</span>
+<span>                strip.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">17</span><span class="op">)</span></span>
+<span>            <span class="op">)</span></span>
+<span>    <span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">grid.arrange</a></span><span class="op">(</span>grobs <span class="op">=</span> <span class="va">plots</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/plot%20positves-1.png" width="1440"></p>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span><span class="va">enrich_plot2</span>, <span class="va">k</span>, ncol <span class="op">=</span> <span class="fl">1</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a)"</span>, <span class="st">"b)"</span><span class="op">)</span>, heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-4-1.png" width="1440"></p>
 </div>
 <div class="section level2">
 <h2 id="perform-da-with-lefse-wilcox-and-zinq-cauchy-manually">Perform DA with lefse, Wilcox, and ZINQ-Cauchy manually<a class="anchor" aria-label="anchor" href="#perform-da-with-lefse-wilcox-and-zinq-cauchy-manually"></a>
 </h2>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Relative abundance (TSS - total sum scaling)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">'TSS'</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span> </span>
@@ -422,7 +440,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <h3 id="wilcox">Wilcox<a class="anchor" aria-label="anchor" href="#wilcox"></a>
 </h3>
 <p>Define function:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">calcWilcox</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span>, <span class="va">val_col</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    </span>
 <span>    <span class="co">## Separate components</span></span>
@@ -481,7 +499,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">pval_results</span>, <span class="va">taxa_annotations</span>, by <span class="op">=</span> <span class="st">'taxon_name'</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Perform statistical test:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    wilcox_counts <span class="op">=</span> <span class="fu">calcWilcox</span><span class="op">(</span><span class="va">data</span>, <span class="st">'counts'</span><span class="op">)</span>,</span>
 <span>    wilcox_relab <span class="op">=</span> <span class="fu">calcWilcox</span><span class="op">(</span><span class="va">data</span>, <span class="st">'TSS'</span><span class="op">)</span>,</span>
@@ -490,12 +508,12 @@ new DA methods added to the original workflow and modified plots.</p>
 <span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span>.id <span class="op">=</span> <span class="st">'method'</span><span class="op">)</span></span></code></pre></div>
 <p>Filter DA taxa</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox_DA</span> <span class="op">&lt;-</span> <span class="va">wilcox</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">logFC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>DA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"OA"</span>, <span class="st">"UA"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Plot</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">!=</span> <span class="st">'Unannotated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">taxon_annotation</span>, <span class="va">DA</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -511,7 +529,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">11</span><span class="op">)</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">11</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/plot%20numbers%20of%20taxa-1.png" width="700"></p>
 <p>Plot the abundances of the taxa that were incorrect</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">incorrect_taxa_wilcox_clr</span> <span class="op">&lt;-</span> <span class="va">wilcox_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">method</span> <span class="op">==</span> <span class="st">'wilcox_clr'</span>, <span class="va">DA</span> <span class="op">==</span> <span class="st">'UA'</span>, </span>
@@ -521,7 +539,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span><span class="va">incorrect_taxa_wilcox_clr</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "genus:Actinomyces"     "genus:Corynebacterium"</span></span></code></pre>
 <p>Let’s plot their values for each matrix</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">transformations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'counts'</span>, <span class="st">'TSS'</span>, <span class="st">'CLR'</span>, <span class="st">'TSS + CLR'</span><span class="op">)</span></span>
 <span><span class="va">l1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">'list'</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">transformations</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">l1</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">transformations</span></span>
@@ -544,7 +562,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Row 1 of `y` matches multiple rows in `x`.</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> If a many-to-many relationship is expected, set `relationship =</span></span>
 <span><span class="co">##   "many-to-many"` to silence this warning.</span></span></code></pre>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">wilcox_raw</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
 <span><span class="co">##   transformation taxon_name        sample value study_condition    </span></span>
@@ -556,7 +574,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span><span class="co">## <span style="color: #BCBCBC;">5</span> counts         genus:Actinomyces S250       0 bacterial_vaginosis</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">6</span> counts         genus:Actinomyces S250       0 bacterial_vaginosis</span></span></code></pre>
 <p>Box plot of incorrect values:</p>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox_genus_plot</span> <span class="op">&lt;-</span> <span class="va">wilcox_raw</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">'genus:'</span>, <span class="st">''</span>, <span class="va">taxon_name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">value</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -584,7 +602,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="op">)</span></span>
 <span><span class="va">wilcox_genus_plot</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/plot%20abundance%20values-1.png" width="700"></p>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stats</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">'genus:'</span>, <span class="st">''</span>, <span class="va">taxon_name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Actinomyces'</span>, <span class="st">'Corynebacterium'</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -709,7 +727,7 @@ new DA methods added to the original workflow and modified plots.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>        sig <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="st">'*'</span>, <span class="st">''</span><span class="op">)</span></span>
@@ -734,7 +752,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <h3 id="lefse">Lefse<a class="anchor" aria-label="anchor" href="#lefse"></a>
 </h3>
 <p>Define a function for running Lefse:</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">calcLefse</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span>, <span class="va">assay</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lefser2.html">lefser2</a></span><span class="op">(</span></span>
 <span>        <span class="va">dat</span>, kruskal.threshold <span class="op">=</span> <span class="fl">0.05</span>, wilcox.threshold <span class="op">=</span> <span class="fl">0.05</span>, </span>
@@ -759,7 +777,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="co">#     )</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Run lefse</p>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">taxa_annotations</span> <span class="op">&lt;-</span></span>
 <span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">'taxon'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">lefse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -790,12 +808,12 @@ new DA methods added to the original workflow and modified plots.</p>
 <span><span class="co">## 4 4.322222e-03 OA    bv-associated</span></span>
 <span><span class="co">## 5 1.185359e-05 OA    bv-associated</span></span>
 <span><span class="co">## 6 2.958526e-06 OA      Unannotated</span></span></code></pre>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lefse_DA</span> <span class="op">&lt;-</span> <span class="va">lefse</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">scores</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>DA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">scores</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"OA"</span>, <span class="st">"UA"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Plot lefse results:</p>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lefse_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">!=</span> <span class="st">'Unannotated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">taxon_annotation</span>, <span class="va">DA</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -809,8 +827,8 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>        y <span class="op">=</span> <span class="st">'Number of DA taxa'</span>, x <span class="op">=</span> <span class="st">'Transformation method'</span> </span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">11</span><span class="op">)</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">11</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">incorrect_taxa_lefse_clr</span> <span class="op">&lt;-</span> <span class="va">lefse_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">method</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'lefse_clr'</span>, <span class="st">'lefse_relab_clr'</span><span class="op">)</span>, <span class="va">DA</span> <span class="op">==</span> <span class="st">'UA'</span>, </span>
@@ -824,7 +842,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <div class="section level3">
 <h3 id="zinq">ZINQ<a class="anchor" aria-label="anchor" href="#zinq"></a>
 </h3>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">calcZINQ</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span>, <span class="va">val_col</span>, <span class="va">y_Cord</span> <span class="op">=</span> <span class="st">'D'</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">dat</span>, <span class="va">dat</span><span class="op">$</span><span class="va">taxon_name</span><span class="op">)</span></span>
 <span>    <span class="va">taxa_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">taxa</span><span class="op">)</span></span>
@@ -896,7 +914,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    </span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Run ZINQ</p>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">zinq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    zinq_counts <span class="op">=</span> <span class="fu">calcZINQ</span><span class="op">(</span><span class="va">data</span>, <span class="st">'counts'</span>, y_Cord <span class="op">=</span> <span class="st">'D'</span><span class="op">)</span>,</span>
 <span>    zinq_relab <span class="op">=</span> <span class="fu">calcZINQ</span><span class="op">(</span><span class="va">data</span>, <span class="st">'TSS'</span>, y_Cord <span class="op">=</span> <span class="st">'C'</span><span class="op">)</span>,</span>
@@ -913,7 +931,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">logFC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>DA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"OA"</span>, <span class="st">"UA"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Plot ZINQ results</p>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">zinq_plot</span> <span class="op">&lt;-</span> <span class="va">zinq_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">!=</span> <span class="st">'Unannotated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">taxon_annotation</span>, <span class="va">DA</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -928,8 +946,8 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">13</span><span class="op">)</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">13</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">zinq_plot</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
-<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">incorrect_taxa_lefse_clr</span> <span class="op">&lt;-</span> <span class="va">zinq_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">method</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'zinq_clr'</span>, <span class="st">'zinq_relab_clr'</span><span class="op">)</span>, <span class="va">DA</span> <span class="op">==</span> <span class="st">'UA'</span>, </span>
@@ -945,7 +963,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <h2 id="ancom-bc-metagenomeseq-and-deseq2">ANCOM-BC, MetagenomeSeq, and DESEQ2<a class="anchor" aria-label="anchor" href="#ancom-bc-metagenomeseq-and-deseq2"></a>
 </h2>
 <p>ANCOM-BC</p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ancombc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">ancombc.none</span><span class="op">$</span><span class="va">statInfo</span><span class="op">)</span></span>
 <span><span class="va">ancombc</span><span class="op">$</span><span class="va">taxon_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ancombc</span><span class="op">)</span></span>
 <span><span class="va">ancombc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">ancombc</span>, <span class="va">taxa_annotations</span>, by <span class="op">=</span> <span class="st">"taxon_name"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -955,7 +973,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">taxon_name</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "genus:Staphylococcus"  "genus:Corynebacterium" "genus:Actinomyces"</span></span></code></pre>
 <p>MetagenomeSeq</p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metagenomeseq</span> <span class="op">&lt;-</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">metagenomeSeq.CSS.fitFeatureModel</span><span class="op">$</span><span class="va">statInfo</span><span class="op">)</span></span>
 <span><span class="va">metagenomeseq</span><span class="op">$</span><span class="va">taxon_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">metagenomeseq</span><span class="op">)</span></span>
@@ -969,7 +987,7 @@ new DA methods added to the original workflow and modified plots.</p>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">taxon_name</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "genus:Corynebacterium"</span></span></code></pre>
 <p>DESEQ2</p>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">deseq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">DESeq2.poscounts</span><span class="op">$</span><span class="va">statInfo</span><span class="op">)</span></span>
 <span><span class="va">deseq</span><span class="op">$</span><span class="va">taxon_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">deseq</span><span class="op">)</span></span>
 <span><span class="va">deseq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">deseq</span>, <span class="va">taxa_annotations</span>, by <span class="op">=</span> <span class="st">"taxon_name"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -991,7 +1009,7 @@ calculation.</p>
 <div class="section level3">
 <h3 id="clr">CLR<a class="anchor" aria-label="anchor" href="#clr"></a>
 </h3>
-<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">==</span> <span class="st">'bv-associated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^genus:"</span>, <span class="st">""</span>, <span class="va">taxon_name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -1006,12 +1024,12 @@ calculation.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
 <span>        axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="relative-abundance">Relative abundance<a class="anchor" aria-label="anchor" href="#relative-abundance"></a>
 </h3>
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">==</span> <span class="st">'bv-associated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^genus:"</span>, <span class="st">""</span>, <span class="va">taxon_name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -1024,13 +1042,13 @@ calculation.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
 <span>        axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="compositions-with-tss-data">Compositions with TSS data<a class="anchor" aria-label="anchor" href="#compositions-with-tss-data"></a>
 </h3>
 <p>order of taxa</p>
-<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">first_set</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">nugent_score_category</span> <span class="op">==</span> <span class="st">'low'</span>,</span>
@@ -1048,7 +1066,7 @@ calculation.</p>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">TSS</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">sample</span><span class="op">)</span></span>
 <span><span class="va">samples_order</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">first_set</span>, <span class="va">second_set</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>        sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sample</span>, levels <span class="op">=</span> <span class="va">samples_order</span><span class="op">)</span>,</span>
@@ -1080,8 +1098,8 @@ calculation.</p>
 <span>        panel.grid <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span><span class="va">p1</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
-<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-18-1.png" width="700"></p>
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>        sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sample</span>, levels <span class="op">=</span> <span class="va">samples_order</span><span class="op">)</span>,</span>
@@ -1113,19 +1131,19 @@ calculation.</p>
 <span>        panel.grid <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span><span class="va">p2</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-18-1.png" width="700"></p>
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="distributions">Distributions<a class="anchor" aria-label="anchor" href="#distributions"></a>
 </h2>
 <p>Get Latobacillus relative abundance per sample</p>
-<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample_sizes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">taxon_name</span> <span class="op">==</span> <span class="st">'genus:Lactobacillus'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">sample</span>, lact_tss <span class="op">=</span> <span class="va">TSS</span>, lact_clr <span class="op">=</span> <span class="va">CLR</span><span class="op">)</span></span>
 <span><span class="va">data_with_lact</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">sample_sizes</span>, by <span class="op">=</span> <span class="st">'sample'</span><span class="op">)</span></span></code></pre></div>
 <p>Relative abundance vs CLR all taxa</p>
-<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data_with_lact</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">TSS</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
@@ -1137,9 +1155,9 @@ calculation.</p>
 <span>        x <span class="op">=</span> <span class="st">'Relative abundance'</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-21-1.png" width="700"></p>
 <p>Relative abundance vs CLR BV-associated</p>
-<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data_with_lact</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">==</span> <span class="st">'bv-associated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">TSS</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -1154,10 +1172,10 @@ calculation.</p>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Lactobacillus Rel. Ab.'</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-21-1.png" width="700"></p>
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
 <p>Plotting log(CLR) vs log(Relab) of Lactobacillus, Prevotella,
 Actinomyces, and Corynebacterium.</p>
-<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_1b</span> <span class="op">&lt;-</span> <span class="va">data_with_lact</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_name</span> <span class="op">==</span> <span class="st">'genus:Actinomyces'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
@@ -1253,12 +1271,12 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggpubr</span><span class="fu">::</span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/bgcolor.html" class="external-link">bgcolor</a></span><span class="op">(</span><span class="st">"white"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plotsb</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-23-1.png" width="700"></p>
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## R version 4.4.0 (2024-04-24)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu</span></span>
@@ -1290,29 +1308,30 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  [4] tidyr_1.3.1                           </span></span>
 <span><span class="co">##  [5] tidySummarizedExperiment_1.14.0       </span></span>
 <span><span class="co">##  [6] ttservice_0.4.0                       </span></span>
-<span><span class="co">##  [7] gridExtra_2.3                         </span></span>
-<span><span class="co">##  [8] ggplot2_3.5.1                         </span></span>
-<span><span class="co">##  [9] purrr_1.0.2                           </span></span>
-<span><span class="co">## [10] benchdamic_1.9.4                      </span></span>
-<span><span class="co">## [11] dplyr_1.1.4                           </span></span>
-<span><span class="co">## [12] phyloseq_1.48.0                       </span></span>
-<span><span class="co">## [13] mia_1.12.0                            </span></span>
-<span><span class="co">## [14] MultiAssayExperiment_1.30.1           </span></span>
-<span><span class="co">## [15] MicrobiomeBenchmarkData_1.6.0         </span></span>
-<span><span class="co">## [16] TreeSummarizedExperiment_2.12.0       </span></span>
-<span><span class="co">## [17] Biostrings_2.72.0                     </span></span>
-<span><span class="co">## [18] XVector_0.44.0                        </span></span>
-<span><span class="co">## [19] SingleCellExperiment_1.26.0           </span></span>
-<span><span class="co">## [20] SummarizedExperiment_1.34.0           </span></span>
-<span><span class="co">## [21] Biobase_2.64.0                        </span></span>
-<span><span class="co">## [22] GenomicRanges_1.56.0                  </span></span>
-<span><span class="co">## [23] GenomeInfoDb_1.40.1                   </span></span>
-<span><span class="co">## [24] IRanges_2.38.0                        </span></span>
-<span><span class="co">## [25] S4Vectors_0.42.0                      </span></span>
-<span><span class="co">## [26] BiocGenerics_0.50.0                   </span></span>
-<span><span class="co">## [27] MatrixGenerics_1.16.0                 </span></span>
-<span><span class="co">## [28] matrixStats_1.3.0                     </span></span>
-<span><span class="co">## [29] MicrobiomeBenchmarkDataAnalyses_0.99.7</span></span>
+<span><span class="co">##  [7] ggpubr_0.6.0                          </span></span>
+<span><span class="co">##  [8] gridExtra_2.3                         </span></span>
+<span><span class="co">##  [9] ggplot2_3.5.1                         </span></span>
+<span><span class="co">## [10] purrr_1.0.2                           </span></span>
+<span><span class="co">## [11] benchdamic_1.9.4                      </span></span>
+<span><span class="co">## [12] dplyr_1.1.4                           </span></span>
+<span><span class="co">## [13] phyloseq_1.48.0                       </span></span>
+<span><span class="co">## [14] mia_1.12.0                            </span></span>
+<span><span class="co">## [15] MultiAssayExperiment_1.30.1           </span></span>
+<span><span class="co">## [16] MicrobiomeBenchmarkData_1.6.0         </span></span>
+<span><span class="co">## [17] TreeSummarizedExperiment_2.12.0       </span></span>
+<span><span class="co">## [18] Biostrings_2.72.0                     </span></span>
+<span><span class="co">## [19] XVector_0.44.0                        </span></span>
+<span><span class="co">## [20] SingleCellExperiment_1.26.0           </span></span>
+<span><span class="co">## [21] SummarizedExperiment_1.34.0           </span></span>
+<span><span class="co">## [22] Biobase_2.64.0                        </span></span>
+<span><span class="co">## [23] GenomicRanges_1.56.0                  </span></span>
+<span><span class="co">## [24] GenomeInfoDb_1.40.1                   </span></span>
+<span><span class="co">## [25] IRanges_2.38.0                        </span></span>
+<span><span class="co">## [26] S4Vectors_0.42.0                      </span></span>
+<span><span class="co">## [27] BiocGenerics_0.50.0                   </span></span>
+<span><span class="co">## [28] MatrixGenerics_1.16.0                 </span></span>
+<span><span class="co">## [29] matrixStats_1.3.0                     </span></span>
+<span><span class="co">## [30] MicrobiomeBenchmarkDataAnalyses_0.99.8</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] igraph_2.0.3                ica_1.0-3                  </span></span>
@@ -1377,92 +1396,92 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">## [119] Rtsne_0.17                  shape_1.4.6.1              </span></span>
 <span><span class="co">## [121] limma_3.60.2                filelock_1.0.3             </span></span>
 <span><span class="co">## [123] foreign_0.8-86              pkgconfig_2.0.3            </span></span>
-<span><span class="co">## [125] ggpubr_0.6.0                MicrobiomeStat_1.2         </span></span>
-<span><span class="co">## [127] rmutil_1.1.10               spatstat.sparse_3.0-3      </span></span>
-<span><span class="co">## [129] ape_5.8                     viridisLite_0.4.2          </span></span>
-<span><span class="co">## [131] xtable_1.8-4                interp_1.1-6               </span></span>
-<span><span class="co">## [133] car_3.1-2                   highr_0.11                 </span></span>
-<span><span class="co">## [135] plyr_1.8.9                  httr_1.4.7                 </span></span>
-<span><span class="co">## [137] rbibutils_2.2.16            tools_4.4.0                </span></span>
-<span><span class="co">## [139] globals_0.16.3              SeuratObject_5.0.2         </span></span>
-<span><span class="co">## [141] Rfast_2.1.0                 broom_1.0.6                </span></span>
-<span><span class="co">## [143] beeswarm_0.4.0              htmlTable_2.4.2            </span></span>
-<span><span class="co">## [145] checkmate_2.3.1             nlme_3.1-164               </span></span>
-<span><span class="co">## [147] dbplyr_2.5.0                MatrixModels_0.5-3         </span></span>
-<span><span class="co">## [149] lme4_1.1-35.3               digest_0.6.35              </span></span>
-<span><span class="co">## [151] optparse_1.7.5              permute_0.9-7              </span></span>
-<span><span class="co">## [153] numDeriv_2016.8-1.1         Matrix_1.7-0               </span></span>
-<span><span class="co">## [155] farver_2.1.2                reshape2_1.4.4             </span></span>
-<span><span class="co">## [157] SnowballC_0.7.1             yulab.utils_0.1.4          </span></span>
-<span><span class="co">## [159] viridis_0.6.5               DirichletMultinomial_1.46.0</span></span>
-<span><span class="co">## [161] rpart_4.1.23                glue_1.7.0                 </span></span>
-<span><span class="co">## [163] cachem_1.1.0                BiocFileCache_2.12.0       </span></span>
-<span><span class="co">## [165] polyclip_1.10-6             Hmisc_5.1-3                </span></span>
-<span><span class="co">## [167] generics_0.1.3              CompQuadForm_1.4.3         </span></span>
-<span><span class="co">## [169] mvtnorm_1.2-5               NADA_1.6-1.1               </span></span>
-<span><span class="co">## [171] metagenomeSeq_1.46.0        survey_4.4-2               </span></span>
-<span><span class="co">## [173] parallelly_1.37.1           statmod_1.5.0              </span></span>
-<span><span class="co">## [175] biomformat_1.32.0           RcppHNSW_0.6.0             </span></span>
-<span><span class="co">## [177] ragg_1.3.2                  ScaledMatrix_1.12.0        </span></span>
-<span><span class="co">## [179] carData_3.0-5               minqa_1.2.7                </span></span>
-<span><span class="co">## [181] pbapply_1.7-2               ANCOMBC_2.6.0              </span></span>
-<span><span class="co">## [183] timeSeries_4032.109         glmnet_4.1-8               </span></span>
-<span><span class="co">## [185] spam_2.10-0                 utf8_1.2.4                 </span></span>
-<span><span class="co">## [187] ALDEx2_1.36.0               mitools_2.4                </span></span>
-<span><span class="co">## [189] gtools_3.9.5                readxl_1.4.3               </span></span>
-<span><span class="co">## [191] softImpute_1.4-1            ggsignif_0.6.4             </span></span>
-<span><span class="co">## [193] shiny_1.8.1.1               GenomeInfoDbData_1.2.12    </span></span>
-<span><span class="co">## [195] energy_1.7-11               rhdf5filters_1.16.0        </span></span>
-<span><span class="co">## [197] memoise_2.0.1               rmarkdown_2.27             </span></span>
-<span><span class="co">## [199] scales_1.3.0                stabledist_0.7-1           </span></span>
-<span><span class="co">## [201] gld_2.6.6                   future_1.33.2              </span></span>
-<span><span class="co">## [203] RANN_2.6.1                  spatstat.data_3.0-4        </span></span>
-<span><span class="co">## [205] rstudioapi_0.16.0           cluster_2.1.6              </span></span>
-<span><span class="co">## [207] Maaslin2_1.18.0             hms_1.1.3                  </span></span>
-<span><span class="co">## [209] GUniFrac_1.8                spatstat.utils_3.0-4       </span></span>
-<span><span class="co">## [211] fitdistrplus_1.1-11         munsell_0.5.1              </span></span>
-<span><span class="co">## [213] cowplot_1.1.3               ellipse_0.5.0              </span></span>
-<span><span class="co">## [215] colorspace_2.1-0            rlang_1.1.3                </span></span>
-<span><span class="co">## [217] ggdendro_0.2.0              quadprog_1.5-8             </span></span>
-<span><span class="co">## [219] DelayedMatrixStats_1.26.0   sparseMatrixStats_1.16.0   </span></span>
-<span><span class="co">## [221] dotCall64_1.1-1             scuttle_1.14.0             </span></span>
-<span><span class="co">## [223] mgcv_1.9-1                  xfun_0.44                  </span></span>
-<span><span class="co">## [225] NOISeq_2.48.0               e1071_1.7-14               </span></span>
-<span><span class="co">## [227] TH.data_1.1-2               rARPACK_0.11-0             </span></span>
-<span><span class="co">## [229] iterators_1.0.14            modeltools_0.2-23          </span></span>
-<span><span class="co">## [231] abind_1.4-5                 tibble_3.2.1               </span></span>
-<span><span class="co">## [233] libcoin_1.0-10              treeio_1.28.0              </span></span>
-<span><span class="co">## [235] gmp_0.7-4                   Rhdf5lib_1.26.0            </span></span>
-<span><span class="co">## [237] DECIPHER_3.0.0              bitops_1.0-7               </span></span>
-<span><span class="co">## [239] Rdpack_2.6                  promises_1.3.0             </span></span>
-<span><span class="co">## [241] inline_0.3.19               RSQLite_2.3.7              </span></span>
-<span><span class="co">## [243] sandwich_3.1-0              DelayedArray_0.30.1        </span></span>
-<span><span class="co">## [245] proxy_0.4-27                Rmpfr_0.9-5                </span></span>
-<span><span class="co">## [247] compiler_4.4.0              forcats_1.0.0              </span></span>
-<span><span class="co">## [249] prettyunits_1.2.0           boot_1.3-30                </span></span>
-<span><span class="co">## [251] beachmat_2.20.0             SparseM_1.82               </span></span>
-<span><span class="co">## [253] microbiome_1.26.0           listenv_0.9.1              </span></span>
-<span><span class="co">## [255] Rcpp_1.0.12                 edgeR_4.2.0                </span></span>
-<span><span class="co">## [257] BiocSingular_1.20.0         tensor_1.5                 </span></span>
-<span><span class="co">## [259] progress_1.2.3              MASS_7.3-60.2              </span></span>
-<span><span class="co">## [261] BiocParallel_1.38.0         MAST_1.30.0                </span></span>
-<span><span class="co">## [263] stable_1.1.6                spatstat.random_3.2-3      </span></span>
-<span><span class="co">## [265] R6_2.5.1                    rstatix_0.7.2              </span></span>
-<span><span class="co">## [267] fastmap_1.2.0               multcomp_1.4-25            </span></span>
-<span><span class="co">## [269] vipor_0.4.7                 ROCR_1.0-11                </span></span>
-<span><span class="co">## [271] rsvd_1.0.5                  nnet_7.3-19                </span></span>
-<span><span class="co">## [273] gtable_0.3.5                KernSmooth_2.23-22         </span></span>
-<span><span class="co">## [275] latticeExtra_0.6-30         miniUI_0.1.1.1             </span></span>
-<span><span class="co">## [277] deldir_2.0-4                htmltools_0.5.8.1          </span></span>
-<span><span class="co">## [279] RcppParallel_5.1.7          bit64_4.0.5                </span></span>
-<span><span class="co">## [281] spatstat.explore_3.2-7      lifecycle_1.0.4            </span></span>
-<span><span class="co">## [283] MGLM_0.2.1                  nloptr_2.0.3               </span></span>
-<span><span class="co">## [285] sass_0.4.9                  vctrs_0.6.5                </span></span>
-<span><span class="co">## [287] robustbase_0.99-2           spatstat.geom_3.2-9        </span></span>
-<span><span class="co">## [289] sp_2.1-4                    future.apply_1.11.2        </span></span>
-<span><span class="co">## [291] bslib_0.7.0                 pillar_1.9.0               </span></span>
-<span><span class="co">## [293] gplots_3.1.3.1              locfit_1.5-9.9             </span></span>
-<span><span class="co">## [295] jsonlite_1.8.8              expm_0.999-9</span></span></code></pre>
+<span><span class="co">## [125] MicrobiomeStat_1.2          rmutil_1.1.10              </span></span>
+<span><span class="co">## [127] spatstat.sparse_3.0-3       ape_5.8                    </span></span>
+<span><span class="co">## [129] viridisLite_0.4.2           xtable_1.8-4               </span></span>
+<span><span class="co">## [131] interp_1.1-6                highr_0.11                 </span></span>
+<span><span class="co">## [133] car_3.1-2                   plyr_1.8.9                 </span></span>
+<span><span class="co">## [135] httr_1.4.7                  rbibutils_2.2.16           </span></span>
+<span><span class="co">## [137] tools_4.4.0                 globals_0.16.3             </span></span>
+<span><span class="co">## [139] SeuratObject_5.0.2          Rfast_2.1.0                </span></span>
+<span><span class="co">## [141] broom_1.0.6                 beeswarm_0.4.0             </span></span>
+<span><span class="co">## [143] htmlTable_2.4.2             checkmate_2.3.1            </span></span>
+<span><span class="co">## [145] nlme_3.1-164                dbplyr_2.5.0               </span></span>
+<span><span class="co">## [147] MatrixModels_0.5-3          lme4_1.1-35.3              </span></span>
+<span><span class="co">## [149] digest_0.6.35               optparse_1.7.5             </span></span>
+<span><span class="co">## [151] permute_0.9-7               numDeriv_2016.8-1.1        </span></span>
+<span><span class="co">## [153] Matrix_1.7-0                farver_2.1.2               </span></span>
+<span><span class="co">## [155] reshape2_1.4.4              SnowballC_0.7.1            </span></span>
+<span><span class="co">## [157] yulab.utils_0.1.4           viridis_0.6.5              </span></span>
+<span><span class="co">## [159] DirichletMultinomial_1.46.0 rpart_4.1.23               </span></span>
+<span><span class="co">## [161] glue_1.7.0                  cachem_1.1.0               </span></span>
+<span><span class="co">## [163] BiocFileCache_2.12.0        polyclip_1.10-6            </span></span>
+<span><span class="co">## [165] Hmisc_5.1-3                 generics_0.1.3             </span></span>
+<span><span class="co">## [167] CompQuadForm_1.4.3          mvtnorm_1.2-5              </span></span>
+<span><span class="co">## [169] NADA_1.6-1.1                metagenomeSeq_1.46.0       </span></span>
+<span><span class="co">## [171] survey_4.4-2                parallelly_1.37.1          </span></span>
+<span><span class="co">## [173] statmod_1.5.0               biomformat_1.32.0          </span></span>
+<span><span class="co">## [175] RcppHNSW_0.6.0              ragg_1.3.2                 </span></span>
+<span><span class="co">## [177] ScaledMatrix_1.12.0         carData_3.0-5              </span></span>
+<span><span class="co">## [179] minqa_1.2.7                 pbapply_1.7-2              </span></span>
+<span><span class="co">## [181] ANCOMBC_2.6.0               timeSeries_4032.109        </span></span>
+<span><span class="co">## [183] glmnet_4.1-8                spam_2.10-0                </span></span>
+<span><span class="co">## [185] utf8_1.2.4                  ALDEx2_1.36.0              </span></span>
+<span><span class="co">## [187] mitools_2.4                 gtools_3.9.5               </span></span>
+<span><span class="co">## [189] readxl_1.4.3                softImpute_1.4-1           </span></span>
+<span><span class="co">## [191] ggsignif_0.6.4              shiny_1.8.1.1              </span></span>
+<span><span class="co">## [193] GenomeInfoDbData_1.2.12     energy_1.7-11              </span></span>
+<span><span class="co">## [195] rhdf5filters_1.16.0         memoise_2.0.1              </span></span>
+<span><span class="co">## [197] rmarkdown_2.27              scales_1.3.0               </span></span>
+<span><span class="co">## [199] stabledist_0.7-1            gld_2.6.6                  </span></span>
+<span><span class="co">## [201] future_1.33.2               RANN_2.6.1                 </span></span>
+<span><span class="co">## [203] spatstat.data_3.0-4         rstudioapi_0.16.0          </span></span>
+<span><span class="co">## [205] cluster_2.1.6               Maaslin2_1.18.0            </span></span>
+<span><span class="co">## [207] hms_1.1.3                   GUniFrac_1.8               </span></span>
+<span><span class="co">## [209] spatstat.utils_3.0-4        fitdistrplus_1.1-11        </span></span>
+<span><span class="co">## [211] munsell_0.5.1               cowplot_1.1.3              </span></span>
+<span><span class="co">## [213] ellipse_0.5.0               colorspace_2.1-0           </span></span>
+<span><span class="co">## [215] rlang_1.1.3                 ggdendro_0.2.0             </span></span>
+<span><span class="co">## [217] quadprog_1.5-8              DelayedMatrixStats_1.26.0  </span></span>
+<span><span class="co">## [219] sparseMatrixStats_1.16.0    dotCall64_1.1-1            </span></span>
+<span><span class="co">## [221] scuttle_1.14.0              mgcv_1.9-1                 </span></span>
+<span><span class="co">## [223] xfun_0.44                   NOISeq_2.48.0              </span></span>
+<span><span class="co">## [225] e1071_1.7-14                TH.data_1.1-2              </span></span>
+<span><span class="co">## [227] rARPACK_0.11-0              iterators_1.0.14           </span></span>
+<span><span class="co">## [229] modeltools_0.2-23           abind_1.4-5                </span></span>
+<span><span class="co">## [231] tibble_3.2.1                libcoin_1.0-10             </span></span>
+<span><span class="co">## [233] treeio_1.28.0               gmp_0.7-4                  </span></span>
+<span><span class="co">## [235] Rhdf5lib_1.26.0             DECIPHER_3.0.0             </span></span>
+<span><span class="co">## [237] bitops_1.0-7                Rdpack_2.6                 </span></span>
+<span><span class="co">## [239] promises_1.3.0              inline_0.3.19              </span></span>
+<span><span class="co">## [241] RSQLite_2.3.7               sandwich_3.1-0             </span></span>
+<span><span class="co">## [243] DelayedArray_0.30.1         proxy_0.4-27               </span></span>
+<span><span class="co">## [245] Rmpfr_0.9-5                 compiler_4.4.0             </span></span>
+<span><span class="co">## [247] forcats_1.0.0               prettyunits_1.2.0          </span></span>
+<span><span class="co">## [249] boot_1.3-30                 beachmat_2.20.0            </span></span>
+<span><span class="co">## [251] SparseM_1.82                microbiome_1.26.0          </span></span>
+<span><span class="co">## [253] listenv_0.9.1               Rcpp_1.0.12                </span></span>
+<span><span class="co">## [255] edgeR_4.2.0                 BiocSingular_1.20.0        </span></span>
+<span><span class="co">## [257] tensor_1.5                  progress_1.2.3             </span></span>
+<span><span class="co">## [259] MASS_7.3-60.2               BiocParallel_1.38.0        </span></span>
+<span><span class="co">## [261] MAST_1.30.0                 stable_1.1.6               </span></span>
+<span><span class="co">## [263] spatstat.random_3.2-3       R6_2.5.1                   </span></span>
+<span><span class="co">## [265] rstatix_0.7.2               fastmap_1.2.0              </span></span>
+<span><span class="co">## [267] multcomp_1.4-25             vipor_0.4.7                </span></span>
+<span><span class="co">## [269] ROCR_1.0-11                 rsvd_1.0.5                 </span></span>
+<span><span class="co">## [271] nnet_7.3-19                 gtable_0.3.5               </span></span>
+<span><span class="co">## [273] KernSmooth_2.23-22          latticeExtra_0.6-30        </span></span>
+<span><span class="co">## [275] miniUI_0.1.1.1              deldir_2.0-4               </span></span>
+<span><span class="co">## [277] htmltools_0.5.8.1           RcppParallel_5.1.7         </span></span>
+<span><span class="co">## [279] bit64_4.0.5                 spatstat.explore_3.2-7     </span></span>
+<span><span class="co">## [281] lifecycle_1.0.4             MGLM_0.2.1                 </span></span>
+<span><span class="co">## [283] nloptr_2.0.3                sass_0.4.9                 </span></span>
+<span><span class="co">## [285] vctrs_0.6.5                 robustbase_0.99-2          </span></span>
+<span><span class="co">## [287] spatstat.geom_3.2-9         sp_2.1-4                   </span></span>
+<span><span class="co">## [289] future.apply_1.11.2         bslib_0.7.0                </span></span>
+<span><span class="co">## [291] pillar_1.9.0                gplots_3.1.3.1             </span></span>
+<span><span class="co">## [293] locfit_1.5-9.9              jsonlite_1.8.8             </span></span>
+<span><span class="co">## [295] expm_0.999-9</span></span></code></pre>
 </div>
   </div>
 
