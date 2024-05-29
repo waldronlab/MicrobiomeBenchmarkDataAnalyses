@@ -19,6 +19,7 @@ library(benchdamic)
 library(purrr)
 library(ggplot2)
 library(gridExtra)
+library(ggpubr)
 library(tidySummarizedExperiment)
 ```
 
@@ -191,8 +192,13 @@ enrich_plot <- plot_enrichment(
 enrich_plot2 <- plot_enrichment_2(
     enrich_plot,
     dir = c(up = 'BV', down = 'HV')
-)
-
+) +
+    theme(
+        axis.title = element_text(size = 17),
+        axis.text = element_text(size = 15),
+        legend.text = element_text(size = 13),
+        strip.text = element_text(size = 17)
+    )
 enrich_plot2
 ```
 
@@ -222,8 +228,21 @@ positives <- createPositives(
 Create putative positives plot
 
 ```{r plot positves, fig.width=15, fig.height=10}
-plots <- plot_positives(positives)
-grid.arrange(grobs = plots, ncol = 3)
+plots <- plot_positives(positives) |> 
+    map( ~ {
+        .x +
+            theme(
+                axis.title = element_text(size = 17),
+                axis.text = element_text(size = 15),
+                legend.text = element_text(size = 13),
+                strip.text = element_text(size = 17)
+            )
+    })
+k <- grid.arrange(grobs = plots, ncol = 3)
+```
+
+```{r, fig.width=15, fig.height=15, warning=FALSE}
+ggarrange(enrich_plot2, k, ncol = 1, labels = c("a)", "b)"), heights = c(8, 10))
 ```
 
 # Perform DA with lefse, Wilcox, and ZINQ-Cauchy manually
