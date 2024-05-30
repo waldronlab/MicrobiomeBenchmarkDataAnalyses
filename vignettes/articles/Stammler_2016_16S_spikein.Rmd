@@ -140,17 +140,20 @@ cv_res |>
     mutate(
         CV = round(CV, 1), SE = round(SE, 1)
     ) |> 
+    mutate(
+        `Normalization method` = ifelse(`Normalization method` == "TSS", "Relative abundance", `Normalization method`)
+    ) |> 
     # DT::datatable(filter = 'top')   method
 
 DT::datatable(
   extensions = 'Buttons',,
-  filter = "top"
+  filter = "top",
   options = list(
     dom = 'Bfrtip',
     buttons = list(
       list(
-        extend = 'csv',
-        text = 'Copy as CSV'
+        extend = 'copy',
+        text = 'Copy '
       )
     )
   )
