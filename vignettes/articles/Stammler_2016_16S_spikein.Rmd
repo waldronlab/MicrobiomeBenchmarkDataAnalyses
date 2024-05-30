@@ -126,6 +126,42 @@ DT::datatable(cv_res, filter = 'top')
 ```
 
 
+
+Table in wider format:
+
+```{r}
+cv_res |> 
+    rename(
+        Species = taxon, `Normalization method` = norm,
+        CV = cv, SE = std.error
+    ) |> 
+    filter(`Normalization method` %in% c("CLR", "TSS")) |> 
+    select(-bias) |> 
+    mutate(
+        CV = round(CV, 1), SE = round(SE, 1)
+    ) |> 
+    # DT::datatable(filter = 'top')   method
+
+DT::datatable(
+  extensions = 'Buttons',,
+  filter = "top"
+  options = list(
+    dom = 'Bfrtip',
+    buttons = list(
+      list(
+        extend = 'csv',
+        text = 'Copy as CSV'
+      )
+    )
+  )
+)
+
+
+```
+
+
+
+
 # Compare coefficient of variation
 
 ```{r, fig.width=8, fig.height=4}
