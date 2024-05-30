@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MicrobiomeBenchmarkDataAnalyses</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.11</span>
       </span>
     </div>
 
@@ -230,14 +230,14 @@ subgingival plaque</h1>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_flatten.html" class="external-link">list_flatten</a></span><span class="op">(</span><span class="va">DA_output</span>, name_spec <span class="op">=</span> <span class="st">"{inner}"</span><span class="op">)</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/keep.html" class="external-link">discard</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">is.null</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-05-29 20:18:59.883903</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-05-29 20:19:05.354417</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-05-29 20:19:12.429403</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-05-29 20:19:12.452692</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-05-29 20:19:12.469194</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-05-29 20:19:12.946127</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-05-29 20:19:14.838935</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-05-29 20:19:16.164021</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-05-30 02:24:34.880679</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-05-30 02:24:40.066132</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-05-30 02:24:46.810889</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-05-30 02:24:46.836441</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-05-30 02:24:46.852534</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-05-30 02:24:47.325251</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-05-30 02:24:49.166007</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-05-30 02:24:50.466832</span></span></code></pre>
 <pre><code><span><span class="co">## For a (much!) faster implementation of the Wilcoxon Rank Sum Test,</span></span>
 <span><span class="co">## (default method for FindMarkers) please install the presto package</span></span>
 <span><span class="co">## --------------------------------------------</span></span>
@@ -247,7 +247,7 @@ subgingival plaque</h1>
 <span><span class="co">## After installation of presto, Seurat will automatically use the more </span></span>
 <span><span class="co">## efficient implementation (no further action necessary).</span></span>
 <span><span class="co">## This message will be shown once per session</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-05-29 20:19:16.691196</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-05-30 02:24:50.958039</span></span></code></pre>
 <pre><code><span><span class="co">## 'ancombc' has been fully evolved to 'ancombc2'. </span></span>
 <span><span class="co">## Explore the enhanced capabilities of our refined method!</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: foreach</span></span></code></pre>
@@ -257,16 +257,16 @@ subgingival plaque</h1>
 <span><span class="co">## </span></span>
 <span><span class="co">##     accumulate, when</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: rngtools</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-05-29 20:19:40.189383</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-05-29 20:19:40.375273</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-05-29 20:19:40.5102</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-05-29 20:19:41.52212</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-05-29 20:19:42.374832</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-05-29 20:19:44.222275</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-05-30 02:25:14.798373</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-05-30 02:25:14.977482</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-05-30 02:25:15.106959</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-05-30 02:25:16.026844</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-05-30 02:25:16.802275</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-05-30 02:25:18.409633</span></span></code></pre>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  47.513   8.677  46.484</span></span></code></pre>
+<span><span class="co">##  46.711   8.040  45.574</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -381,32 +381,32 @@ subgingival plaque</h1>
 <span><span class="co">## [8] base     </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
-<span><span class="co">##  [1] doRNG_1.8.6                           </span></span>
-<span><span class="co">##  [2] rngtools_1.5.2                        </span></span>
-<span><span class="co">##  [3] foreach_1.5.2                         </span></span>
-<span><span class="co">##  [4] gridExtra_2.3                         </span></span>
-<span><span class="co">##  [5] ggplot2_3.5.1                         </span></span>
-<span><span class="co">##  [6] purrr_1.0.2                           </span></span>
-<span><span class="co">##  [7] dplyr_1.1.4                           </span></span>
-<span><span class="co">##  [8] benchdamic_1.9.4                      </span></span>
-<span><span class="co">##  [9] phyloseq_1.48.0                       </span></span>
-<span><span class="co">## [10] mia_1.12.0                            </span></span>
-<span><span class="co">## [11] MultiAssayExperiment_1.30.1           </span></span>
-<span><span class="co">## [12] MicrobiomeBenchmarkData_1.6.0         </span></span>
-<span><span class="co">## [13] TreeSummarizedExperiment_2.12.0       </span></span>
-<span><span class="co">## [14] Biostrings_2.72.0                     </span></span>
-<span><span class="co">## [15] XVector_0.44.0                        </span></span>
-<span><span class="co">## [16] SingleCellExperiment_1.26.0           </span></span>
-<span><span class="co">## [17] SummarizedExperiment_1.34.0           </span></span>
-<span><span class="co">## [18] Biobase_2.64.0                        </span></span>
-<span><span class="co">## [19] GenomicRanges_1.56.0                  </span></span>
-<span><span class="co">## [20] GenomeInfoDb_1.40.1                   </span></span>
-<span><span class="co">## [21] IRanges_2.38.0                        </span></span>
-<span><span class="co">## [22] S4Vectors_0.42.0                      </span></span>
-<span><span class="co">## [23] BiocGenerics_0.50.0                   </span></span>
-<span><span class="co">## [24] MatrixGenerics_1.16.0                 </span></span>
-<span><span class="co">## [25] matrixStats_1.3.0                     </span></span>
-<span><span class="co">## [26] MicrobiomeBenchmarkDataAnalyses_0.99.9</span></span>
+<span><span class="co">##  [1] doRNG_1.8.6                            </span></span>
+<span><span class="co">##  [2] rngtools_1.5.2                         </span></span>
+<span><span class="co">##  [3] foreach_1.5.2                          </span></span>
+<span><span class="co">##  [4] gridExtra_2.3                          </span></span>
+<span><span class="co">##  [5] ggplot2_3.5.1                          </span></span>
+<span><span class="co">##  [6] purrr_1.0.2                            </span></span>
+<span><span class="co">##  [7] dplyr_1.1.4                            </span></span>
+<span><span class="co">##  [8] benchdamic_1.9.4                       </span></span>
+<span><span class="co">##  [9] phyloseq_1.48.0                        </span></span>
+<span><span class="co">## [10] mia_1.12.0                             </span></span>
+<span><span class="co">## [11] MultiAssayExperiment_1.30.1            </span></span>
+<span><span class="co">## [12] MicrobiomeBenchmarkData_1.6.0          </span></span>
+<span><span class="co">## [13] TreeSummarizedExperiment_2.12.0        </span></span>
+<span><span class="co">## [14] Biostrings_2.72.0                      </span></span>
+<span><span class="co">## [15] XVector_0.44.0                         </span></span>
+<span><span class="co">## [16] SingleCellExperiment_1.26.0            </span></span>
+<span><span class="co">## [17] SummarizedExperiment_1.34.0            </span></span>
+<span><span class="co">## [18] Biobase_2.64.0                         </span></span>
+<span><span class="co">## [19] GenomicRanges_1.56.0                   </span></span>
+<span><span class="co">## [20] GenomeInfoDb_1.40.1                    </span></span>
+<span><span class="co">## [21] IRanges_2.38.0                         </span></span>
+<span><span class="co">## [22] S4Vectors_0.42.0                       </span></span>
+<span><span class="co">## [23] BiocGenerics_0.50.0                    </span></span>
+<span><span class="co">## [24] MatrixGenerics_1.16.0                  </span></span>
+<span><span class="co">## [25] matrixStats_1.3.0                      </span></span>
+<span><span class="co">## [26] MicrobiomeBenchmarkDataAnalyses_0.99.11</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] igraph_2.0.3                ica_1.0-3                  </span></span>
