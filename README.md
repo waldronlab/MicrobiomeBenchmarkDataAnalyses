@@ -10,7 +10,7 @@ Package website: https://waldronlab.io/MicrobiomeBenchmarkDataAnalyses
 
 Installation
 
-```{r}
+```r
 ## Package installation
 if (!"BiocManager" %in% install.packages()[,"Package"])
   install.packages("BiocManager")
