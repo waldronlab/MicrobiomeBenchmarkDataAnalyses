@@ -2,9 +2,22 @@
 % Please edit documentation in R/MicrobiomeBenchmarkDataAnalyses.R
 \docType{package}
 \name{MicrobiomeBenchmarkDataAnalyses}
+\alias{MicrobiomeBenchmarkDataAnalyses-package}
 \alias{MicrobiomeBenchmarkDataAnalyses}
 \title{MicrobiomeBenchmarkDataAnalyses}
 \description{
 \code{MicrobiomeBenchmarkDataAnalyses} is a package for the DA analyses
 performed on the MicrobiomeBenchmarkData package.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses}
+  \item Report bugs at \url{https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Samuel David Gamboa-Tuz \email{Samuel.Gamboa.Tuz@gmail.com} (\href{https://orcid.org/0000-0002-6863-7943}{ORCID})
+
 }

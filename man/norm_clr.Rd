@@ -4,19 +4,22 @@
 \alias{norm_clr}
 \title{CLR normalization}
 \usage{
-norm_clr(mat, pseudocount = 0, log = FALSE)
+norm_clr(mat, pseudocount = 0, log = TRUE)
 }
 \arguments{
 \item{mat}{A count matrix.}
 
-\item{pseudocount}{A pseudocount to add. Default = 1.}
+\item{pseudocount}{Pseudocount added to the matrix.
+Default value is 0 (no pseudocount)..}
 
-\item{log}{If TRUE, CLR will be logged. Default = FALSE.}
+\item{log}{If TRUE, CLR will be logged. Default = TRUE. In most
+cases this should be set to TRUE}
 }
 \value{
-A matrix with CLR normalization
+A CLR-transformed matrix.
 }
 \description{
-\code{apply_clr} applies a centered-log ratio transformation to a matrix.
-Features (e.g. taxa, OTUs) must be in the rows and samples in the columns.
+\code{norm_clr} applies a centered-log ratio (CLR) transformation to a
+matrix column-wise. Features (e.g. taxa, OTUs) must be in the rows and
+samples in the columns.
 }

@@ -55,7 +55,9 @@ assay(tse, 'counts_recal') <- SCML_data
 
 ```{r}
 tss_fun <- function(x) (x + 1) / sum((x + 1))
-clr_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
+# clr_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
+# clr_fun <- function(x) log((x + 1) / exp(mean(log((x + 1)))))
+clr_fun <- function(x) compositions::clr(x + 1)
 
 ## TSS (relative abundance)
 assay(tse, "TSS") <- apply(assay(tse, 'counts'), 2,  tss_fun)
@@ -205,5 +207,3 @@ cv_res %>%
 ```{r}
 sessionInfo()
 ```
-
-

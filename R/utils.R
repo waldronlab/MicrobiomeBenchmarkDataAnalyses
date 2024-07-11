@@ -200,24 +200,27 @@ norm_tss <- function(mat, total_sum = 1e6) {
 
 #' CLR normalization
 #' 
-#' \code{apply_clr} applies a centered-log ratio transformation to a matrix.
-#' Features (e.g. taxa, OTUs) must be in the rows and samples in the columns.
+#' \code{norm_clr} applies a centered-log ratio (CLR) transformation to a
+#' matrix column-wise. Features (e.g. taxa, OTUs) must be in the rows and
+#' samples in the columns.
 #'
 #' @param mat A count matrix.
-#' @param pseudocount A pseudocount to add. Default = 1.
-#' @param log If TRUE, CLR will be logged. Default = FALSE.
+#' @param pseudocount Pseudocount added to the matrix.
+#' Default value is 0 (no pseudocount)..
+#' @param log If TRUE, CLR will be logged. Default = TRUE. In most
+#' cases this should be set to TRUE
 #'
-#' @return A matrix with CLR normalization
+#' @return A CLR-transformed matrix.
 #' @export
 #'
-norm_clr <- function(mat, pseudocount = 0, log = FALSE) {
+norm_clr <- function(mat, pseudocount = 0, log = TRUE) {
     ## Centered log ratio transformation of a vector
     ## Sources: 
     ## + https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6755255/
     ## + https://www.r-bloggers.com/2021/08/calculate-geometric-mean-in-r/
-   
+    ## + https://doi.org/10.1038/s41467-022-28401-w
     if (any(is.na(mat) | any(mat < 0))) 
-        stop("Input vector must not contain NAs, or negative numbers.")
+        stop("NA's or negative numbers are not allowed.", call. = FALSE)
     
     mat <- mat + pseudocount
     
@@ -229,13 +232,12 @@ norm_clr <- function(mat, pseudocount = 0, log = FALSE) {
     }
     
     if (log) {
-        apply(mat, 2, function(x) log(x / exp(mean(log(x))))) # exp(mean(log(x))) is the geometric mean
+        output <- apply(mat, 2, function(x) log(x / exp(mean(log(x))))) # exp(mean(log(x))) is the geometric mean
     } else {
-        apply(mat, 2, function(x) x / exp(mean(log(x))))
+        output <- apply(mat, 2, function(x) x / exp(mean(log(x))))
     }
-        
+    return(output)
 }
-
 
 # Calculations ------------------------------------------------------------
 

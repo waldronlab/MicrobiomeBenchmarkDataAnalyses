@@ -469,9 +469,40 @@ stats <- data |>
         median_TSS_CLR = median(`TSS + CLR`)
     ) |> 
     ungroup() |> 
-    arrange(taxon_name)
+    arrange(taxon_name) |> 
+    modify_if(.p = is.numeric, .f = ~ round(.x, 2)) |> 
+    select(-starts_with("median"))
 knitr::kable(stats)
 ```
+
+
+```{r}
+types_names <- c("counts$", "TSS$", "[^(TSS)]_CLR$", "TSS_CLR$")
+new_stats <- select(stats, taxon_name, study_condition)
+for (i in seq_along(types_names)) {
+    pos <- grep(types_names[i], colnames(stats), value = TRUE)
+    mean_vals <- stats[,grep("mean", pos, value = TRUE), drop = TRUE]
+    sd_vals <- stats[,grep("sd", pos, value = TRUE), drop = TRUE]
+    new_col_name <- sub("mean_", "", pos[1])
+    new_col <- paste0(mean_vals, "\u00B1", sd_vals)
+    new_stats[[new_col_name]] <- new_col
+}
+new_stats <- new_stats |> 
+    rename(
+        Taxon = taxon_name, Condition = study_condition,
+        Counts = counts, `TSS+CLR` = TSS_CLR
+    ) |> 
+    mutate(
+        Condition = case_when(
+            Condition == "healthy" ~ "HV",
+            Condition == "bacterial_vaginosis" ~ "VB"
+        )
+    )
+```
+
+
+
+
 
 ```{r plot fold change}
 wilcox |> 
