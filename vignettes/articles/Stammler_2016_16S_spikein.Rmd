@@ -55,9 +55,12 @@ assay(tse, 'counts_recal') <- SCML_data
 
 ```{r}
 tss_fun <- function(x) (x + 1) / sum((x + 1))
-# clr_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
+## Coefficient of variation should not be calculated on log-tranformed data
+## Therefore, calculate coefficient of variation on the data divided by
+## the geomeric mean
+clr_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
 # clr_fun <- function(x) log((x + 1) / exp(mean(log((x + 1)))))
-clr_fun <- function(x) compositions::clr(x + 1)
+# clr_fun <- function(x) compositions::clr(x + 1)
 
 ## TSS (relative abundance)
 assay(tse, "TSS") <- apply(assay(tse, 'counts'), 2,  tss_fun)
@@ -96,9 +99,6 @@ for (i in seq_along(output)) {
         magrittr::set_colnames(c('taxon', 'sample', data_name))
 }
 data <- purrr::reduce(output, left_join)
-    # left_join(col_data) %>% 
-    # relocate(subject_id, study_condition, .after = sample)
-
 DT::datatable(data, filter = 'top')
 ```
 
@@ -127,8 +127,6 @@ cv_res <- data %>%
 DT::datatable(cv_res, filter = 'top')     
 ```
 
-
-
 Table in wider format:
 
 ```{r}
@@ -145,27 +143,22 @@ cv_res |>
     mutate(
         `Normalization method` = ifelse(`Normalization method` == "TSS", "Relative abundance", `Normalization method`)
     ) |> 
-    # DT::datatable(filter = 'top')   method
-
-DT::datatable(
-  extensions = 'Buttons',,
-  filter = "top",
-  options = list(
-    dom = 'Bfrtip',
-    buttons = list(
-      list(
-        extend = 'copy',
-        text = 'Copy '
-      )
+    DT::datatable(
+        extensions = 'Buttons',,
+        filter = "top",
+        options = list(
+        dom = 'Bfrtip',
+        buttons = list(
+            list(
+                extend = 'copy',
+                text = 'Copy '
+                )
+            )
+        )
     )
-  )
-)
 
 
 ```
-
-
-
 
 # Compare coefficient of variation
 
