@@ -20,7 +20,7 @@ Suggests:
     tidySummarizedExperiment,
     ggpubr
 Remotes:
-    wdl2459/ZINQ-v2
+    wdl2459/ZINQ-v2,
     mcalgaro93/benchdamic
 Imports: 
     SummarizedExperiment,
