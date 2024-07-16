@@ -2,8 +2,8 @@
 #' Set list of DA methods
 #' 
 #' \code{set_DA_methods_list} creates a predefined list of methods for the
-#' benchdamic framework. The output of this function should input for the
-#' \code{\link[benchdamic]{runDA}} function.
+#' benchdamic framework. The output of this function should be the input
+#' for the \code{\link[benchdamic]{runDA}} function.
 #'
 #' @param conditions_col Character string indicating the name of the column
 #' containing the conditions of the samples in sample_metadata/colData. 
@@ -15,7 +15,6 @@
 #' @export
 #'
 set_DA_methods_list <- function(conditions_col, conditions) {
-    
     c(
         # edgeR
         my_edger <- benchdamic::set_edgeR(
@@ -27,7 +26,6 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         ),
         
         # edgeR + weights
-        
         my_edger <- benchdamic::set_edgeR(
             group_name = conditions_col,
             design = stats::as.formula(paste0("~", conditions_col)),
@@ -35,7 +33,6 @@ set_DA_methods_list <- function(conditions_col, conditions) {
             coef = 2,
             weights_logical = TRUE
         ),
-        
         
         # DESeq2
         my_deseq2 <- benchdamic::set_DESeq2(

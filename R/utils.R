@@ -261,7 +261,6 @@ log2_fold_change <- function(
     mat, condition_vector, condB = NULL, log = FALSE, pseudocount = 0
 ) {
     ## condB is control; condA is treated
-    
     condition_vector <- as.factor(condition_vector)
     conditions <- levels(condition_vector)
     
@@ -284,8 +283,8 @@ log2_fold_change <- function(
     
     for (i in seq_along(features)) {
         
-        mean_condB <- mean(mat[features[i], condition_vector == condB])
-        mean_condA <- mean(mat[features[i], condition_vector == condA])
+        mean_condB <- mean(mat[features[i], which(condition_vector == condB), drop = TRUE])
+        mean_condA <- mean(mat[features[i], which(condition_vector == condA), drop = TRUE])
         
         if (log) { # CLR (already logged)
             log2FoldChange[i] <- mean_condA - mean_condB

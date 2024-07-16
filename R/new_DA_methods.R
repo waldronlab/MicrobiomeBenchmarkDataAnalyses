@@ -285,7 +285,6 @@ DA_wilcox <-
         conditions_col, conditions, 
         verbose = FALSE
     ) {
-        
         if(class(object) != 'phyloseq')
             stop(
                 'Object must be phyloseq.',
@@ -338,7 +337,7 @@ DA_wilcox <-
             if (verbose)
                 message('Applying CLR normalization for wilcox test.')
             name <- paste0(name, '.CLR')
-            abundances <- norm_clr(abundances)
+            abundances <- norm_clr(abundances, log = TRUE)
         } else if (norm == 'TSS') {
             if (verbose)
                 message('Applying TSS normalization for wilcox test.')
@@ -352,7 +351,7 @@ DA_wilcox <-
         
         if (norm == 'CLR') {
             log2FoldChange <- 
-                log2_fold_change(abundances, condition_vector, denom, log = FALSE)
+                log2_fold_change(abundances, condition_vector, denom, log = TRUE)
             
         } else {
             log2FoldChange <- log2_fold_change(abundances, condition_vector, denom)

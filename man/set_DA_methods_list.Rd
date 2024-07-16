@@ -20,6 +20,6 @@ A list of DA methods for benchdamic.
 }
 \description{
 \code{set_DA_methods_list} creates a predefined list of methods for the
-benchdamic framework. The output of this function should input for the
-\code{\link[benchdamic]{runDA}} function.
+benchdamic framework. The output of this function should be the input
+for the \code{\link[benchdamic]{runDA}} function.
 }

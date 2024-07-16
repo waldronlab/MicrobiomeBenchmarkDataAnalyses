@@ -23,6 +23,14 @@ library(ggpubr)
 library(tidySummarizedExperiment)
 ```
 
+# Introduction
+
+In this vignette, several differential abundance (DA) methods will be compared
+using the *Ravel\_2011\_16S\_BV* dataset. Lactobacillus is expected to 
+be enriched in healthy vagina (HV) samples and other taxa, such as Gardnerella
+and Prevotella, are expected to be more abundant or enriched in
+bacterial vaginosis (BV) samples.
+
 # Data
 
 ## Import, summarize by genus, and filter
@@ -52,7 +60,9 @@ select_samples <- row_names_list |>
 tse_subset <- tse[, select_samples]
 
 ## Summarize by genus
-tse_genus <- agglomerateByRank(tse_subset, rank = 'genus', na.rm = FALSE)
+tse_genus <- agglomerateByRank(
+    tse_subset, rank = 'genus', na.rm = FALSE, onRankOnly = TRUE 
+)
 tse_genus <- filterTaxa(tse_genus, min_ab = 1, min_per = 0.2)
 rownames(tse_genus) <- editMiaTaxaNames(tse_genus)
 
@@ -90,19 +100,16 @@ ps
 
 # Benchdamic workflow
 
-This sections mostly follows the benchdamic workflow. This includes new DA
-methods added to the original workflow and modified plots.
-
-## Run differential abundance analysis
-
-
-DA analysis:
+## Set DA methods
 
 ```{r}
-ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
+## normalizations supported in benchdamic
+ps <- runNormalizations(set_norm_list()[2:4], ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
+## The following chunk of code is for compatibility with
+## a more recent version of Seurat
 for (i in seq_along(DA_methods)) {
     if (grepl("Seurat", names(DA_methods)[i])) {
         names(DA_methods[[i]]$contrast) <- NULL
@@ -117,7 +124,7 @@ for (i in seq_along(DA_methods)) {
 names(DA_methods)
 ```
 
-
+## Run DA methods
 
 ```{r, warning=FALSE, message=TRUE}
 tim <- system.time({
@@ -135,21 +142,6 @@ tim <- system.time({
     DA_output <- purrr::discard(DA_output, is.null)
 })
 tim
-```
-
-
-
-```{r run DA benchdamic, message=FALSE, warning=FALSE}
-# ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
-# zw <- weights_ZINB(ps, design = conditions_col)
-# DA_methods <- set_DA_methods_list(conditions_col, conditions)
-
-## These methods throw an error, so they must be removed
-# DA_methods <- DA_methods[!names(DA_methods) == 'DA_ALDEx2.1']
-# DA_methods <- DA_methods[!names(DA_methods) == 'DA_corncob.1']
-
-## run methods
-# DA_output <- runDA(DA_methods, ps, weights = zw, verbose = FALSE) 
 ```
 
 # Enrichment
@@ -256,14 +248,14 @@ assay(tse_genus, 'TSS') <- apply(assay(tse_genus), 2, function(x) {
 
 ## CLR transform
 assay(tse_genus, 'CLR') <- apply(assay(tse_genus), 2, function(x) {
-    (x + 1) / exp(mean(log(x + 1)))
-    # log((x + 1) / exp(mean(log(x + 1))))
+    # (x + 1) / exp(mean(log(x + 1)))
+    log((x + 1) / exp(mean(log(x + 1))))
 })
 
 ## Relative abundance + CLR transform
 assay(tse_genus, 'TSS + CLR') <- apply(assay(tse_genus, 'TSS'), 2, function(x) {
-    x / exp(mean(log(x)))
-    # log(x / exp(mean(log(x))))
+    # x / exp(mean(log(x)))
+    log(x / exp(mean(log(x))))
 })
 
 data <- tse_genus |> 
@@ -305,6 +297,7 @@ calcWilcox <- function(dat, val_col, log = FALSE) {
     
     ## Calculate fold change
     log_fold_change <- vector('double', length(taxa))
+    lll <- vector('double', length(taxa))
     for (i in seq_along(log_fold_change)) {
         df <- taxa[[i]]
         healthy <- df |> 
@@ -314,19 +307,28 @@ calcWilcox <- function(dat, val_col, log = FALSE) {
             dplyr::filter(study_condition == 'bacterial_vaginosis') |> 
             {\(y) y[[val_col]]}()
         
-        if (log) { # If log, revert with exp
-           healthy <- mean(exp(healthy))
-           bv <- mean(exp(bv))
-        } else{
-            healthy <- mean(healthy)
-            bv <- mean(bv)
+        bv <- mean(bv)
+        healthy <- mean(healthy)
+        
+        if (log) {
+            log_fold_change[i] <- bv - healthy
+        } else {
+            if (bv >= healthy) { # control is healthy, condition of interest is bv
+                 log_fold_change[i] <- log2(bv / healthy)
+            } else if (bv < healthy) {
+                 log_fold_change[i] <- -log2(healthy / bv)
+            }
         }
         
-        if (bv >= healthy) { # control is healthy, condition of interest is bv
-                log_fold_change[i] <- log2(bv / healthy)
-        } else if (bv < healthy) {
-                log_fold_change[i] <- -log2(healthy / bv)
-        }
+        ## This doesn't work because I would be analyzing the geometric means
+        # if (log) { # If log, revert with exp 
+        #    healthy <- mean(exp(healthy))
+        #    bv <- mean(exp(bv))
+        # } else{
+        #     healthy <- mean(healthy)
+        #     bv <- mean(bv)
+        # }
+        
     }
     
     ## Combine results and annotations
@@ -347,8 +349,8 @@ Perform statistical test:
 wilcox <- list(
     wilcox_counts = calcWilcox(data, 'counts'),
     wilcox_relab = calcWilcox(data, 'TSS'),
-    wilcox_clr = calcWilcox(data, 'CLR'),
-    wilcox_relab_clr = calcWilcox(data, 'TSS + CLR')
+    wilcox_clr = calcWilcox(data, 'CLR', log = TRUE),
+    wilcox_relab_clr = calcWilcox(data, 'TSS + CLR', log = TRUE)
 ) |> 
     bind_rows(.id = 'method')
 ```
@@ -375,8 +377,8 @@ wilcox_DA |>
     labs(
         title = 'Wilcoxon test',
         y = 'Number of DA taxa', x = 'Transformation method' 
-    ) +
-    scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))
+    ) 
+    # scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))
 ```
 
 Plot the abundances of the taxa that were incorrect
@@ -757,7 +759,7 @@ ancombc |>
 
 MetagenomeSeq
 
-```{r}
+```{r, eval=FALSE, echo=FALSE}
 metagenomeseq <- 
     as.data.frame(DA_output$metagenomeSeq.CSS.fitFeatureModel$statInfo)
 metagenomeseq$taxon_name <- rownames(metagenomeseq)

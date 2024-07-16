@@ -67,6 +67,7 @@ assay(tse, 'SCML') <- SCML_data
 
 ```{r}
 tss_fun <- function(x) (x + 1) / sum((x + 1))
+# tss_fun <- function(x) (x) / sum((x))
 gmn_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
 assay(tse, "TSS") <- apply(assay(tse, 'counts'), 2,  tss_fun)
 assay(tse, "GMN") <- apply(assay(tse, 'counts'), 2, gmn_fun) 
