@@ -67,8 +67,11 @@ assay(tse, 'SCML') <- SCML_data
 
 ```{r}
 tss_fun <- function(x) (x + 1) / sum((x + 1))
+# tss_fun <- function(x) log((x + 1) / sum((x + 1)))
 # tss_fun <- function(x) (x) / sum((x))
 gmn_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
+# gnm_fun <- function(x) (x + 1) / prod((x + 1)^(1 / length(x)))
+# gmn_fun <- function(x) log((x + 1) / exp(mean(log((x + 1)))))
 assay(tse, "TSS") <- apply(assay(tse, 'counts'), 2,  tss_fun)
 assay(tse, "GMN") <- apply(assay(tse, 'counts'), 2, gmn_fun) 
 ```
@@ -101,7 +104,7 @@ DT::datatable(data, filter = 'top')
 
 ```{r}
 get_cv <- function(x) {
-    cv <- function(x, n) { sd(x[n]) / mean(x[n]) * 100 } 
+    cv <- function(x, n) { sd(x[n]) / abs(mean(x[n])) } 
     boot::boot(x, cv, R = 1000) |>
         broom::tidy() |>
         dplyr::rename(cv = statistic)
@@ -131,7 +134,7 @@ cv_res |>
     filter(`Normalization method` %in% c("GMN", "TSS")) |> 
     select(-bias) |> 
     mutate(
-        CV = round(CV, 1), SE = round(SE, 1)
+        CV = round(CV, 2), SE = round(SE, 2)
     ) |> 
     mutate(
         `Normalization method` = ifelse(
