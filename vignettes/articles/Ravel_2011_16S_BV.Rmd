@@ -35,6 +35,10 @@ bacterial vaginosis (BV) samples.
 
 ## Import, summarize by genus, and filter
 
++ Select equal number of samples per ethnicity group. This was based on the
+minimum number of samples in an ethnicity.
++ Summarize (agglomerate) by genus.
+
 ```{r import data, warning=FALSE, message=FALSE}
 dat_name <- 'Ravel_2011_16S_BV'
 conditions_col <- 'study_condition'
@@ -43,19 +47,21 @@ conditions <- c(condB = 'healthy', condA = 'bacterial_vaginosis')
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 
 ## Select equal number of samples per ethnicity group
-col_data <- as.data.frame(colData(tse)) |> 
+col_data <- tse |> 
+    colData() |> 
+    as.data.frame() |>
     dplyr::filter(study_condition %in% conditions)
-row_names_list <- col_data |> 
-    {\(y) split(y, factor(y$ethnicity))}() |> 
-    {\(y) map(y, ~split(.x, .x$study_condition))}() |> 
-    unlist(recursive = FALSE) |> 
+row_names_list <- col_data |>
+    {\(y) split(y, factor(y$ethnicity))}() |>
+    {\(y) map(y, ~split(.x, .x$study_condition))}() |>
+    unlist(recursive = FALSE) |>
     map(rownames)
-min_n <- row_names_list |> 
-    map_int(length) |> 
+min_n <- row_names_list |>
+    map_int(length) |>
     min()
 set.seed(4567)
-select_samples <- row_names_list |> 
-    {\(y) map(y, ~ sample(.x, min_n, replace = FALSE))}() |>  
+select_samples <- row_names_list |>
+    {\(y) map(y, ~ sample(.x, min_n, replace = FALSE))}() |>
     unlist(use.names = FALSE)
 tse_subset <- tse[, select_samples]
 
@@ -63,10 +69,12 @@ tse_subset <- tse[, select_samples]
 tse_genus <- agglomerateByRank(
     tse_subset, rank = 'genus', na.rm = FALSE, onRankOnly = TRUE 
 )
+
+## Filter low abundance/presence taxa
 tse_genus <- filterTaxa(tse_genus, min_ab = 1, min_per = 0.2)
 rownames(tse_genus) <- editMiaTaxaNames(tse_genus)
 
-## Get the right order of study conditions
+## Set study conditions in the right order for analysis
 colData(tse_genus)$study_condition <- 
     factor(colData(tse_genus)$study_condition, levels = conditions)
 
@@ -75,18 +83,18 @@ tse_genus
 
 ## Get prior info 
 
-This is the biological information about the taxa
-
 ```{r prior info}
-prior_info <- as.data.frame(rowData(tse_genus)[, c('genus', 'taxon_annotation')])
-prior_info <- rename(prior_info, taxon_name = genus)
-prior_info <- prior_info |> 
+prior_info <- tse_genus |> 
+    rowData() |> 
+    as.data.frame() |> 
+    dplyr::select(genus, taxon_annotation) |> 
+    rename(taxon_name = genus) |> 
     mutate(
-        taxon_annotation = ifelse(
-            is.na(taxon_annotation), 'Unannotated', taxon_annotation
+        taxon_annotation = case_when(
+            is.na(taxon_annotation) ~ "Unannotated",
+            TRUE ~ taxon_annotation
         )
     )
-head(prior_info)
 ```
 
 ## Convert to phyloseq
@@ -103,13 +111,16 @@ ps
 ## Set DA methods
 
 ```{r}
-## normalizations supported in benchdamic
-ps <- runNormalizations(set_norm_list()[2:4], ps, verbose = FALSE)
+## Normalization methods supported in benchdamic
+norm_methods <- set_norm_list()
+norm_methods <- norm_methods[names(norm_methods) != "norm_CSS"]
+
+ps <- runNormalizations(norm_methods, ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
-## The following chunk of code is for compatibility with
-## a more recent version of Seurat
+## The following chunk of code was written for compatibility with
+## a more recent version of Seurat implemented in benchdamic
 for (i in seq_along(DA_methods)) {
     if (grepl("Seurat", names(DA_methods)[i])) {
         names(DA_methods[[i]]$contrast) <- NULL
@@ -126,7 +137,7 @@ names(DA_methods)
 
 ## Run DA methods
 
-```{r, warning=FALSE, message=TRUE}
+```{r, warning=FALSE, message=FALSE}
 tim <- system.time({
     DA_output <- vector("list", length(DA_methods))
     for (i in seq_along(DA_output)) {
@@ -150,6 +161,7 @@ Get direction
 
 ```{r get direction (effect size)}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
+head(direction)
 ```
 
 Create enrichment. Threshold values is based on adjusted p-values
@@ -174,6 +186,8 @@ enrichment <- createEnrichment(
 Create enrichment plot
 
 ```{r enrichment plot, warning=FALSE, message=FALSE}
+## Not a plot. This is a data.frame that should be used as input for
+## the plot_enrichment2 function.
 enrich_plot <- plot_enrichment(
     enrichment = enrichment, 
     enrichment_col = "taxon_annotation",
@@ -181,6 +195,7 @@ enrich_plot <- plot_enrichment(
     conditions = c(condB = "HV", condA = "BV") 
 )
 
+## The actual plot.
 enrich_plot2 <- plot_enrichment_2(
     enrich_plot,
     dir = c(up = 'BV', down = 'HV')
@@ -191,7 +206,7 @@ enrich_plot2 <- plot_enrichment_2(
         legend.text = element_text(size = 13),
         strip.text = element_text(size = 17)
     )
-enrich_plot2
+# enrich_plot2
 ```
 
 # Plot putative true positves and true negatives ratio
@@ -319,16 +334,6 @@ calcWilcox <- function(dat, val_col, log = FALSE) {
                  log_fold_change[i] <- -log2(healthy / bv)
             }
         }
-        
-        ## This doesn't work because I would be analyzing the geometric means
-        # if (log) { # If log, revert with exp 
-        #    healthy <- mean(exp(healthy))
-        #    bv <- mean(exp(bv))
-        # } else{
-        #     healthy <- mean(healthy)
-        #     bv <- mean(bv)
-        # }
-        
     }
     
     ## Combine results and annotations
@@ -419,10 +424,16 @@ head(wilcox_raw)
 
 Box plot of incorrect values:
 
-```{r plot abundance values}
+```{r plot abundance values, fig.height=7}
 wilcox_genus_plot <- wilcox_raw |> 
     mutate(taxon_name = sub('genus:', '', taxon_name)) |>
-    mutate(value = log(value + 1)) |> 
+    mutate(
+        value = case_when(
+            transformation %in% c("counts", "TSS") ~ log(value + 1),
+            TRUE ~ value
+        )
+    ) |> 
+    # mutate(value = log(value + 1)) |> 
     mutate(transformation = factor(
         transformation, levels = c('counts', 'TSS', 'CLR', 'TSS + CLR' ),
         labels = c('Counts', 'Relative abundance', 'CLR', 'Relative abundace + CLR')
@@ -443,7 +454,8 @@ wilcox_genus_plot <- wilcox_raw |>
     theme_bw() +
     theme(
         panel.grid.major.x = element_blank(),
-        legend.title = element_blank()
+        legend.title = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1)
     )
 wilcox_genus_plot
 ```
@@ -474,7 +486,7 @@ stats <- data |>
     arrange(taxon_name) |> 
     modify_if(.p = is.numeric, .f = ~ round(.x, 2)) |> 
     select(-starts_with("median"))
-knitr::kable(stats)
+stats
 ```
 
 
@@ -599,8 +611,8 @@ lefse_DA |>
     labs(
         title = 'LEfSe test',
         y = 'Number of DA taxa', x = 'Transformation method' 
-    ) +
-    scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))
+    )
+    # scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))
 
 ```
 
@@ -726,8 +738,8 @@ zinq_plot <- zinq_DA |>
     labs(
         title = 'ZINQ test',
         y = 'Number of DA taxa', x = 'Transformation method' 
-    ) +
-    scale_y_continuous(limits = c(-3, 13), breaks = seq(-3, 13, 2))
+    )
+    # scale_y_continuous(limits = c(-3, 13), breaks = seq(-3, 13, 2))
 zinq_plot
 ```
 
@@ -760,17 +772,17 @@ ancombc |>
 MetagenomeSeq
 
 ```{r, eval=FALSE, echo=FALSE}
-metagenomeseq <- 
-    as.data.frame(DA_output$metagenomeSeq.CSS.fitFeatureModel$statInfo)
-metagenomeseq$taxon_name <- rownames(metagenomeseq)
-metagenomeseq <- left_join(metagenomeseq, taxa_annotations, by = "taxon_name") |> 
-    relocate(taxon_name, taxon_annotation)
-metagenomeseq |> 
-    filter(
-        adjPvalues <= 0.1, logFC < 0,
-           taxon_annotation == 'bv-associated'
-    ) |> 
-    pull(taxon_name)
+# metagenomeseq <- 
+#     as.data.frame(DA_output$metagenomeSeq.CSS.fitFeatureModel$statInfo)
+# metagenomeseq$taxon_name <- rownames(metagenomeseq)
+# metagenomeseq <- left_join(metagenomeseq, taxa_annotations, by = "taxon_name") |> 
+#     relocate(taxon_name, taxon_annotation)
+# metagenomeseq |> 
+#     filter(
+#         adjPvalues <= 0.1, logFC < 0,
+#            taxon_annotation == 'bv-associated'
+#     ) |> 
+#     pull(taxon_name)
 ```
 
 DESEQ2
@@ -788,9 +800,6 @@ deseq |>
     pull(taxon_name)
 ```
 
-
-
-
 # Plots of BV-associated genera
 
 These are all of the BV-associated bacteria present in the Ravel_2011 dataset.
@@ -802,7 +811,7 @@ This is independent of any statistical test or effect size calculation.
 data |> 
     filter(taxon_annotation == 'bv-associated') |> 
     mutate(taxon_name = sub("^genus:", "", taxon_name)) |> 
-    mutate(CLR = log(CLR + 1)) |> 
+    # mutate(CLR = log(CLR + 1)) |> 
     ggplot(aes(taxon_name, CLR)) +
     geom_boxplot(aes(color = study_condition)) + 
     labs(
@@ -910,12 +919,12 @@ p2 <- data |>
             taxon_annotation, levels = c('Health-associated', 'BV-associated', 'Unannotated')[3:1]
         )
     ) |>
-    ggplot(aes(sample, CLR )) +
+    ggplot(aes(sample, exp(CLR))) +
     geom_col(aes(fill = taxon_annotation)) +
     scale_fill_manual(values = c('gray60', 'firebrick2', 'dodgerblue2')) +
     labs(
         x = "Samples",
-        y = "CLR transformed values"
+        y = "Geometric mean normalization (exp(CLR))"
     ) +
     facet_wrap(~nugent_score_category, ncol = 2, scales = "free_x") +
     theme_bw() +
@@ -942,14 +951,14 @@ Relative abundance vs CLR all taxa
 
 ```{r}
 data_with_lact |> 
-    ggplot(aes(TSS, CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3, position = 'jitter'
     ) + 
     labs(
         title = 'Relative abundace vs CLR per genus',
-        x = 'Relative abundance'
+        x = 'log(TSS + 1)'
     ) +
     theme_bw()
 ```
@@ -959,7 +968,7 @@ Relative abundance vs CLR BV-associated
 ```{r}
 data_with_lact |> 
     filter(taxon_annotation == 'bv-associated') |> 
-    ggplot(aes(TSS, CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3, position = 'jitter'
@@ -967,7 +976,7 @@ data_with_lact |>
     labs(
         title = 'Relative abundace vs CLR',
         subtitle = 'BV-associated genera only',
-        x = 'Relative abundance'
+        x = 'log(TSS + 1)'
     ) +
     scale_size(name = 'Lactobacillus Rel. Ab.') +
     theme_bw()
@@ -979,7 +988,7 @@ data_with_lact |>
 
 plot_1 <- data_with_lact |> 
     filter(taxon_name == 'genus:Actinomyces') |> 
-    ggplot(aes(TSS, CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3, position = 'jitter'
@@ -987,14 +996,14 @@ plot_1 <- data_with_lact |>
     labs(
         # title = 'Relative abundace vs CLR',
         title = 'Actinomyces (BV-associated)',
-        x = 'Relative abundance'
+        x = 'log(TSS + 1)'
     ) +
     scale_size(name = 'Lactobacillus Rel. Ab.') +
     theme_bw()
 
 plot_2 <- data_with_lact |> 
     filter(taxon_name == 'genus:Corynebacterium') |> 
-    ggplot(aes(TSS, CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3, position = 'jitter'
@@ -1009,7 +1018,7 @@ plot_2 <- data_with_lact |>
 
 plot_3 <- data_with_lact |> 
     filter(taxon_name == 'genus:Prevotella') |> 
-    ggplot(aes(TSS, CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3, position = 'jitter'
@@ -1024,7 +1033,7 @@ plot_3 <- data_with_lact |>
 
 plot_4 <- data_with_lact |> 
     filter(taxon_name == 'genus:Lactobacillus') |> 
-    ggplot(aes(TSS, CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3, position = 'jitter'
@@ -1055,7 +1064,7 @@ plot_1b <- data_with_lact |>
             labels = c('BV', 'HV')
         )
     ) |> 
-    ggplot(aes(log(TSS + 1), log(CLR + 1))) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3
@@ -1063,7 +1072,7 @@ plot_1b <- data_with_lact |>
     labs(
         # title = 'Relative abundace vs CLR',
         title = 'Actinomyces (BV-associated)',
-        x = 'log(Relative abundance + 1)'
+        x = 'log(TSS + 1)'
     ) +
     scale_color_discrete(name = 'Condition') +
     scale_size(name = 'Lactobacillus Rel. Ab.') +
@@ -1077,7 +1086,7 @@ plot_2b <- data_with_lact |>
             labels = c('BV', 'HV')
         )
     ) |> 
-    ggplot(aes(log(TSS + 1), log(CLR + 1))) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3
@@ -1085,7 +1094,7 @@ plot_2b <- data_with_lact |>
     labs(
         # title = 'Relative abundace vs CLR',
         title = 'Corynebacterium (BV-associated)',
-        x = 'log(Relative abundance + 1)'
+        x = 'log(TSS + 1)'
     ) +
     scale_color_discrete(name = 'Condition') +
     scale_size(name = 'Lactobacillus Rel. Ab.') +
@@ -1099,7 +1108,7 @@ plot_3b <- data_with_lact |>
             labels = c('BV', 'HV')
         )
     ) |> 
-    ggplot(aes(log(TSS + 1), log(CLR + 1))) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3
@@ -1107,7 +1116,7 @@ plot_3b <- data_with_lact |>
     labs(
         # title = 'Relative abundace vs CLR',
         title = 'Prevotella (BV-associated)',
-        x = 'log(Relative abundance + 1)'
+        x = 'log(TSS + 1)'
     ) +
     scale_color_discrete(name = 'Condition') +
     scale_size(name = 'Lactobacillus Rel. Ab.') +
@@ -1121,7 +1130,7 @@ plot_4b <- data_with_lact |>
             labels = c('BV', 'HV')
         )
     ) |> 
-    ggplot(aes(log(TSS + 1), log(CLR + 1))) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3
@@ -1129,7 +1138,7 @@ plot_4b <- data_with_lact |>
     labs(
         # title = 'Relative abundace vs CLR',
         title = 'Lactobacillus (HV)',
-        x = 'log(Relative abundance + 1)'
+        x = 'log(TSS + 1)'
     ) +
     scale_color_discrete(name = 'Condition') +
     scale_size(name = 'Lactobacillus Rel. Ab.') +
@@ -1140,16 +1149,18 @@ plotsb <- ggpubr::ggarrange(
     common.legend = TRUE, legend = 'bottom', 
     labels = c('a)', 'b)', 'c)', 'd)')
 ) 
-    # ggpubr::bgcolor("white")
+```
 
+```{r, fig.height=6, fig.width=8}
 plotsb
+
 ```
 
 ```{r, eval=FALSE, include=FALSE, echo=FALSE}
-ggsave(
-    plotsb, filename = 'distributions_plot.png',
-    width = 10, height = 8
-)
+# ggsave(
+#     plotsb, filename = 'distributions_plot.png',
+#     width = 10, height = 8
+# )
 ```
 
 # Session info
