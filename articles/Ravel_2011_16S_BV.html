@@ -129,6 +129,11 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <div class="section level3">
 <h3 id="import-summarize-by-genus-and-filter">Import, summarize by genus, and filter<a class="anchor" aria-label="anchor" href="#import-summarize-by-genus-and-filter"></a>
 </h3>
+<ul>
+<li>Select equal number of samples per ethnicity group. This was based
+on the minimum number of samples in an ethnicity.</li>
+<li>Summarize (agglomerate) by genus.</li>
+</ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat_name</span> <span class="op">&lt;-</span> <span class="st">'Ravel_2011_16S_BV'</span></span>
 <span><span class="va">conditions_col</span> <span class="op">&lt;-</span> <span class="st">'study_condition'</span></span>
@@ -137,19 +142,21 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://waldronlab.io/MicrobiomeBenchmarkData/reference/getBenchmarkData.html" class="external-link">getBenchmarkData</a></span><span class="op">(</span><span class="va">dat_name</span>, dryrun <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co">## Select equal number of samples per ethnicity group</span></span>
-<span><span class="va">col_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="va">col_data</span> <span class="op">&lt;-</span> <span class="va">tse</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">study_condition</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">conditions</span><span class="op">)</span></span>
-<span><span class="va">row_names_list</span> <span class="op">&lt;-</span> <span class="va">col_data</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">y</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">ethnicity</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">y</span>, <span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">.x</span>, <span class="va">.x</span><span class="op">$</span><span class="va">study_condition</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span>recursive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="va">row_names_list</span> <span class="op">&lt;-</span> <span class="va">col_data</span> <span class="op">|&gt;</span></span>
+<span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">y</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">ethnicity</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">y</span>, <span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">.x</span>, <span class="va">.x</span><span class="op">$</span><span class="va">study_condition</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span>recursive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">rownames</span><span class="op">)</span></span>
-<span><span class="va">min_n</span> <span class="op">&lt;-</span> <span class="va">row_names_list</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_int</a></span><span class="op">(</span><span class="va">length</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="va">min_n</span> <span class="op">&lt;-</span> <span class="va">row_names_list</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_int</a></span><span class="op">(</span><span class="va">length</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4567</span><span class="op">)</span></span>
-<span><span class="va">select_samples</span> <span class="op">&lt;-</span> <span class="va">row_names_list</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">y</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">.x</span>, <span class="va">min_n</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>  </span>
+<span><span class="va">select_samples</span> <span class="op">&lt;-</span> <span class="va">row_names_list</span> <span class="op">|&gt;</span></span>
+<span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">y</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">.x</span>, <span class="va">min_n</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span>use.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">tse_subset</span> <span class="op">&lt;-</span> <span class="va">tse</span><span class="op">[</span>, <span class="va">select_samples</span><span class="op">]</span></span>
 <span></span>
@@ -157,10 +164,12 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span><span class="va">tse_genus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/agglomerate-methods.html" class="external-link">agglomerateByRank</a></span><span class="op">(</span></span>
 <span>    <span class="va">tse_subset</span>, rank <span class="op">=</span> <span class="st">'genus'</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span>, onRankOnly <span class="op">=</span> <span class="cn">TRUE</span> </span>
 <span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Filter low abundance/presence taxa</span></span>
 <span><span class="va">tse_genus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filterTaxa.html">filterTaxa</a></span><span class="op">(</span><span class="va">tse_genus</span>, min_ab <span class="op">=</span> <span class="fl">1</span>, min_per <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/editMiaTaxaNames.html">editMiaTaxaNames</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## Get the right order of study conditions</span></span>
+<span><span class="co">## Set study conditions in the right order for analysis</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span><span class="op">$</span><span class="va">study_condition</span> <span class="op">&lt;-</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span><span class="op">$</span><span class="va">study_condition</span>, levels <span class="op">=</span> <span class="va">conditions</span><span class="op">)</span></span>
 <span></span>
@@ -186,29 +195,23 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <div class="section level3">
 <h3 id="get-prior-info">Get prior info<a class="anchor" aria-label="anchor" href="#get-prior-info"></a>
 </h3>
-<p>This is the biological information about the taxa</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">prior_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'genus'</span>, <span class="st">'taxon_annotation'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">prior_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span><span class="va">prior_info</span>, taxon_name <span class="op">=</span> <span class="va">genus</span><span class="op">)</span></span>
-<span><span class="va">prior_info</span> <span class="op">&lt;-</span> <span class="va">prior_info</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="va">prior_info</span> <span class="op">&lt;-</span> <span class="va">tse_genus</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">genus</span>, <span class="va">taxon_annotation</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="va">genus</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>        taxon_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span></span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">taxon_annotation</span><span class="op">)</span>, <span class="st">'Unannotated'</span>, <span class="va">taxon_annotation</span></span>
+<span>        taxon_annotation <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">taxon_annotation</span><span class="op">)</span> <span class="op">~</span> <span class="st">"Unannotated"</span>,</span>
+<span>            <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">taxon_annotation</span></span>
 <span>        <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">prior_info</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##                        taxon_name taxon_annotation</span></span>
-<span><span class="co">## genus:Lactobacillus Lactobacillus    hv-associated</span></span>
-<span><span class="co">## genus:Prevotella       Prevotella    bv-associated</span></span>
-<span><span class="co">## genus:Megasphaera     Megasphaera      Unannotated</span></span>
-<span><span class="co">## genus:Sneathia           Sneathia    bv-associated</span></span>
-<span><span class="co">## genus:Atopobium         Atopobium    bv-associated</span></span>
-<span><span class="co">## genus:Streptococcus Streptococcus    bv-associated</span></span></code></pre>
+<span>    <span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="convert-to-phyloseq">Convert to phyloseq<a class="anchor" aria-label="anchor" href="#convert-to-phyloseq"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/makePhyloseqFromTreeSE.html" class="external-link">makePhyloseqFromTreeSummarizedExperiment</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html" class="external-link">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html" class="external-link">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span>, levels <span class="op">=</span> <span class="va">conditions</span><span class="op">)</span></span>
@@ -225,14 +228,17 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <div class="section level3">
 <h3 id="set-da-methods">Set DA methods<a class="anchor" aria-label="anchor" href="#set-da-methods"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## normalizations supported in benchdamic</span></span>
-<span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/runNormalizations.html" class="external-link">runNormalizations</a></span><span class="op">(</span><span class="fu"><a href="../reference/set_norm_list.html">set_norm_list</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, <span class="va">ps</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## Normalization methods supported in benchdamic</span></span>
+<span><span class="va">norm_methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_norm_list.html">set_norm_list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">norm_methods</span> <span class="op">&lt;-</span> <span class="va">norm_methods</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">norm_methods</span><span class="op">)</span> <span class="op">!=</span> <span class="st">"norm_CSS"</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/runNormalizations.html" class="external-link">runNormalizations</a></span><span class="op">(</span><span class="va">norm_methods</span>, <span class="va">ps</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">zw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/weights_ZINB.html" class="external-link">weights_ZINB</a></span><span class="op">(</span><span class="va">ps</span>, design <span class="op">=</span> <span class="va">conditions_col</span><span class="op">)</span></span>
 <span><span class="va">DA_methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_DA_methods_list.html">set_DA_methods_list</a></span><span class="op">(</span><span class="va">conditions_col</span>, <span class="va">conditions</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## The following chunk of code is for compatibility with</span></span>
-<span><span class="co">## a more recent version of Seurat</span></span>
+<span><span class="co">## The following chunk of code was written for compatibility with</span></span>
+<span><span class="co">## a more recent version of Seurat implemented in benchdamic</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Seurat"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">contrast</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
@@ -255,7 +261,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <div class="section level3">
 <h3 id="run-da-methods">Run DA methods<a class="anchor" aria-label="anchor" href="#run-da-methods"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -269,56 +275,25 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="op">}</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_flatten.html" class="external-link">list_flatten</a></span><span class="op">(</span><span class="va">DA_output</span>, name_spec <span class="op">=</span> <span class="st">"{inner}"</span><span class="op">)</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/keep.html" class="external-link">discard</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">is.null</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running method 1: DA_edgeR.1 - 2024-07-16 19:45:22.470358</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 2: DA_edgeR.1 - 2024-07-16 19:45:22.591657</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 3: DA_DESeq2.1 - 2024-07-16 19:45:22.66199</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 4: DA_DESeq2.1 - 2024-07-16 19:45:25.483016</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 5: DA_limma.1 - 2024-07-16 19:45:28.17385</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 6: DA_limma.1 - 2024-07-16 19:45:28.187033</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 7: DA_metagenomeSeq.1 - 2024-07-16 19:45:28.193813</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 8: DA_ALDEx2.1 - 2024-07-16 19:45:28.283083</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 9: DA_MAST.1 - 2024-07-16 19:45:29.188296</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 10: DA_Seurat.1 - 2024-07-16 19:45:29.695484</span></span></code></pre>
-<pre><code><span><span class="co">## For a (much!) faster implementation of the Wilcoxon Rank Sum Test,</span></span>
-<span><span class="co">## (default method for FindMarkers) please install the presto package</span></span>
-<span><span class="co">## --------------------------------------------</span></span>
-<span><span class="co">## install.packages('devtools')</span></span>
-<span><span class="co">## devtools::install_github('immunogenomics/presto')</span></span>
-<span><span class="co">## --------------------------------------------</span></span>
-<span><span class="co">## After installation of presto, Seurat will automatically use the more </span></span>
-<span><span class="co">## efficient implementation (no further action necessary).</span></span>
-<span><span class="co">## This message will be shown once per session</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 11: ancombc.1 - 2024-07-16 19:45:30.092453</span></span></code></pre>
-<pre><code><span><span class="co">## 'ancombc' has been fully evolved to 'ancombc2'. </span></span>
-<span><span class="co">## Explore the enhanced capabilities of our refined method!</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: foreach</span></span></code></pre>
-<pre><code><span><span class="co">## </span></span>
-<span><span class="co">## Attaching package: 'foreach'</span></span></code></pre>
-<pre><code><span><span class="co">## The following objects are masked from 'package:purrr':</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##     accumulate, when</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: rngtools</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 12: wilcox.3 - 2024-07-16 19:45:32.855973</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 13: wilcox.4 - 2024-07-16 19:45:32.901116</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 14: ZINQ.9 - 2024-07-16 19:45:32.923318</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 15: ZINQ.10 - 2024-07-16 19:45:33.423234</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 16: lefse.12 - 2024-07-16 19:45:33.601863</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 17: lefse.13 - 2024-07-16 19:45:33.967487</span></span></code></pre>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tim</span></span></code></pre></div>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  11.928   1.376  11.812</span></span></code></pre>
+<span><span class="co">##  12.063   1.485  12.008</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
 <h2 id="enrichment">Enrichment<a class="anchor" aria-label="anchor" href="#enrichment"></a>
 </h2>
 <p>Get direction</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">direction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_direction_cols.html">get_direction_cols</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">conditions_col</span>, <span class="va">conditions</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">direction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_direction_cols.html">get_direction_cols</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">conditions_col</span>, <span class="va">conditions</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">direction</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                 edgeR.TMM        edgeR.TMM.weighted          DESeq2.poscounts </span></span>
+<span><span class="co">##                   "logFC"                   "logFC"          "log2FoldChange" </span></span>
+<span><span class="co">## DESeq2.poscounts.weighted                 limma.TMM        limma.TMM.weighted </span></span>
+<span><span class="co">##          "log2FoldChange"                   "logFC"                   "logFC"</span></span></code></pre>
 <p>Create enrichment. Threshold values is based on adjusted p-values</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createEnrichment.html" class="external-link">createEnrichment</a></span><span class="op">(</span></span>
 <span>    object <span class="op">=</span> <span class="va">DA_output</span>,</span>
 <span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>,</span>
@@ -333,14 +308,17 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span> </span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Create enrichment plot</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enrich_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_enrichment.html">plot_enrichment</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## Not a plot. This is a data.frame that should be used as input for</span></span>
+<span><span class="co">## the plot_enrichment2 function.</span></span>
+<span><span class="va">enrich_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_enrichment.html">plot_enrichment</a></span><span class="op">(</span></span>
 <span>    enrichment <span class="op">=</span> <span class="va">enrichment</span>, </span>
 <span>    enrichment_col <span class="op">=</span> <span class="st">"taxon_annotation"</span>,</span>
 <span>    levels_to_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hv-associated"</span>, <span class="st">"bv-associated"</span><span class="op">)</span>,</span>
 <span>    conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>condB <span class="op">=</span> <span class="st">"HV"</span>, condA <span class="op">=</span> <span class="st">"BV"</span><span class="op">)</span> </span>
 <span><span class="op">)</span></span>
 <span></span>
+<span><span class="co">## The actual plot.</span></span>
 <span><span class="va">enrich_plot2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_enrichment_2.html">plot_enrichment_2</a></span><span class="op">(</span></span>
 <span>    <span class="va">enrich_plot</span>,</span>
 <span>    dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>up <span class="op">=</span> <span class="st">'BV'</span>, down <span class="op">=</span> <span class="st">'HV'</span><span class="op">)</span></span>
@@ -351,14 +329,13 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>        legend.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>,</span>
 <span>        strip.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">17</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
-<span><span class="va">enrich_plot2</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/enrichment%20plot-1.png" width="700"></p>
+<span><span class="co"># enrich_plot2</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="plot-putative-true-positves-and-true-negatives-ratio">Plot putative true positves and true negatives ratio<a class="anchor" aria-label="anchor" href="#plot-putative-true-positves-and-true-negatives-ratio"></a>
 </h2>
 <p>Create ‘positives’ object. No thresholds were added.</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createPositives.html" class="external-link">createPositives</a></span><span class="op">(</span></span>
 <span>    object <span class="op">=</span> <span class="va">DA_output</span>, </span>
 <span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>, </span>
@@ -376,7 +353,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_meth_class.html">get_meth_class</a></span><span class="op">(</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'method'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/relocate.html" class="external-link">relocate</a></span><span class="op">(</span><span class="va">method_class</span><span class="op">)</span></span></code></pre></div>
 <p>Create putative positives plot</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_positives.html">plot_positives</a></span><span class="op">(</span><span class="va">positives</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span> <span class="op">~</span> <span class="op">{</span></span>
 <span>        <span class="va">.x</span> <span class="op">+</span></span>
@@ -389,14 +366,14 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="op">}</span><span class="op">)</span></span>
 <span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">grid.arrange</a></span><span class="op">(</span>grobs <span class="op">=</span> <span class="va">plots</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/plot%20positves-1.png" width="1440"></p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span><span class="va">enrich_plot2</span>, <span class="va">k</span>, ncol <span class="op">=</span> <span class="fl">1</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a)"</span>, <span class="st">"b)"</span><span class="op">)</span>, heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-4-1.png" width="1440"></p>
 </div>
 <div class="section level2">
 <h2 id="perform-da-with-lefse-wilcox-and-zinq-cauchy-manually">Perform DA with lefse, Wilcox, and ZINQ-Cauchy manually<a class="anchor" aria-label="anchor" href="#perform-da-with-lefse-wilcox-and-zinq-cauchy-manually"></a>
 </h2>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Relative abundance (TSS - total sum scaling)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">'TSS'</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span> </span>
@@ -443,7 +420,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <h3 id="wilcox">Wilcox<a class="anchor" aria-label="anchor" href="#wilcox"></a>
 </h3>
 <p>Define function:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">calcWilcox</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span>, <span class="va">val_col</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    </span>
 <span>    <span class="co">## Separate components</span></span>
@@ -489,16 +466,6 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>                 <span class="va">log_fold_change</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="va">healthy</span> <span class="op">/</span> <span class="va">bv</span><span class="op">)</span></span>
 <span>            <span class="op">}</span></span>
 <span>        <span class="op">}</span></span>
-<span>        </span>
-<span>        <span class="co">## This doesn't work because I would be analyzing the geometric means</span></span>
-<span>        <span class="co"># if (log) { # If log, revert with exp </span></span>
-<span>        <span class="co">#    healthy &lt;- mean(exp(healthy))</span></span>
-<span>        <span class="co">#    bv &lt;- mean(exp(bv))</span></span>
-<span>        <span class="co"># } else{</span></span>
-<span>        <span class="co">#     healthy &lt;- mean(healthy)</span></span>
-<span>        <span class="co">#     bv &lt;- mean(bv)</span></span>
-<span>        <span class="co"># }</span></span>
-<span>        </span>
 <span>    <span class="op">}</span></span>
 <span>    </span>
 <span>    <span class="co">## Combine results and annotations</span></span>
@@ -512,7 +479,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">pval_results</span>, <span class="va">taxa_annotations</span>, by <span class="op">=</span> <span class="st">'taxon_name'</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Perform statistical test:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    wilcox_counts <span class="op">=</span> <span class="fu">calcWilcox</span><span class="op">(</span><span class="va">data</span>, <span class="st">'counts'</span><span class="op">)</span>,</span>
 <span>    wilcox_relab <span class="op">=</span> <span class="fu">calcWilcox</span><span class="op">(</span><span class="va">data</span>, <span class="st">'TSS'</span><span class="op">)</span>,</span>
@@ -521,12 +488,12 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span>.id <span class="op">=</span> <span class="st">'method'</span><span class="op">)</span></span></code></pre></div>
 <p>Filter DA taxa</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox_DA</span> <span class="op">&lt;-</span> <span class="va">wilcox</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">logFC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>DA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"OA"</span>, <span class="st">"UA"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Plot</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">!=</span> <span class="st">'Unannotated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">taxon_annotation</span>, <span class="va">DA</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -540,10 +507,10 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>        y <span class="op">=</span> <span class="st">'Number of DA taxa'</span>, x <span class="op">=</span> <span class="st">'Transformation method'</span> </span>
 <span>    <span class="op">)</span> </span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/plot%20numbers%20of%20taxa-1.png" width="700"></p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span>    <span class="co"># scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))</span></span></code></pre></div>
 <p>Plot the abundances of the taxa that were incorrect</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">incorrect_taxa_wilcox_clr</span> <span class="op">&lt;-</span> <span class="va">wilcox_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">method</span> <span class="op">==</span> <span class="st">'wilcox_clr'</span>, <span class="va">DA</span> <span class="op">==</span> <span class="st">'UA'</span>, </span>
@@ -556,7 +523,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span><span class="co">## [5] "genus:Peptostreptococcus" "genus:Staphylococcus"    </span></span>
 <span><span class="co">## [7] "genus:Streptococcus"</span></span></code></pre>
 <p>Let’s plot their values for each matrix</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">transformations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'counts'</span>, <span class="st">'TSS'</span>, <span class="st">'CLR'</span>, <span class="st">'TSS + CLR'</span><span class="op">)</span></span>
 <span><span class="va">l1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">'list'</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">transformations</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">l1</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">transformations</span></span>
@@ -579,7 +546,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Row 1 of `y` matches multiple rows in `x`.</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> If a many-to-many relationship is expected, set `relationship =</span></span>
 <span><span class="co">##   "many-to-many"` to silence this warning.</span></span></code></pre>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">wilcox_raw</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
 <span><span class="co">##   transformation taxon_name        sample value study_condition    </span></span>
@@ -591,10 +558,16 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span><span class="co">## <span style="color: #BCBCBC;">5</span> counts         genus:Actinomyces S250       0 bacterial_vaginosis</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">6</span> counts         genus:Actinomyces S250       0 bacterial_vaginosis</span></span></code></pre>
 <p>Box plot of incorrect values:</p>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox_genus_plot</span> <span class="op">&lt;-</span> <span class="va">wilcox_raw</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">'genus:'</span>, <span class="st">''</span>, <span class="va">taxon_name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">value</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>        value <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>            <span class="va">transformation</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"counts"</span>, <span class="st">"TSS"</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">value</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>            <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">value</span></span>
+<span>        <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="co"># mutate(value = log(value + 1)) |&gt; </span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>transformation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
 <span>        <span class="va">transformation</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'counts'</span>, <span class="st">'TSS'</span>, <span class="st">'CLR'</span>, <span class="st">'TSS + CLR'</span> <span class="op">)</span>,</span>
 <span>        labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Counts'</span>, <span class="st">'Relative abundance'</span>, <span class="st">'CLR'</span>, <span class="st">'Relative abundace + CLR'</span><span class="op">)</span></span>
@@ -615,18 +588,17 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
 <span>        panel.grid.major.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        legend.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>        legend.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>        axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Warning: There was 1 warning in `mutate()`.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> In argument: `value = log(value + 1)`.</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> In argument: `value = case_when(...)`.</span></span>
 <span><span class="co">## Caused by warning in `log()`:</span></span>
 <span><span class="co">## <span style="color: #BBBB00;">!</span> NaNs produced</span></span></code></pre>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox_genus_plot</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: Removed 9776 rows containing non-finite outside the scale range</span></span>
-<span><span class="co">## (`stat_boxplot()`).</span></span></code></pre>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/plot%20abundance%20values-1.png" width="700"></p>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stats</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">'genus:'</span>, <span class="st">''</span>, <span class="va">taxon_name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Actinomyces'</span>, <span class="st">'Corynebacterium'</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -652,84 +624,16 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">taxon_name</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://purrr.tidyverse.org/reference/modify.html" class="external-link">modify_if</a></span><span class="op">(</span>.p <span class="op">=</span> <span class="va">is.numeric</span>, .f <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"median"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="17%">
-<col width="14%">
-<col width="10%">
-<col width="8%">
-<col width="7%">
-<col width="6%">
-<col width="7%">
-<col width="6%">
-<col width="11%">
-<col width="9%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">study_condition</th>
-<th align="left">taxon_name</th>
-<th align="right">mean_counts</th>
-<th align="right">sd_counts</th>
-<th align="right">mean_TSS</th>
-<th align="right">sd_TSS</th>
-<th align="right">mean_CLR</th>
-<th align="right">sd_CLR</th>
-<th align="right">mean_TSS_CLR</th>
-<th align="right">sd_TSS_CLR</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">healthy</td>
-<td align="left">Actinomyces</td>
-<td align="right">0.38</td>
-<td align="right">1.66</td>
-<td align="right">0.07</td>
-<td align="right">0.10</td>
-<td align="right">-0.50</td>
-<td align="right">0.39</td>
-<td align="right">-0.50</td>
-<td align="right">0.39</td>
-</tr>
-<tr class="even">
-<td align="left">bacterial_vaginosis</td>
-<td align="left">Actinomyces</td>
-<td align="right">2.78</td>
-<td align="right">7.78</td>
-<td align="right">0.17</td>
-<td align="right">0.29</td>
-<td align="right">-1.35</td>
-<td align="right">1.04</td>
-<td align="right">-1.35</td>
-<td align="right">1.04</td>
-</tr>
-<tr class="odd">
-<td align="left">healthy</td>
-<td align="left">Corynebacterium</td>
-<td align="right">6.53</td>
-<td align="right">29.12</td>
-<td align="right">0.42</td>
-<td align="right">1.69</td>
-<td align="right">-0.03</td>
-<td align="right">0.82</td>
-<td align="right">-0.03</td>
-<td align="right">0.82</td>
-</tr>
-<tr class="even">
-<td align="left">bacterial_vaginosis</td>
-<td align="left">Corynebacterium</td>
-<td align="right">9.45</td>
-<td align="right">26.30</td>
-<td align="right">0.48</td>
-<td align="right">1.19</td>
-<td align="right">-0.89</td>
-<td align="right">1.25</td>
-<td align="right">-0.89</td>
-<td align="right">1.25</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<span><span class="va">stats</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 10</span></span></span>
+<span><span class="co">##   study_condition     taxon_name  mean_counts sd_counts mean_TSS sd_TSS mean_CLR</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> healthy             Actinomyces        0.38      1.66     0.07   0.1     -<span style="color: #BB0000;">0.5</span> </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> bacterial_vaginosis Actinomyces        2.78      7.78     0.17   0.29    -<span style="color: #BB0000;">1.35</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> healthy             Corynebact…        6.53     29.1      0.42   1.69    -<span style="color: #BB0000;">0.03</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> bacterial_vaginosis Corynebact…        9.45     26.3      0.48   1.19    -<span style="color: #BB0000;">0.89</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 3 more variables: sd_CLR &lt;dbl&gt;, mean_TSS_CLR &lt;dbl&gt;, sd_TSS_CLR &lt;dbl&gt;</span></span></span></code></pre>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">types_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"counts$"</span>, <span class="st">"TSS$"</span>, <span class="st">"[^(TSS)]_CLR$"</span>, <span class="st">"TSS_CLR$"</span><span class="op">)</span></span>
 <span><span class="va">new_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">stats</span>, <span class="va">taxon_name</span>, <span class="va">study_condition</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">types_names</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -751,7 +655,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>            <span class="va">Condition</span> <span class="op">==</span> <span class="st">"bacterial_vaginosis"</span> <span class="op">~</span> <span class="st">"VB"</span></span>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>        sig <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="st">'*'</span>, <span class="st">''</span><span class="op">)</span></span>
@@ -776,7 +680,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <h3 id="lefse">Lefse<a class="anchor" aria-label="anchor" href="#lefse"></a>
 </h3>
 <p>Define a function for running Lefse:</p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">calcLefse</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span>, <span class="va">assay</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/lefser2.html">lefser2</a></span><span class="op">(</span></span>
 <span>        <span class="va">dat</span>, kruskal.threshold <span class="op">=</span> <span class="fl">0.05</span>, wilcox.threshold <span class="op">=</span> <span class="fl">0.05</span>, </span>
@@ -801,7 +705,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="co">#     )</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Run lefse</p>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">taxa_annotations</span> <span class="op">&lt;-</span></span>
 <span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">'taxon'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">lefse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -832,12 +736,12 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span><span class="co">## 4 3.304562e-04 OA      Unannotated</span></span>
 <span><span class="co">## 5 4.527811e-07 OA    bv-associated</span></span>
 <span><span class="co">## 6 3.457777e-03 OA      Unannotated</span></span></code></pre>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lefse_DA</span> <span class="op">&lt;-</span> <span class="va">lefse</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">scores</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>DA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">scores</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"OA"</span>, <span class="st">"UA"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Plot lefse results:</p>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lefse_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">!=</span> <span class="st">'Unannotated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">taxon_annotation</span>, <span class="va">DA</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -849,12 +753,11 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        title <span class="op">=</span> <span class="st">'LEfSe test'</span>,</span>
 <span>        y <span class="op">=</span> <span class="st">'Number of DA taxa'</span>, x <span class="op">=</span> <span class="st">'Transformation method'</span> </span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">11</span><span class="op">)</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">11</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: Removed 2 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">## (`geom_col()`).</span></span></code></pre>
+<span>    <span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
-<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span>    <span class="co"># scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))</span></span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">incorrect_taxa_lefse_clr</span> <span class="op">&lt;-</span> <span class="va">lefse_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">method</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'lefse_clr'</span>, <span class="st">'lefse_relab_clr'</span><span class="op">)</span>, <span class="va">DA</span> <span class="op">==</span> <span class="st">'UA'</span>, </span>
@@ -869,7 +772,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <div class="section level3">
 <h3 id="zinq">ZINQ<a class="anchor" aria-label="anchor" href="#zinq"></a>
 </h3>
-<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">calcZINQ</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span>, <span class="va">val_col</span>, <span class="va">y_Cord</span> <span class="op">=</span> <span class="st">'D'</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">dat</span>, <span class="va">dat</span><span class="op">$</span><span class="va">taxon_name</span><span class="op">)</span></span>
 <span>    <span class="va">taxa_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">taxa</span><span class="op">)</span></span>
@@ -941,7 +844,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    </span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Run ZINQ</p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">zinq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    zinq_counts <span class="op">=</span> <span class="fu">calcZINQ</span><span class="op">(</span><span class="va">data</span>, <span class="st">'counts'</span>, y_Cord <span class="op">=</span> <span class="st">'D'</span><span class="op">)</span>,</span>
 <span>    zinq_relab <span class="op">=</span> <span class="fu">calcZINQ</span><span class="op">(</span><span class="va">data</span>, <span class="st">'TSS'</span>, y_Cord <span class="op">=</span> <span class="st">'C'</span><span class="op">)</span>,</span>
@@ -958,7 +861,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">logFC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>DA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"OA"</span>, <span class="st">"UA"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Plot ZINQ results</p>
-<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">zinq_plot</span> <span class="op">&lt;-</span> <span class="va">zinq_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">!=</span> <span class="st">'Unannotated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">taxon_annotation</span>, <span class="va">DA</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -970,11 +873,11 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        title <span class="op">=</span> <span class="st">'ZINQ test'</span>,</span>
 <span>        y <span class="op">=</span> <span class="st">'Number of DA taxa'</span>, x <span class="op">=</span> <span class="st">'Transformation method'</span> </span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">13</span><span class="op">)</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">13</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>    <span class="co"># scale_y_continuous(limits = c(-3, 13), breaks = seq(-3, 13, 2))</span></span>
 <span><span class="va">zinq_plot</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">incorrect_taxa_lefse_clr</span> <span class="op">&lt;-</span> <span class="va">zinq_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">method</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'zinq_clr'</span>, <span class="st">'zinq_relab_clr'</span><span class="op">)</span>, <span class="va">DA</span> <span class="op">==</span> <span class="st">'UA'</span>, </span>
@@ -990,7 +893,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <h2 id="ancom-bc-metagenomeseq-and-deseq2">ANCOM-BC, MetagenomeSeq, and DESEQ2<a class="anchor" aria-label="anchor" href="#ancom-bc-metagenomeseq-and-deseq2"></a>
 </h2>
 <p>ANCOM-BC</p>
-<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ancombc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">ancombc.none</span><span class="op">$</span><span class="va">statInfo</span><span class="op">)</span></span>
 <span><span class="va">ancombc</span><span class="op">$</span><span class="va">taxon_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ancombc</span><span class="op">)</span></span>
 <span><span class="va">ancombc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">ancombc</span>, <span class="va">taxa_annotations</span>, by <span class="op">=</span> <span class="st">"taxon_name"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -1001,7 +904,7 @@ enriched in bacterial vaginosis (BV) samples.</p>
 <pre><code><span><span class="co">## character(0)</span></span></code></pre>
 <p>MetagenomeSeq</p>
 <p>DESEQ2</p>
-<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">deseq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">DESeq2.poscounts</span><span class="op">$</span><span class="va">statInfo</span><span class="op">)</span></span>
 <span><span class="va">deseq</span><span class="op">$</span><span class="va">taxon_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">deseq</span><span class="op">)</span></span>
 <span><span class="va">deseq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">deseq</span>, <span class="va">taxa_annotations</span>, by <span class="op">=</span> <span class="st">"taxon_name"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -1023,11 +926,11 @@ calculation.</p>
 <div class="section level3">
 <h3 id="clr">CLR<a class="anchor" aria-label="anchor" href="#clr"></a>
 </h3>
-<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">==</span> <span class="st">'bv-associated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^genus:"</span>, <span class="st">""</span>, <span class="va">taxon_name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>CLR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">CLR</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="co"># mutate(CLR = log(CLR + 1)) |&gt; </span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">taxon_name</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">study_condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
@@ -1038,18 +941,12 @@ calculation.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
 <span>        axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: There was 1 warning in `mutate()`.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> In argument: `CLR = log(CLR + 1)`.</span></span>
-<span><span class="co">## Caused by warning in `log()`:</span></span>
-<span><span class="co">## <span style="color: #BBBB00;">!</span> NaNs produced</span></span></code></pre>
-<pre><code><span><span class="co">## Warning: Removed 242 rows containing non-finite outside the scale range</span></span>
-<span><span class="co">## (`stat_boxplot()`).</span></span></code></pre>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="relative-abundance">Relative abundance<a class="anchor" aria-label="anchor" href="#relative-abundance"></a>
 </h3>
-<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">==</span> <span class="st">'bv-associated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^genus:"</span>, <span class="st">""</span>, <span class="va">taxon_name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -1068,7 +965,7 @@ calculation.</p>
 <h3 id="compositions-with-tss-data">Compositions with TSS data<a class="anchor" aria-label="anchor" href="#compositions-with-tss-data"></a>
 </h3>
 <p>order of taxa</p>
-<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">first_set</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">nugent_score_category</span> <span class="op">==</span> <span class="st">'low'</span>,</span>
@@ -1086,7 +983,7 @@ calculation.</p>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">TSS</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">sample</span><span class="op">)</span></span>
 <span><span class="va">samples_order</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">first_set</span>, <span class="va">second_set</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>        sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sample</span>, levels <span class="op">=</span> <span class="va">samples_order</span><span class="op">)</span>,</span>
@@ -1119,7 +1016,7 @@ calculation.</p>
 <span>    <span class="op">)</span></span>
 <span><span class="va">p1</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
-<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>        sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sample</span>, levels <span class="op">=</span> <span class="va">samples_order</span><span class="op">)</span>,</span>
@@ -1136,12 +1033,12 @@ calculation.</p>
 <span>            <span class="va">taxon_annotation</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Health-associated'</span>, <span class="st">'BV-associated'</span>, <span class="st">'Unannotated'</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span></span>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sample</span>, <span class="va">CLR</span> <span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sample</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">CLR</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">taxon_annotation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'gray60'</span>, <span class="st">'firebrick2'</span>, <span class="st">'dodgerblue2'</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        x <span class="op">=</span> <span class="st">"Samples"</span>,</span>
-<span>        y <span class="op">=</span> <span class="st">"CLR transformed values"</span></span>
+<span>        y <span class="op">=</span> <span class="st">"Geometric mean normalization (exp(CLR))"</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">nugent_score_category</span>, ncol <span class="op">=</span> <span class="fl">2</span>, scales <span class="op">=</span> <span class="st">"free_x"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -1158,29 +1055,29 @@ calculation.</p>
 <h2 id="distributions">Distributions<a class="anchor" aria-label="anchor" href="#distributions"></a>
 </h2>
 <p>Get Latobacillus relative abundance per sample</p>
-<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample_sizes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">taxon_name</span> <span class="op">==</span> <span class="st">'genus:Lactobacillus'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">sample</span>, lact_tss <span class="op">=</span> <span class="va">TSS</span>, lact_clr <span class="op">=</span> <span class="va">CLR</span><span class="op">)</span></span>
 <span><span class="va">data_with_lact</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">sample_sizes</span>, by <span class="op">=</span> <span class="st">'sample'</span><span class="op">)</span></span></code></pre></div>
 <p>Relative abundance vs CLR all taxa</p>
-<div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data_with_lact</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">TSS</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">study_condition</span>, size <span class="op">=</span> <span class="va">lact_tss</span><span class="op">)</span>, </span>
 <span>        alpha <span class="op">=</span> <span class="fl">0.3</span>, position <span class="op">=</span> <span class="st">'jitter'</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span> </span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        title <span class="op">=</span> <span class="st">'Relative abundace vs CLR per genus'</span>,</span>
-<span>        x <span class="op">=</span> <span class="st">'Relative abundance'</span></span>
+<span>        x <span class="op">=</span> <span class="st">'log(TSS + 1)'</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
 <p>Relative abundance vs CLR BV-associated</p>
-<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data_with_lact</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">==</span> <span class="st">'bv-associated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">TSS</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">study_condition</span>, size <span class="op">=</span> <span class="va">lact_tss</span><span class="op">)</span>, </span>
 <span>        alpha <span class="op">=</span> <span class="fl">0.3</span>, position <span class="op">=</span> <span class="st">'jitter'</span></span>
@@ -1188,14 +1085,14 @@ calculation.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        title <span class="op">=</span> <span class="st">'Relative abundace vs CLR'</span>,</span>
 <span>        subtitle <span class="op">=</span> <span class="st">'BV-associated genera only'</span>,</span>
-<span>        x <span class="op">=</span> <span class="st">'Relative abundance'</span></span>
+<span>        x <span class="op">=</span> <span class="st">'log(TSS + 1)'</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Lactobacillus Rel. Ab.'</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-23-1.png" width="700"></p>
 <p>Plotting log(CLR) vs log(Relab) of Lactobacillus, Prevotella,
 Actinomyces, and Corynebacterium.</p>
-<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_1b</span> <span class="op">&lt;-</span> <span class="va">data_with_lact</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_name</span> <span class="op">==</span> <span class="st">'genus:Actinomyces'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
@@ -1204,7 +1101,7 @@ Actinomyces, and Corynebacterium.</p>
 <span>            labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'BV'</span>, <span class="st">'HV'</span><span class="op">)</span></span>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">CLR</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">study_condition</span>, size <span class="op">=</span> <span class="va">lact_tss</span><span class="op">)</span>, </span>
 <span>        alpha <span class="op">=</span> <span class="fl">0.3</span></span>
@@ -1212,7 +1109,7 @@ Actinomyces, and Corynebacterium.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        <span class="co"># title = 'Relative abundace vs CLR',</span></span>
 <span>        title <span class="op">=</span> <span class="st">'Actinomyces (BV-associated)'</span>,</span>
-<span>        x <span class="op">=</span> <span class="st">'log(Relative abundance + 1)'</span></span>
+<span>        x <span class="op">=</span> <span class="st">'log(TSS + 1)'</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_colour_discrete.html" class="external-link">scale_color_discrete</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Condition'</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Lactobacillus Rel. Ab.'</span><span class="op">)</span> <span class="op">+</span></span>
@@ -1226,7 +1123,7 @@ Actinomyces, and Corynebacterium.</p>
 <span>            labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'BV'</span>, <span class="st">'HV'</span><span class="op">)</span></span>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">CLR</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">study_condition</span>, size <span class="op">=</span> <span class="va">lact_tss</span><span class="op">)</span>, </span>
 <span>        alpha <span class="op">=</span> <span class="fl">0.3</span></span>
@@ -1234,7 +1131,7 @@ Actinomyces, and Corynebacterium.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        <span class="co"># title = 'Relative abundace vs CLR',</span></span>
 <span>        title <span class="op">=</span> <span class="st">'Corynebacterium (BV-associated)'</span>,</span>
-<span>        x <span class="op">=</span> <span class="st">'log(Relative abundance + 1)'</span></span>
+<span>        x <span class="op">=</span> <span class="st">'log(TSS + 1)'</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_colour_discrete.html" class="external-link">scale_color_discrete</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Condition'</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Lactobacillus Rel. Ab.'</span><span class="op">)</span> <span class="op">+</span></span>
@@ -1248,7 +1145,7 @@ Actinomyces, and Corynebacterium.</p>
 <span>            labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'BV'</span>, <span class="st">'HV'</span><span class="op">)</span></span>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">CLR</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">study_condition</span>, size <span class="op">=</span> <span class="va">lact_tss</span><span class="op">)</span>, </span>
 <span>        alpha <span class="op">=</span> <span class="fl">0.3</span></span>
@@ -1256,7 +1153,7 @@ Actinomyces, and Corynebacterium.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        <span class="co"># title = 'Relative abundace vs CLR',</span></span>
 <span>        title <span class="op">=</span> <span class="st">'Prevotella (BV-associated)'</span>,</span>
-<span>        x <span class="op">=</span> <span class="st">'log(Relative abundance + 1)'</span></span>
+<span>        x <span class="op">=</span> <span class="st">'log(TSS + 1)'</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_colour_discrete.html" class="external-link">scale_color_discrete</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Condition'</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Lactobacillus Rel. Ab.'</span><span class="op">)</span> <span class="op">+</span></span>
@@ -1270,7 +1167,7 @@ Actinomyces, and Corynebacterium.</p>
 <span>            labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'BV'</span>, <span class="st">'HV'</span><span class="op">)</span></span>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">CLR</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">TSS</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">CLR</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">study_condition</span>, size <span class="op">=</span> <span class="va">lact_tss</span><span class="op">)</span>, </span>
 <span>        alpha <span class="op">=</span> <span class="fl">0.3</span></span>
@@ -1278,7 +1175,7 @@ Actinomyces, and Corynebacterium.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        <span class="co"># title = 'Relative abundace vs CLR',</span></span>
 <span>        title <span class="op">=</span> <span class="st">'Lactobacillus (HV)'</span>,</span>
-<span>        x <span class="op">=</span> <span class="st">'log(Relative abundance + 1)'</span></span>
+<span>        x <span class="op">=</span> <span class="st">'log(TSS + 1)'</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_colour_discrete.html" class="external-link">scale_color_discrete</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Condition'</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">'Lactobacillus Rel. Ab.'</span><span class="op">)</span> <span class="op">+</span></span>
@@ -1289,28 +1186,14 @@ Actinomyces, and Corynebacterium.</p>
 <span>    common.legend <span class="op">=</span> <span class="cn">TRUE</span>, legend <span class="op">=</span> <span class="st">'bottom'</span>, </span>
 <span>    labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'a)'</span>, <span class="st">'b)'</span>, <span class="st">'c)'</span>, <span class="st">'d)'</span><span class="op">)</span></span>
 <span><span class="op">)</span> </span></code></pre></div>
-<pre><code><span><span class="co">## Warning in log(CLR + 1): NaNs produced</span></span></code></pre>
-<pre><code><span><span class="co">## Warning: Removed 5 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">## (`geom_point()`).</span></span></code></pre>
-<pre><code><span><span class="co">## Warning in log(CLR + 1): NaNs produced</span></span></code></pre>
-<pre><code><span><span class="co">## Warning: Removed 5 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">## (`geom_point()`).</span></span></code></pre>
-<pre><code><span><span class="co">## Warning in log(CLR + 1): NaNs produced</span></span></code></pre>
-<pre><code><span><span class="co">## Warning: Removed 31 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">## (`geom_point()`).</span></span></code></pre>
-<pre><code><span><span class="co">## Warning in log(CLR + 1): NaNs produced</span></span></code></pre>
-<pre><code><span><span class="co">## Warning: Removed 22 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">## (`geom_point()`).</span></span></code></pre>
-<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>    <span class="co"># ggpubr::bgcolor("white")</span></span>
-<span></span>
-<span><span class="va">plotsb</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-25-1.png" width="672"></p>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plotsb</span></span></code></pre></div>
+<p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-26-1.png" width="768"></p>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb99"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## R version 4.4.1 (2024-06-14)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu</span></span>
