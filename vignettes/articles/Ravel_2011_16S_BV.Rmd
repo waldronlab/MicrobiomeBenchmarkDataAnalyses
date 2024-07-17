@@ -67,7 +67,7 @@ tse_subset <- tse[, select_samples]
 
 ## Summarize by genus
 tse_genus <- agglomerateByRank(
-    tse_subset, rank = 'genus', na.rm = FALSE, onRankOnly = TRUE 
+    tse_subset, rank = 'genus', na.rm = FALSE, onRankOnly = FALSE 
 )
 
 ## Filter low abundance/presence taxa
