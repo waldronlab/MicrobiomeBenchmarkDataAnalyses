@@ -162,7 +162,7 @@ on the minimum number of samples in an ethnicity.</li>
 <span></span>
 <span><span class="co">## Summarize by genus</span></span>
 <span><span class="va">tse_genus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/agglomerate-methods.html" class="external-link">agglomerateByRank</a></span><span class="op">(</span></span>
-<span>    <span class="va">tse_subset</span>, rank <span class="op">=</span> <span class="st">'genus'</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span>, onRankOnly <span class="op">=</span> <span class="cn">TRUE</span> </span>
+<span>    <span class="va">tse_subset</span>, rank <span class="op">=</span> <span class="st">'genus'</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span>, onRankOnly <span class="op">=</span> <span class="cn">FALSE</span> </span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## Filter low abundance/presence taxa</span></span>
@@ -175,10 +175,10 @@ on the minimum number of samples in an ethnicity.</li>
 <span></span>
 <span><span class="va">tse_genus</span></span></code></pre></div>
 <pre><code><span><span class="co">## class: TreeSummarizedExperiment </span></span>
-<span><span class="co">## dim: 26 80 </span></span>
+<span><span class="co">## dim: 32 80 </span></span>
 <span><span class="co">## metadata(1): agglomerated_by_rank</span></span>
 <span><span class="co">## assays(1): counts</span></span>
-<span><span class="co">## rownames(26): genus:Lactobacillus genus:Prevotella ...</span></span>
+<span><span class="co">## rownames(32): genus:Lactobacillus genus:Prevotella ...</span></span>
 <span><span class="co">##   genus:Anaeroglobus genus:Bulleidia</span></span>
 <span><span class="co">## rowData names(7): kingdom class ... species taxon_annotation</span></span>
 <span><span class="co">## colnames(80): S250 S383 ... S325 S276</span></span>
@@ -217,9 +217,9 @@ on the minimum number of samples in an ethnicity.</li>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html" class="external-link">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span>, levels <span class="op">=</span> <span class="va">conditions</span><span class="op">)</span></span>
 <span><span class="va">ps</span></span></code></pre></div>
 <pre><code><span><span class="co">## phyloseq-class experiment-level object</span></span>
-<span><span class="co">## otu_table()   OTU Table:         [ 26 taxa and 80 samples ]</span></span>
+<span><span class="co">## otu_table()   OTU Table:         [ 32 taxa and 80 samples ]</span></span>
 <span><span class="co">## sample_data() Sample Data:       [ 80 samples by 17 sample variables ]</span></span>
-<span><span class="co">## tax_table()   Taxonomy Table:    [ 26 taxa by 6 taxonomic ranks ]</span></span></code></pre>
+<span><span class="co">## tax_table()   Taxonomy Table:    [ 32 taxa by 6 taxonomic ranks ]</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -278,7 +278,7 @@ on the minimum number of samples in an ethnicity.</li>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  11.920   1.464  11.881</span></span></code></pre>
+<span><span class="co">##  12.782   1.539  12.747</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -403,12 +403,12 @@ on the minimum number of samples in an ethnicity.</li>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 30</span></span></span>
 <span><span class="co">##   taxon_name    sample counts     TSS   CLR `TSS + CLR` dataset gender body_site</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> genus:Lactob… S250      565 30.8     4.66        4.66 Ravel_… female vagina   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> genus:Prevot… S250      194 10.6     3.60        3.60 Ravel_… female vagina   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> genus:Megasp… S250      677 36.9     4.85        4.85 Ravel_… female vagina   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">4</span> genus:Sneath… S250       24  1.36    1.54        1.54 Ravel_… female vagina   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">5</span> genus:Atopob… S250      227 12.4     3.76        3.76 Ravel_… female vagina   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">6</span> genus:Strept… S250        0  0.054<span style="text-decoration: underline;">5</span> -<span style="color: #BB0000;">1.67</span>       -<span style="color: #BB0000;">1.67</span> Ravel_… female vagina   </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> genus:Lactob… S250      565 30.6     4.86        4.86 Ravel_… female vagina   </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> genus:Prevot… S250      194 10.6     3.80        3.80 Ravel_… female vagina   </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> genus:Megasp… S250      677 36.7     5.04        5.04 Ravel_… female vagina   </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> genus:Sneath… S250       24  1.35    1.74        1.74 Ravel_… female vagina   </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> genus:Atopob… S250      227 12.3     3.95        3.95 Ravel_… female vagina   </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> genus:Strept… S250        0  0.054<span style="text-decoration: underline;">1</span> -<span style="color: #BB0000;">1.48</span>       -<span style="color: #BB0000;">1.48</span> Ravel_… female vagina   </span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 21 more variables: ncbi_accession &lt;chr&gt;, library_size &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   sequencing_platform &lt;chr&gt;, pmid &lt;dbl&gt;, study_condition &lt;fct&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   sequencing_method &lt;chr&gt;, variable_region_16s &lt;chr&gt;, country &lt;chr&gt;,</span></span></span>
@@ -628,10 +628,10 @@ on the minimum number of samples in an ethnicity.</li>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 10</span></span></span>
 <span><span class="co">##   study_condition     taxon_name  mean_counts sd_counts mean_TSS sd_TSS mean_CLR</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> healthy             Actinomyces        0.38      1.66     0.07   0.1     -<span style="color: #BB0000;">0.5</span> </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> bacterial_vaginosis Actinomyces        2.78      7.78     0.17   0.29    -<span style="color: #BB0000;">1.35</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> healthy             Corynebact…        6.53     29.1      0.42   1.69    -<span style="color: #BB0000;">0.03</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">4</span> bacterial_vaginosis Corynebact…        9.45     26.3      0.48   1.19    -<span style="color: #BB0000;">0.89</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> healthy             Actinomyces        0.38      1.66     0.07   0.1     -<span style="color: #BB0000;">0.47</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> bacterial_vaginosis Actinomyces        2.78      7.78     0.16   0.29    -<span style="color: #BB0000;">1.27</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> healthy             Corynebact…        6.53     29.1      0.41   1.66    -<span style="color: #BB0000;">0.01</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> bacterial_vaginosis Corynebact…        9.45     26.3      0.45   1.17    -<span style="color: #BB0000;">0.81</span></span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 3 more variables: sd_CLR &lt;dbl&gt;, mean_TSS_CLR &lt;dbl&gt;, sd_TSS_CLR &lt;dbl&gt;</span></span></span></code></pre>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">types_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"counts$"</span>, <span class="st">"TSS$"</span>, <span class="st">"[^(TSS)]_CLR$"</span>, <span class="st">"TSS_CLR$"</span><span class="op">)</span></span>
@@ -722,20 +722,20 @@ on the minimum number of samples in an ethnicity.</li>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taxa_annotations</span>, by <span class="op">=</span> <span class="st">'taxon_name'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lefse</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##         method         taxon_name    scores   kw_pvalues         rawP</span></span>
-<span><span class="co">## 1 lefse_counts  genus:Actinomyces 0.6885880 2.016389e-03 2.016389e-03</span></span>
-<span><span class="co">## 2 lefse_counts   genus:Aerococcus 1.4936473 7.902396e-07 7.902396e-07</span></span>
-<span><span class="co">## 3 lefse_counts genus:Anaerococcus 1.5154215 1.849079e-07 1.849079e-07</span></span>
-<span><span class="co">## 4 lefse_counts genus:Anaeroglobus 0.3013052 4.720803e-05 4.720803e-05</span></span>
-<span><span class="co">## 5 lefse_counts    genus:Atopobium 1.7981129 3.482931e-08 3.482931e-08</span></span>
-<span><span class="co">## 6 lefse_counts    genus:Bulleidia 0.4997263 8.644443e-04 8.644443e-04</span></span>
+<pre><code><span><span class="co">##         method              taxon_name    scores   kw_pvalues         rawP</span></span>
+<span><span class="co">## 1 lefse_counts  family:Lachnospiraceae 1.9086887 9.489438e-05 9.489438e-05</span></span>
+<span><span class="co">## 2 lefse_counts family:Oscillospiraceae 1.4088468 1.737376e-06 1.737376e-06</span></span>
+<span><span class="co">## 3 lefse_counts   family:Prevotellaceae 0.8691894 1.826334e-08 1.826334e-08</span></span>
+<span><span class="co">## 4 lefse_counts       genus:Actinomyces 0.5440890 2.016389e-03 2.016389e-03</span></span>
+<span><span class="co">## 5 lefse_counts        genus:Aerococcus 1.5203380 7.902396e-07 7.902396e-07</span></span>
+<span><span class="co">## 6 lefse_counts      genus:Anaerococcus 1.4768136 1.849079e-07 1.849079e-07</span></span>
 <span><span class="co">##           adjP DA taxon_annotation</span></span>
-<span><span class="co">## 1 3.907376e-03 OA    bv-associated</span></span>
-<span><span class="co">## 2 7.902396e-06 OA    bv-associated</span></span>
-<span><span class="co">## 3 2.033986e-06 OA      Unannotated</span></span>
-<span><span class="co">## 4 3.304562e-04 OA      Unannotated</span></span>
-<span><span class="co">## 5 4.527811e-07 OA    bv-associated</span></span>
-<span><span class="co">## 6 3.457777e-03 OA      Unannotated</span></span></code></pre>
+<span><span class="co">## 1 8.540494e-04 OA      Unannotated</span></span>
+<span><span class="co">## 2 2.432326e-05 OA      Unannotated</span></span>
+<span><span class="co">## 3 3.835301e-07 OA      Unannotated</span></span>
+<span><span class="co">## 4 4.322222e-03 OA    bv-associated</span></span>
+<span><span class="co">## 5 1.185359e-05 OA    bv-associated</span></span>
+<span><span class="co">## 6 2.958526e-06 OA      Unannotated</span></span></code></pre>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lefse_DA</span> <span class="op">&lt;-</span> <span class="va">lefse</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">scores</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -901,7 +901,7 @@ on the minimum number of samples in an ethnicity.</li>
 <span><span class="va">ancombc</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">q_val</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="va">lfc</span> <span class="op">&lt;</span> <span class="fl">0</span>, <span class="va">taxon_annotation</span> <span class="op">==</span> <span class="st">'bv-associated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">taxon_name</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## character(0)</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "genus:Staphylococcus"  "genus:Corynebacterium" "genus:Actinomyces"</span></span></code></pre>
 <p>MetagenomeSeq</p>
 <p>DESEQ2</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
@@ -1381,7 +1381,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">## [255] prettyunits_1.2.0           boot_1.3-30                </span></span>
 <span><span class="co">## [257] beachmat_2.20.0             SparseM_1.84               </span></span>
 <span><span class="co">## [259] microbiome_1.26.0           listenv_0.9.1              </span></span>
-<span><span class="co">## [261] Rcpp_1.0.12                 edgeR_4.2.0                </span></span>
+<span><span class="co">## [261] Rcpp_1.0.12                 edgeR_4.2.1                </span></span>
 <span><span class="co">## [263] BiocSingular_1.20.0         tensor_1.5                 </span></span>
 <span><span class="co">## [265] progress_1.2.3              MASS_7.3-61                </span></span>
 <span><span class="co">## [267] BiocParallel_1.38.0         MAST_1.30.0                </span></span>
