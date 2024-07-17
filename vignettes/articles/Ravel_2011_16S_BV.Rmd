@@ -113,7 +113,7 @@ ps
 ```{r}
 ## Normalization methods supported in benchdamic
 norm_methods <- set_norm_list()
-norm_methods <- norm_methods[names(norm_methods) != "norm_CSS"]
+# norm_methods <- norm_methods[names(norm_methods) != "norm_CSS"]
 
 ps <- runNormalizations(norm_methods, ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
@@ -509,12 +509,30 @@ new_stats <- new_stats |>
     mutate(
         Condition = case_when(
             Condition == "healthy" ~ "HV",
-            Condition == "bacterial_vaginosis" ~ "VB"
+            Condition == "bacterial_vaginosis" ~ "BV"
         )
     )
+
+new_stats <- new_stats |> 
+    pivot_longer(
+        names_to = "Data type", values_to = "Value", cols = Counts:last_col()
+    ) |> 
+    pivot_wider(
+        names_from = "Condition", values_from = "Value"
+    ) |> 
+    filter(
+        `Data type` != "TSS+CLR"
+    )
+DT::datatable(
+    data = new_stats,
+    rownames = FALSE,
+    extensions = "Buttons",
+    options = list(
+        dom = 'Bfrtip',
+        buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+)
 ```
-
-
 
 
 
