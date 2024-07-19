@@ -284,7 +284,7 @@ on the minimum number of samples in an ethnicity.</li>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  13.120   1.512  13.099</span></span></code></pre>
+<span><span class="co">##  12.956   1.492  12.882</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -373,29 +373,39 @@ on the minimum number of samples in an ethnicity.</li>
 <span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">grid.arrange</a></span><span class="op">(</span>grobs <span class="op">=</span> <span class="va">plots</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/plot%20positves-1.png" width="1440"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span><span class="va">enrich_plot2</span>, <span class="va">k</span>, ncol <span class="op">=</span> <span class="fl">1</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a)"</span>, <span class="st">"b)"</span><span class="op">)</span>, heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span></span>
+<span>    <span class="va">enrich_plot2</span>, <span class="va">k</span>, ncol <span class="op">=</span> <span class="fl">1</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a)"</span>, <span class="st">"b)"</span><span class="op">)</span>, heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span>, <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_files/figure-html/unnamed-chunk-4-1.png" width="1440"></p>
 </div>
 <div class="section level2">
 <h2 id="perform-da-with-lefse-wilcox-and-zinq-cauchy-manually">Perform DA with lefse, Wilcox, and ZINQ-Cauchy manually<a class="anchor" aria-label="anchor" href="#perform-da-with-lefse-wilcox-and-zinq-cauchy-manually"></a>
 </h2>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Relative abundance (TSS - total sum scaling)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">'TSS'</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span> </span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">tssFun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">clrFun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span></span>
+<span><span class="co">## Relative abundance (TSS - total sum scaling)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">"TSS"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">"counts"</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>, <span class="fl">2</span>, <span class="va">tssFun</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">"CLR"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">"counts"</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>, <span class="fl">2</span>, <span class="va">clrFun</span><span class="op">)</span></span>
+<span><span class="co">## No need for pseudocount in the next line</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">"TSS + CLR"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">"TSS"</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">clrFun</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## CLR transform</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">'CLR'</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># (x + 1) / exp(mean(log(x + 1)))</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co"># assay(tse_genus, 'CLR') &lt;- apply(assay(tse_genus), 2, function(x) {</span></span>
+<span><span class="co">#     log((x + 1) / exp(mean(log(x + 1))))</span></span>
+<span><span class="co"># })</span></span>
 <span></span>
 <span><span class="co">## Relative abundance + CLR transform</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">'TSS + CLR'</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">tse_genus</span>, <span class="st">'TSS'</span><span class="op">)</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># x / exp(mean(log(x)))</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co"># assay(tse_genus, 'TSS + CLR') &lt;- apply(assay(tse_genus, 'TSS'), 2, function(x) {</span></span>
+<span><span class="co">#     # x / exp(mean(log(x)))</span></span>
+<span><span class="co">#     log(x / exp(mean(log(x))))</span></span>
+<span><span class="co"># })</span></span>
 <span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">tse_genus</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -668,10 +678,10 @@ on the minimum number of samples in an ethnicity.</li>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">pivot_wider</span><span class="op">(</span></span>
 <span>        names_from <span class="op">=</span> <span class="st">"Condition"</span>, values_from <span class="op">=</span> <span class="st">"Value"</span></span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
-<span>        <span class="va">`Data type`</span> <span class="op">!=</span> <span class="st">"TSS+CLR"</span></span>
-<span>    <span class="op">)</span></span>
+<span>    <span class="op">)</span> </span>
+<span>    <span class="co"># filter(</span></span>
+<span>    <span class="co">#     `Data type` != "TSS+CLR"</span></span>
+<span>    <span class="co"># )</span></span>
 <span><span class="fu">DT</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">new_stats</span>,</span>
 <span>    rownames <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -682,7 +692,7 @@ on the minimum number of samples in an ethnicity.</li>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="datatables html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["Actinomyces","Actinomyces","Actinomyces","Corynebacterium","Corynebacterium","Corynebacterium"],["Counts","TSS","CLR","Counts","TSS","CLR"],["0.38±1.66","0.07±0.1","-0.47±0.4","6.53±29.12","0.41±1.66","-0.01±0.86"],["2.78±7.78","0.16±0.29","-1.27±1.1","9.45±26.3","0.45±1.17","-0.81±1.32"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Taxon<\/th>\n      <th>Data type<\/th>\n      <th>HV<\/th>\n      <th>BV<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Bfrtip","buttons":["copy","csv","excel","pdf","print"],"columnDefs":[{"name":"Taxon","targets":0},{"name":"Data type","targets":1},{"name":"HV","targets":2},{"name":"BV","targets":3}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"data":[["Actinomyces","Actinomyces","Actinomyces","Actinomyces","Corynebacterium","Corynebacterium","Corynebacterium","Corynebacterium"],["Counts","TSS","CLR","TSS+CLR","Counts","TSS","CLR","TSS+CLR"],["0.38±1.66","0.07±0.1","-0.47±0.4","-0.47±0.4","6.53±29.12","0.41±1.66","-0.01±0.86","-0.01±0.86"],["2.78±7.78","0.16±0.29","-1.27±1.1","-1.27±1.1","9.45±26.3","0.45±1.17","-0.81±1.32","-0.81±1.32"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Taxon<\/th>\n      <th>Data type<\/th>\n      <th>HV<\/th>\n      <th>BV<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Bfrtip","buttons":["copy","csv","excel","pdf","print"],"columnDefs":[{"name":"Taxon","targets":0},{"name":"Data type","targets":1},{"name":"HV","targets":2},{"name":"BV","targets":3}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>        sig <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="st">'*'</span>, <span class="st">''</span><span class="op">)</span></span>
@@ -1328,7 +1338,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  [95] data.table_1.15.4           timeDate_4032.109          </span></span>
 <span><span class="co">##  [97] biglm_0.9-3                 rhdf5_2.48.0               </span></span>
 <span><span class="co">##  [99] pan_1.9                     vegan_2.6-6.1              </span></span>
-<span><span class="co">## [101] quantreg_5.98               RSpectra_0.16-1            </span></span>
+<span><span class="co">## [101] quantreg_5.98               RSpectra_0.16-2            </span></span>
 <span><span class="co">## [103] irlba_2.3.5.1               janeaustenr_1.0.0          </span></span>
 <span><span class="co">## [105] ellipsis_0.3.2              fastDummies_1.7.3          </span></span>
 <span><span class="co">## [107] DescTools_0.99.54           lazyeval_0.2.2             </span></span>
@@ -1393,7 +1403,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">## [225] ggdendro_0.2.0              quadprog_1.5-8             </span></span>
 <span><span class="co">## [227] DelayedMatrixStats_1.26.0   sparseMatrixStats_1.16.0   </span></span>
 <span><span class="co">## [229] dotCall64_1.1-1             scuttle_1.14.0             </span></span>
-<span><span class="co">## [231] mgcv_1.9-1                  xfun_0.45                  </span></span>
+<span><span class="co">## [231] mgcv_1.9-1                  xfun_0.46                  </span></span>
 <span><span class="co">## [233] NOISeq_2.48.0               e1071_1.7-14               </span></span>
 <span><span class="co">## [235] TH.data_1.1-2               rARPACK_0.11-0             </span></span>
 <span><span class="co">## [237] iterators_1.0.14            modeltools_0.2-23          </span></span>
@@ -1407,15 +1417,15 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">## [253] proxy_0.4-27                Rmpfr_0.9-5                </span></span>
 <span><span class="co">## [255] compiler_4.4.1              forcats_1.0.0              </span></span>
 <span><span class="co">## [257] prettyunits_1.2.0           boot_1.3-30                </span></span>
-<span><span class="co">## [259] beachmat_2.20.0             SparseM_1.84               </span></span>
+<span><span class="co">## [259] beachmat_2.20.0             SparseM_1.84-2             </span></span>
 <span><span class="co">## [261] microbiome_1.26.0           listenv_0.9.1              </span></span>
-<span><span class="co">## [263] Rcpp_1.0.12                 edgeR_4.2.1                </span></span>
+<span><span class="co">## [263] Rcpp_1.0.13                 edgeR_4.2.1                </span></span>
 <span><span class="co">## [265] BiocSingular_1.20.0         tensor_1.5                 </span></span>
 <span><span class="co">## [267] progress_1.2.3              MASS_7.3-61                </span></span>
 <span><span class="co">## [269] BiocParallel_1.38.0         MAST_1.30.0                </span></span>
 <span><span class="co">## [271] stable_1.1.6                spatstat.random_3.3-1      </span></span>
 <span><span class="co">## [273] R6_2.5.1                    rstatix_0.7.2              </span></span>
-<span><span class="co">## [275] fastmap_1.2.0               multcomp_1.4-25            </span></span>
+<span><span class="co">## [275] fastmap_1.2.0               multcomp_1.4-26            </span></span>
 <span><span class="co">## [277] vipor_0.4.7                 ROCR_1.0-11                </span></span>
 <span><span class="co">## [279] mitml_0.4-5                 rsvd_1.0.5                 </span></span>
 <span><span class="co">## [281] nnet_7.3-19                 gtable_0.3.5               </span></span>
