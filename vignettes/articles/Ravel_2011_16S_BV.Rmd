@@ -249,29 +249,38 @@ k <- grid.arrange(grobs = plots, ncol = 3)
 ```
 
 ```{r, fig.width=15, fig.height=15, warning=FALSE}
-ggarrange(enrich_plot2, k, ncol = 1, labels = c("a)", "b)"), heights = c(8, 10))
+ggarrange(
+    enrich_plot2, k, ncol = 1, labels = c("a)", "b)"), heights = c(8, 10)
+)
 ```
 
 # Perform DA with lefse, Wilcox, and ZINQ-Cauchy manually
 
 ```{r manual transformations}
+tssFun <- function(x) {
+    (x) / sum(x) * 100
+}
+clrFun <- function(x) {
+    log(x / exp(mean(log(x))))
+}
+
 
 ## Relative abundance (TSS - total sum scaling)
-assay(tse_genus, 'TSS') <- apply(assay(tse_genus), 2, function(x) {
-    (x + 1) / sum(x + 1) * 100 
-})
+assay(tse_genus, "TSS") <- apply(assay(tse_genus, "counts") + 1, 2, tssFun)
+assay(tse_genus, "CLR") <- apply(assay(tse_genus, "counts") + 1, 2, clrFun)
+## No need for pseudocount in the next line
+assay(tse_genus, "TSS + CLR") <- apply(assay(tse_genus, "TSS"), 2, clrFun)
 
 ## CLR transform
-assay(tse_genus, 'CLR') <- apply(assay(tse_genus), 2, function(x) {
-    # (x + 1) / exp(mean(log(x + 1)))
-    log((x + 1) / exp(mean(log(x + 1))))
-})
+# assay(tse_genus, 'CLR') <- apply(assay(tse_genus), 2, function(x) {
+#     log((x + 1) / exp(mean(log(x + 1))))
+# })
 
 ## Relative abundance + CLR transform
-assay(tse_genus, 'TSS + CLR') <- apply(assay(tse_genus, 'TSS'), 2, function(x) {
-    # x / exp(mean(log(x)))
-    log(x / exp(mean(log(x))))
-})
+# assay(tse_genus, 'TSS + CLR') <- apply(assay(tse_genus, 'TSS'), 2, function(x) {
+#     # x / exp(mean(log(x)))
+#     log(x / exp(mean(log(x))))
+# })
 
 data <- tse_genus |> 
     as_tibble() |> 
@@ -519,10 +528,10 @@ new_stats <- new_stats |>
     ) |> 
     pivot_wider(
         names_from = "Condition", values_from = "Value"
-    ) |> 
-    filter(
-        `Data type` != "TSS+CLR"
-    )
+    ) 
+    # filter(
+    #     `Data type` != "TSS+CLR"
+    # )
 DT::datatable(
     data = new_stats,
     rownames = FALSE,
