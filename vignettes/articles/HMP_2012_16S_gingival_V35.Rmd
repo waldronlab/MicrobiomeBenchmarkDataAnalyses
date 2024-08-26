@@ -280,7 +280,16 @@ k <- grid.arrange(grobs = positive_plots, ncol = 3)
 
 
 ```{r, fig.width=15, fig.height=15, warning=FALSE}
-ggarrange(p, k, ncol = 1, labels = c("a)", "b)"), heights = c(8, 10))
+figure1 <- ggarrange(p, k, ncol = 1, labels = c("a)", "b)"), heights = c(9, 10))
+figure1
+```
+
+```{r, eval=FALSE, echo=FALSE}
+## Export the figure
+ggsave(
+    filename = "Figure1.pdf", plot = figure1, dpi = 300,
+    width = 15, height = 15
+)
 ```
 
 # Session Info
