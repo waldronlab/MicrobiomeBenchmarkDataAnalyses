@@ -8,7 +8,7 @@ methods in microbiome research.
 
 Package website: https://waldronlab.io/MicrobiomeBenchmarkDataAnalyses
 
-Installation
+## Installation
 
 ```r
 ## Package installation
@@ -17,7 +17,7 @@ if (!"BiocManager" %in% install.packages()[,"Package"])
 BiocManager::install("waldronlab/MicrobiomeBenchmarkDataAnalyses")
 ```
 
-# Links
+## Links
 
 + Data on Zenodo: https://zenodo.org/record/6911027
 + R package on Bioconductor: https://www.bioconductor.org/packages/release/data/experiment/html/MicrobiomeBenchmarkData.html
