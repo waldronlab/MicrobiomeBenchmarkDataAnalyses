@@ -249,8 +249,16 @@ k <- grid.arrange(grobs = plots, ncol = 3)
 ```
 
 ```{r, fig.width=15, fig.height=15, warning=FALSE}
-ggarrange(
+ePlot <- ggarrange(
     enrich_plot2, k, ncol = 1, labels = c("a)", "b)"), heights = c(8, 10)
+)
+```
+
+
+```{r}
+ggsave(
+    filename = "Figure2.pdf", plot = ePlot,
+    dpi = 300, height = 15, width = 15
 )
 ```
 
@@ -443,9 +451,12 @@ wilcox_genus_plot <- wilcox_raw |>
         )
     ) |> 
     # mutate(value = log(value + 1)) |> 
+    filter(transformation != "TSS + CLR") |> 
     mutate(transformation = factor(
-        transformation, levels = c('counts', 'TSS', 'CLR', 'TSS + CLR' ),
-        labels = c('log(counts + 1)', 'log(TSS + 1)', 'CLR', 'TSS + CLR')
+        transformation, levels = c('counts', 'TSS', 'CLR'),
+        labels = c('log(counts + 1)', 'log(TSS + 1)', 'CLR')
+        # transformation, levels = c('counts', 'TSS', 'CLR', 'TSS + CLR' ),
+        # labels = c('log(counts + 1)', 'log(TSS + 1)', 'CLR', 'TSS + CLR')
     )) |> 
     mutate(study_condition = factor(
         study_condition, levels = c('healthy', 'bacterial_vaginosis'),
@@ -468,6 +479,15 @@ wilcox_genus_plot <- wilcox_raw |>
     )
 wilcox_genus_plot
 ```
+
+```{r}
+ggsave(
+    file = "Figure3.pdf", plot = wilcox_genus_plot,
+    dpi = 300, width = 9, height = 4
+)
+
+```
+
 
 ```{r, message=FALSE}
 stats <- data |> 
@@ -1183,11 +1203,11 @@ plotsb
 
 ```
 
-```{r, eval=FALSE, include=FALSE, echo=FALSE}
-# ggsave(
-#     plotsb, filename = 'distributions_plot.png',
-#     width = 10, height = 8
-# )
+```{r, echo=FALSE}
+ggsave(
+    plotsb, filename = 'Figure4.pdf',
+    width = 8, height = 6, dpi = 300
+)
 ```
 
 # Session info
@@ -1195,8 +1215,3 @@ plotsb
 ```{r}
 sessioninfo::session_info()
 ```
-
-
-
-
-
