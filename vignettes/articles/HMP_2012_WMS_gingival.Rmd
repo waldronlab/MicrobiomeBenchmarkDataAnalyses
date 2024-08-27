@@ -180,5 +180,5 @@ grid.arrange(grobs = positive_plots, ncol = 3)
 # Session Info
 
 ```{r session info}
-sessionInfo()
+sessioninfo::session_info()
 ```

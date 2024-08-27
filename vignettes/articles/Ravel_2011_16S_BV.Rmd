@@ -1193,7 +1193,7 @@ plotsb
 # Session info
 
 ```{r}
-sessionInfo()
+sessioninfo::session_info()
 ```
 
 

@@ -200,5 +200,5 @@ which is related to CLR.
 # Session info
 
 ```{r}
-sessionInfo()
+sessioninfo::session_info()
 ```

@@ -295,5 +295,5 @@ ggsave(
 # Session Info
 
 ```{r}
-sessionInfo()
+sessioninfo::session_info()
 ```
