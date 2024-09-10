@@ -96,7 +96,7 @@ DA_ZINQ <- function(
     
     if (norm == 'CLR') {
         log2FoldChange <- 
-            log2_fold_change(abundances, condition_vector, denom, log = FALSE)
+            log2_fold_change(abundances, condition_vector, denom, log = TRUE)
         
     } else {
         log2FoldChange <- log2_fold_change(abundances, condition_vector, denom)
