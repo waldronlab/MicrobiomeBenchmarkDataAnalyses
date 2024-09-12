@@ -218,7 +218,7 @@ positives <- createPositives(
     object = DA_output, 
     priorKnowledge = prior_info, 
     enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
-    slot = "pValMat", colName = "adjP", type = "pvalue",
+    slot = "pValMat", colName = "rawP", type = "pvalue",
     direction = direction,
     threshold_pvalue = 1,
     threshold_logfc = 0,
