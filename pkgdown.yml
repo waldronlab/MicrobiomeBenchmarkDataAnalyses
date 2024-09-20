@@ -1,5 +1,5 @@
 pandoc: '3.2'
-pkgdown: 2.1.0
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   articles/HMP_2012_16S_gingival_V13: HMP_2012_16S_gingival_V13.html
@@ -9,7 +9,7 @@ articles:
   MicrobiomeBenchmarkDataAnalyses: MicrobiomeBenchmarkDataAnalyses.html
   articles/Ravel_2011_16S_BV: Ravel_2011_16S_BV.html
   articles/Stammler_2016_16S_spikein: Stammler_2016_16S_spikein.html
-last_built: 2024-09-12T19:01Z
+last_built: 2024-09-20T15:41Z
 urls:
   reference: http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference
   article: http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/articles
