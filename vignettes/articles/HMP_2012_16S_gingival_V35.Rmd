@@ -200,6 +200,8 @@ direction <- get_direction_cols(DA_output, conditions_col, conditions)
 
 ## Enrichment (adjP <= 0.1)
 
+Run enrichment:
+
 ```{r enrichment}
 enrichment <- createEnrichment(
     object = DA_output,
@@ -216,26 +218,75 @@ enrichment <- createEnrichment(
 )
 ```
 
-## Plot enrichment
+Extract summary of the enrichment analysis:
 
-```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
-enrich_plot <- plot_enrichment(
-    enrichment = enrichment, 
-    enrichment_col = "taxon_annotation",
-    levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
-    conditions = conditions
-)
-p <- plot_enrichment_2(
-    enrich_plot, 
-    dir = c(up = 'Sup Plq', down = 'Sub Plq')
-) +
-    theme(
-        axis.title = element_text(size = 17),
-        axis.text = element_text(size = 15),
-        legend.text = element_text(size = 13),
-        strip.text = element_text(size = 17)
+```{r}
+enrichmentSummary <- purrr::map(enrichment,  ~ {
+    .x$summaries |> 
+        purrr::map(function(x) {
+            pos <- which(colnames(x) != "pvalue")
+            x |> 
+                tibble::rownames_to_column(var = "direction") |> 
+                tidyr::pivot_longer(
+                    names_to = "annotation", values_to = "n",
+                    cols = 2
+                )
+                
+        }) |> 
+        dplyr::bind_rows() |> 
+        dplyr::relocate(pvalue)
+}) |> 
+    dplyr::bind_rows(.id = "method") |> 
+    dplyr::mutate(
+        sig = dplyr::case_when(
+            pvalue < 0.05 & pvalue > 0.01 ~ "*",
+            pvalue < 0.01 & pvalue > 0.001 ~ "**",
+            pvalue < 0.001 ~ "***",
+            TRUE ~ ""
+        ) 
+    ) |> 
+    dplyr::mutate(
+        direction = dplyr::case_when(
+            direction == "DOWN Abundant" ~ "Subgingival",
+            direction == "UP Abundant" ~ "Supragingival",
+            TRUE ~ direction 
+        )
     )
-p
+```
+
+
+Create enrichment plot
+
+```{r}
+enPlot <- enrichmentSummary |> 
+    left_join(get_meth_class(), by = "method") |> 
+    mutate(
+        direction = factor(
+            direction, levels = c("Supragingival", "Subgingival")
+        )
+    ) |> 
+    ggplot(aes(method, n)) +
+    geom_col(
+        aes(fill = annotation),
+        position = position_dodge2(width = 0.9)
+    ) +
+    geom_text(
+        aes(label = sig, color = annotation),
+        position = position_dodge2(width = 0.9)
+    ) +
+    facet_grid(
+        direction ~ method_class, scales = "free_x", space = "free"
+    ) +
+    scale_fill_viridis_d(option = "D", name = "Biological data") +
+    scale_color_viridis_d(option = "D", name = "Biological data") +
+    labs(
+        x = "DA method", y = "Number of DA taxa"
+    ) +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom"
+    )
 ```
 
 # Putative true positives - putative false positives
@@ -264,18 +315,31 @@ positives <- createPositives(
 
 ## Plot TP - FP 
 
-```{r, fig.height = 10, fig.width=15}
-positive_plots <- plot_positives(positives) |> 
-    map( ~ {
-        .x +
-            theme(
-                axis.title = element_text(size = 17),
-                axis.text = element_text(size = 15),
-                legend.text = element_text(size = 13),
-                strip.text = element_text(size = 17)
-            )
-    })
-k <- grid.arrange(grobs = positive_plots, ncol = 3)
+```{r, fig.height = 4, fig.width=12}
+vec <- positives$color
+names(vec) <- positives$base_method
+positives |> 
+    mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
+    ggplot(aes(top, diff)) +
+    geom_line(
+        aes(
+            group = method, color = base_method, linetype = norm,
+        ),
+    ) +
+    geom_point(
+        aes(
+            color = base_method, shape = norm
+        ),
+    ) +
+    facet_wrap(~method_class, nrow = 1) +
+    labs(
+        x = "Top DA features", y = "TP - FP"
+    ) +
+    scale_shape(name = "Normalization") +
+    scale_linetype(name = "Normalization") +
+    scale_color_manual(values = vec, name = "Base method") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
 ```
 
 
