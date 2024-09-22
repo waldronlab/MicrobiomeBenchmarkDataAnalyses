@@ -254,7 +254,6 @@ enrichmentSummary <- purrr::map(enrichment,  ~ {
     )
 ```
 
-
 Create enrichment plot
 
 ```{r}
@@ -295,12 +294,10 @@ enPlot <- enrichmentSummary |>
 
 ```{r}
 positives <- createPositives(
-    # object = DA_output, 
     object = DA_output,
     priorKnowledge = prior_info, 
     enrichmentCol = "taxon_annotation", namesCol = "new_names",
     slot = "pValMat", colName = "rawP", type = "pvalue",
-    # direction = direction,
     direction = direction,
     threshold_pvalue = 1,
     threshold_logfc = 0,
@@ -318,7 +315,7 @@ positives <- createPositives(
 ```{r, fig.height = 4, fig.width=12}
 vec <- positives$color
 names(vec) <- positives$base_method
-positives |> 
+posPlot <- positives |> 
     mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
     ggplot(aes(top, diff)) +
     geom_line(
@@ -342,17 +339,20 @@ positives |>
     theme(legend.position = "bottom")
 ```
 
+Combine plots:
 
-```{r, fig.width=15, fig.height=15, warning=FALSE}
-figure1 <- ggarrange(p, k, ncol = 1, labels = c("a)", "b)"), heights = c(9, 10))
-figure1
+```{r, fig.height=9, fig.width=10}
+pp <- ggarrange(
+    plotlist = list(enPlot, posPlot), ncol = 1, heights = c(1.5, 1)
+)
+pp
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
 ## Export the figure
 ggsave(
-    filename = "Figure1.pdf", plot = figure1, dpi = 300,
-    width = 15, height = 15
+    filename = "Figure1.pdf", plot = pp, dpi = 300,
+    height = 9, width = 10, 
 )
 ```
 
