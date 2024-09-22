@@ -96,7 +96,7 @@
 subgingival plaque</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses/blob/sdgamboa/refactoring/vignettes/articles/HMP_2012_WMS_gingival.Rmd" class="external-link"><code>vignettes/articles/HMP_2012_WMS_gingival.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses/blob/main/vignettes/articles/HMP_2012_WMS_gingival.Rmd" class="external-link"><code>vignettes/articles/HMP_2012_WMS_gingival.Rmd</code></a></small>
       <div class="hidden name"><code>HMP_2012_WMS_gingival.Rmd</code></div>
 
     </div>
@@ -121,7 +121,7 @@ subgingival plaque</h1>
 <span><span class="va">conditions_col</span> <span class="op">&lt;-</span> <span class="st">'body_subsite'</span></span>
 <span><span class="va">conditions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>condB <span class="op">=</span> <span class="st">'subgingival_plaque'</span>, condA <span class="op">=</span> <span class="st">'supragingival_plaque'</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MicrobiomeBenchmarkData/man/getBenchmarkData.html" class="external-link">getBenchmarkData</a></span><span class="op">(</span><span class="va">dat_name</span>, dryrun <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://waldronlab.io/MicrobiomeBenchmarkData/reference/getBenchmarkData.html" class="external-link">getBenchmarkData</a></span><span class="op">(</span><span class="va">dat_name</span>, dryrun <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filterTaxa.html">filterTaxa</a></span><span class="op">(</span><span class="va">tse</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
@@ -229,14 +229,14 @@ subgingival plaque</h1>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_flatten.html" class="external-link">list_flatten</a></span><span class="op">(</span><span class="va">DA_output</span>, name_spec <span class="op">=</span> <span class="st">"{inner}"</span><span class="op">)</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/keep.html" class="external-link">discard</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">is.null</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-09-22 01:47:30.350391</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-09-22 01:47:34.492088</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-09-22 01:47:39.786548</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-09-22 01:47:39.809859</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-09-22 01:47:39.826023</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-09-22 01:47:40.328437</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-09-22 01:47:43.110521</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-09-22 01:47:44.379968</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-09-22 01:48:04.995497</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-09-22 01:48:09.099945</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-09-22 01:48:14.301211</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-09-22 01:48:14.324778</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-09-22 01:48:14.340902</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-09-22 01:48:14.840868</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-09-22 01:48:17.719393</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-09-22 01:48:18.97097</span></span></code></pre>
 <pre><code><span><span class="co">## For a (much!) faster implementation of the Wilcoxon Rank Sum Test,</span></span>
 <span><span class="co">## (default method for FindMarkers) please install the presto package</span></span>
 <span><span class="co">## --------------------------------------------</span></span>
@@ -246,7 +246,7 @@ subgingival plaque</h1>
 <span><span class="co">## After installation of presto, Seurat will automatically use the more </span></span>
 <span><span class="co">## efficient implementation (no further action necessary).</span></span>
 <span><span class="co">## This message will be shown once per session</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-09-22 01:47:44.826965</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-09-22 01:48:19.420835</span></span></code></pre>
 <pre><code><span><span class="co">## 'ancombc' has been fully evolved to 'ancombc2'. </span></span>
 <span><span class="co">## Explore the enhanced capabilities of our refined method!</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: foreach</span></span></code></pre>
@@ -256,16 +256,16 @@ subgingival plaque</h1>
 <span><span class="co">## </span></span>
 <span><span class="co">##     accumulate, when</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: rngtools</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-09-22 01:48:07.877679</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-09-22 01:48:08.116834</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-09-22 01:48:08.24717</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-09-22 01:48:09.676639</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-09-22 01:48:10.873856</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-09-22 01:48:12.026089</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-09-22 01:48:42.150172</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-09-22 01:48:42.384129</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-09-22 01:48:42.511884</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-09-22 01:48:43.936218</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-09-22 01:48:45.144081</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-09-22 01:48:46.304055</span></span></code></pre>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  43.908   5.955  43.095</span></span></code></pre>
+<span><span class="co">##  43.659   6.021  42.832</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
