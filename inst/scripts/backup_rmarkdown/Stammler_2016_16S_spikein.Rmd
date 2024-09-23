@@ -1,0 +1,204 @@
+---
+title: "Sammler_2016_16S_spikein - Spike-in bacteria"
+subtitle:
+    "Comparison of coefficient of variation of spike-in bacteria across samples"
+output:
+    html_document:
+        toc: yes
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE}
+library(MicrobiomeBenchmarkDataAnalyses)
+library(MicrobiomeBenchmarkData)
+library(dplyr)
+library(tibble)
+library(tidyr)
+library(biobroom)
+library(ggplot2)
+library(purrr)
+```
+
+# Introduction
+
+The objective of this vignette is to compare the coefficient of variation
+(CV) of the three spike-in bacteria in the *Stammler\_2016\_16S\_spikein*
+dataset using relative abundance (TSS) and centered-log-ratio transformation
+(CLR). However, since CLR is log transformed and TSS is not, a
+geometric mean normalization (GMN) method will be used instead of CLR.
+
+*S. ruber* will be used for re-calibrating the abundance data (counts).
+This is referred to as SCML. The data will also be normalized with
+TSS (TSS) or GMN (GMN). The CV of the abundance data
+of the three spike-in bacteria across samples using these two normalization
+methods will be calculated and compared.
+
+# Data
+
+```{r, message=FALSE, warning=FALSE}
+tse <- getBenchmarkData('Stammler_2016_16S_spikein', dryrun = FALSE)[[1]]
+```
+
+## Recalibrate with spike-in Salinibacter ruber
+
+```{r}
+spk_bac <- c(
+    `S. ruber` = 'AF323500XXXX', 
+    `R. radiobacter` = 'AB247615XXXX',
+    `A. acidiphilus` = 'AB076660XXXX'
+)
+counts <- assay(tse, 'counts')
+s_ruber <- counts[spk_bac['S. ruber'], ]
+size_factor <- s_ruber/mean(s_ruber)
+SCML_data <- counts 
+for(i in seq(ncol(SCML_data))){
+    SCML_data[,i] <- round(SCML_data[,i] / size_factor[i])
+}
+assay(tse, 'SCML') <- SCML_data
+```
+
+## Tranform with TSS (relative abundance) and CLR
+
+```{r}
+tss_fun <- function(x) (x + 1) / sum((x + 1))
+# tss_fun <- function(x) log((x + 1) / sum((x + 1)))
+# tss_fun <- function(x) (x) / sum((x))
+gmn_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
+# gnm_fun <- function(x) (x + 1) / prod((x + 1)^(1 / length(x)))
+# gmn_fun <- function(x) log((x + 1) / exp(mean(log((x + 1)))))
+assay(tse, "TSS") <- apply(assay(tse, 'counts'), 2,  tss_fun)
+assay(tse, "GMN") <- apply(assay(tse, 'counts'), 2, gmn_fun) 
+```
+
+# Extract data of sipike-in bacteria
+
+```{r}
+spk_bac_tse <- tse[spk_bac,]
+rownames(spk_bac_tse) <- names(spk_bac)
+spk_bac_tse
+```
+
+# Get tidy data
+
+```{r, message=FALSE, warning=FALSE}
+data <- spk_bac_tse |> 
+    assays() |> 
+    names() |> 
+    map({
+        ~ tidy.RangedSummarizedExperiment(spk_bac_tse, assay = .x) |> 
+            magrittr::set_colnames(c("taxon", "sample", .x))
+    }) |> 
+    reduce(.f = \(.x, .y) left_join(.x, .y, by = c("taxon", "sample")))
+DT::datatable(data, filter = 'top')
+```
+
+# Calculate coefficient of variation
+
+## Define a formula for calculating coefficient of variation
+
+```{r}
+get_cv <- function(x) {
+    cv <- function(x, n) { sd(x[n]) / abs(mean(x[n])) } 
+    boot::boot(x, cv, R = 1000) |>
+        broom::tidy() |>
+        dplyr::rename(cv = statistic)
+} 
+```
+
+```{r}
+cv_res <- data %>% 
+    group_by(taxon) %>% 
+    summarize(across(.cols = counts:last_col(), .fns = get_cv)) %>% 
+    pivot_longer(
+        cols = 2:last_col(), names_to = 'norm', values_to = 'cv_res' 
+    ) %>% 
+    unnest(cols = 'cv_res')
+   
+DT::datatable(cv_res, filter = 'top')     
+```
+
+Table in wider format:
+
+```{r}
+cv_res |> 
+    rename(
+        Species = taxon, `Normalization method` = norm,
+        CV = cv, SE = std.error
+    ) |> 
+    filter(`Normalization method` %in% c("GMN", "TSS")) |> 
+    select(-bias) |> 
+    mutate(
+        CV = round(CV, 2), SE = round(SE, 2)
+    ) |> 
+    mutate(
+        `Normalization method` = ifelse(
+            test = `Normalization method` == "TSS", 
+            yes = "Relative abundance",
+            no = `Normalization method`
+        )
+    ) |> 
+    DT::datatable(
+        extensions = 'Buttons',,
+        filter = "top",
+        options = list(
+        dom = 'Bfrtip',
+        buttons = list(
+            list(
+                extend = 'copy',
+                text = 'Copy '
+                )
+            )
+        )
+    )
+```
+
+# Compare coefficient of variation
+
+```{r, fig.width=8, fig.height=4}
+cv_res |>  
+    filter(norm != 'counts') |> 
+    mutate(
+        norm = factor(norm, levels = c(
+            'counts', 'SCML', 'TSS',  'GMN'
+            )
+        )
+    ) %>%
+    mutate(taxon = forcats::fct_relevel(taxon, 'S. ruber')) |> 
+    ggplot(aes(reorder(norm, cv), cv)) +
+    geom_point(aes(color = norm), size = 2) + 
+    geom_errorbar(
+        aes(ymin = cv - std.error, ymax = cv + std.error, color = norm),
+        width = 0.4, size = 0.5
+    ) +
+    scale_color_brewer(type = 'qual', palette = 'Set2') +
+    facet_wrap(~taxon) + 
+    labs(
+        y = 'Coefficient of variation across all samples',
+        x = 'Data transformation'
+    ) + 
+    theme_bw() + 
+    theme(
+        # axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major.x = element_blank(),
+        strip.text = element_text(face = 'italic'),
+        legend.position = 'none'
+    )
+```
+
+# Conclusion
+
+TSS normalizaion has lower CV values than GMN.
+This could indicate that it introduces less bias than GMN,
+which is related to CLR.
+
+# Session info
+
+```{r}
+sessioninfo::session_info()
+```
