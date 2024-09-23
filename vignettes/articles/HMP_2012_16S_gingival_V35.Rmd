@@ -242,7 +242,6 @@ enrichment <- createEnrichment(
     priorKnowledge = prior_info,
     enrichmentCol = "taxon_annotation",
     namesCol = "new_names",
-    # slot = "pValMat", colName = "adjP", type = "pvalue",
     slot = slotV, colName = colNameV, type = typeV,
     direction = direction,
     threshold_pvalue = adjThr,
