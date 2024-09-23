@@ -257,9 +257,12 @@ DA_lefse <- function(
     statInfo <- statInfo |> 
         dplyr::mutate(abs_score = abs(.data$scores)) |> 
         dplyr::arrange(abs_score)
+    ## These raw p-values and adjusted p-values are artificial.
+    ## I'm only leaving them here for now to help in the ordering of the DA features
     statInfo$rawP <- seq(0.04, 0, length.out = nrow(statInfo))
-    statInfo$adj_pval <- stats::p.adjust(statInfo$rawP, method = "fdr")
-    rownames(statInfo) <- statInfo[["Names"]]
+    statInfo$adjP <- seq(0.09, 0, length.out = nrow(statInfo))
+    # statInfo$adj_pval <- stats::p.adjust(statInfo$rawP, method = "fdr")
+    rownames(statInfo) <- statInfo[["features"]] ## check names
     colnames(statInfo) <- c("Taxa", "LDA_scores", "abs_score", "rawP", "adjP")
    
     pValMat <- statInfo[, c("rawP", "adjP")]

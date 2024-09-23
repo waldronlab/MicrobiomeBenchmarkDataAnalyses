@@ -190,13 +190,16 @@ set_DA_methods_list <- function(conditions_col, conditions) {
             #     wilcox.threshold = 1,
             #     lda.threshold = 0
             # ),
+            
+            ## I really need p-values to help define DA abundant features
+            ## So I'm using a p-value threshold only for the lefse method
             lefse.12 = list(
                 method = 'DA_lefse',
                 conditions = conditions,
                 norm = 'CLR',
                 groupCol = conditions_col,
-                kruskal.threshold = 1,
-                wilcox.threshold = 1,
+                kruskal.threshold = 0.05,
+                wilcox.threshold = 0.05,
                 lda.threshold = 0
             ),
             lefse.13 = list(
@@ -204,8 +207,8 @@ set_DA_methods_list <- function(conditions_col, conditions) {
                 conditions = conditions,
                 norm = 'TSS',
                 groupCol = conditions_col,
-                kruskal.threshold = 1,
-                wilcox.threshold = 1,
+                kruskal.threshold = 0.05,
+                wilcox.threshold = 0.05,
                 lda.threshold = 0
             )
         )

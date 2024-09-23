@@ -200,6 +200,40 @@ direction <- get_direction_cols(DA_output, conditions_col, conditions)
 
 ## Enrichment (adjP <= 0.1)
 
+Lefse is the strictest method, defining DA with p-values and effect
+size thresholds (based on linear discriminant analysis). CLR affects
+the magnitud of the effect size, so let's define a new one.
+
+```{r}
+DA_output$lefse.TSS$statInfo$abs_score |> hist()
+```
+```{r}
+DA_output$lefse.CLR$statInfo$abs_score |> hist()
+```
+```{r}
+c(
+    lefse.TSS = median(DA_output$lefse.TSS$statInfo$abs_score),
+    lefse.CLR = median(DA_output$lefse.CLR$statInfo$abs_score)
+)
+```
+
+
+Create variables of thresholds:
+
+```{r}
+adjThr<- rep(0.1, length(DA_output))
+names(adjThr) <- names(DA_output)
+
+esThr <- rep(0, length(DA_output))
+names(esThr) <- names(DA_output)
+esThr[grep("lefse.TSS", names(esThr))] <- 2
+esThr[grep("lefse.CLR", names(esThr))] <- 0.06
+
+slotV <- ifelse(grepl("lefse", names(DA_output)), "statInfo", "pValMat")
+colNameV <- ifelse(grepl("lefse", names(DA_output)), "LDA_scores", "adjP")
+typeV <- ifelse(grepl("lefse", names(DA_output)), "logfc", "pvalue")
+```
+
 Run enrichment:
 
 ```{r enrichment}
@@ -208,10 +242,11 @@ enrichment <- createEnrichment(
     priorKnowledge = prior_info,
     enrichmentCol = "taxon_annotation",
     namesCol = "new_names",
-    slot = "pValMat", colName = "adjP", type = "pvalue",
+    # slot = "pValMat", colName = "adjP", type = "pvalue",
+    slot = slotV, colName = colNameV, type = typeV,
     direction = direction,
-    threshold_pvalue = 0.1,
-    threshold_logfc = 0,
+    threshold_pvalue = adjThr,
+    threshold_logfc = esThr,
     top = NULL, # No top feature selected
     alternative = "greater",
     verbose = FALSE 
@@ -293,21 +328,41 @@ enPlot <- enrichmentSummary |>
 ## Calculate TP - FP ratio (no threshold)
 
 ```{r}
-positives <- createPositives(
-    object = DA_output,
-    priorKnowledge = prior_info, 
-    enrichmentCol = "taxon_annotation", namesCol = "new_names",
-    slot = "pValMat", colName = "rawP", type = "pvalue",
-    direction = direction,
-    threshold_pvalue = 1,
-    threshold_logfc = 0,
-    top = seq.int(from = 0, to = 50, by = 5),
-    alternative = "greater",
-    verbose = FALSE,
-    TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
-    FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
-) |> 
-    left_join(get_meth_class(), by = 'method')
+positives <- map(1:length(DA_output), .f = function(i) {
+    positives <- createPositives(
+        object = DA_output[i],
+        priorKnowledge = prior_info, 
+        enrichmentCol = "taxon_annotation", namesCol = "new_names",
+        slot = slotV[i], colName = colNameV[i], type = typeV[i],
+        direction = direction[i],
+        threshold_pvalue = 1,
+        threshold_logfc = 0,
+        top = seq.int(from = 0, to = 50, by = 5),
+        alternative = "greater",
+        verbose = FALSE,
+        TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
+        FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
+    ) |> 
+        left_join(get_meth_class(), by = 'method')
+}) |> bind_rows()
+# names(positives) <- names(DA_output)
+
+
+# positives <- createPositives(
+#     object = DA_output,
+#     priorKnowledge = prior_info, 
+#     enrichmentCol = "taxon_annotation", namesCol = "new_names",
+#     slot = slotV, colName = colNameV, type = typeV,
+#     direction = direction,
+#     threshold_pvalue = 1,
+#     threshold_logfc = 0,
+#     top = seq.int(from = 0, to = 50, by = 5),
+#     alternative = "greater",
+#     verbose = FALSE,
+#     TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
+#     FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
+# ) |> 
+#     left_join(get_meth_class(), by = 'method')
 ```
 
 ## Plot TP - FP 
