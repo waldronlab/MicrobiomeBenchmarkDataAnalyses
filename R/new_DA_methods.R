@@ -250,11 +250,17 @@ DA_lefse <- function(
     
     SummarizedExperiment::assay(se) <- abundances
     
-    statInfo <- lefser2(expr = se, groupCol = groupCol, ...) 
-    statInfo$adj_pval <- stats::p.adjust(statInfo$kw_pvalues, method = "fdr")
-    rownames(statInfo) <- statInfo[["Names"]]
-    colnames(statInfo) <- c("Taxa", "LDA_scores", "rawP", "adjP")
+    # statInfo <- lefser2(expr = se, groupCol = groupCol, ...) 
+    message("Running lefse original")
+    statInfo <- lefser::lefser(se, groupCol = groupCol, ...) 
     
+    statInfo <- statInfo |> 
+        dplyr::mutate(abs_score = abs(.data$scores)) |> 
+        dplyr::arrange(abs_score)
+    statInfo$rawP <- seq(0.04, 0, length.out = nrow(statInfo))
+    statInfo$adj_pval <- stats::p.adjust(statInfo$rawP, method = "fdr")
+    rownames(statInfo) <- statInfo[["Names"]]
+    colnames(statInfo) <- c("Taxa", "LDA_scores", "abs_score", "rawP", "adjP")
    
     pValMat <- statInfo[, c("rawP", "adjP")]
     rownames(pValMat) <- statInfo[["Taxa"]]
