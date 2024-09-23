@@ -229,14 +229,14 @@ subgingival plaque</h1>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_flatten.html" class="external-link">list_flatten</a></span><span class="op">(</span><span class="va">DA_output</span>, name_spec <span class="op">=</span> <span class="st">"{inner}"</span><span class="op">)</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/keep.html" class="external-link">discard</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">is.null</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-09-23 05:00:45.66801</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-09-23 05:00:49.851712</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-09-23 05:00:55.178207</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-09-23 05:00:55.202437</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-09-23 05:00:55.21941</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-09-23 05:00:55.72798</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-09-23 05:00:58.537937</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-09-23 05:00:59.818409</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-09-23 06:49:21.503799</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-09-23 06:49:25.837488</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-09-23 06:49:31.301322</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-09-23 06:49:31.326341</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-09-23 06:49:31.34354</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-09-23 06:49:31.855195</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-09-23 06:49:34.765972</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-09-23 06:49:36.060467</span></span></code></pre>
 <pre><code><span><span class="co">## For a (much!) faster implementation of the Wilcoxon Rank Sum Test,</span></span>
 <span><span class="co">## (default method for FindMarkers) please install the presto package</span></span>
 <span><span class="co">## --------------------------------------------</span></span>
@@ -246,7 +246,7 @@ subgingival plaque</h1>
 <span><span class="co">## After installation of presto, Seurat will automatically use the more </span></span>
 <span><span class="co">## efficient implementation (no further action necessary).</span></span>
 <span><span class="co">## This message will be shown once per session</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-09-23 05:01:00.276986</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-09-23 06:49:36.549556</span></span></code></pre>
 <pre><code><span><span class="co">## 'ancombc' has been fully evolved to 'ancombc2'. </span></span>
 <span><span class="co">## Explore the enhanced capabilities of our refined method!</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: foreach</span></span></code></pre>
@@ -256,28 +256,34 @@ subgingival plaque</h1>
 <span><span class="co">## </span></span>
 <span><span class="co">##     accumulate, when</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: rngtools</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-09-23 05:01:23.644677</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-09-23 05:01:23.884291</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-09-23 05:01:24.0184</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-09-23 05:01:25.452799</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-09-23 05:01:26.655244</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-09-23 05:01:27.819322</span></span></code></pre>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-09-23 06:50:00.588344</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-09-23 06:50:00.836635</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-09-23 06:50:00.969496</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-09-23 06:50:02.436723</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-09-23 06:50:03.663124</span></span></code></pre>
+<pre><code><span><span class="co">## Running lefse original</span></span></code></pre>
+<pre><code><span><span class="co">## The outcome variable is specified as 'body_subsite' and the reference category is 'subgingival_plaque'.</span></span>
+<span><span class="co">##  See `?factor` or `?relevel` to change the reference category.</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-09-23 06:50:04.089684</span></span></code></pre>
+<pre><code><span><span class="co">## Running lefse original</span></span></code></pre>
+<pre><code><span><span class="co">## The outcome variable is specified as 'body_subsite' and the reference category is 'subgingival_plaque'.</span></span>
+<span><span class="co">##  See `?factor` or `?relevel` to change the reference category.</span></span></code></pre>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  44.335   5.998  43.555</span></span></code></pre>
+<span><span class="co">##  43.597   4.543  43.037</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
 <h2 id="enrichment">Enrichment<a class="anchor" aria-label="anchor" href="#enrichment"></a>
 </h2>
 <p>Get direction</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">direction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_direction_cols.html">get_direction_cols</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">conditions_col</span>, <span class="va">conditions</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="enrichment-adjp-0-1">Enrichment (adjP &lt;= 0.1)<a class="anchor" aria-label="anchor" href="#enrichment-adjp-0-1"></a>
 </h3>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createEnrichment.html" class="external-link">createEnrichment</a></span><span class="op">(</span></span>
 <span>    object <span class="op">=</span> <span class="va">DA_output</span>,</span>
 <span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>,</span>
@@ -295,7 +301,7 @@ subgingival plaque</h1>
 <div class="section level3">
 <h3 id="plot-enrichment">Plot enrichment<a class="anchor" aria-label="anchor" href="#plot-enrichment"></a>
 </h3>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrich_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_enrichment.html">plot_enrichment</a></span><span class="op">(</span></span>
 <span>    enrichment <span class="op">=</span> <span class="va">enrichment</span>, </span>
 <span>    enrichment_col <span class="op">=</span> <span class="st">"taxon_annotation"</span>,</span>
@@ -316,7 +322,7 @@ subgingival plaque</h1>
 <div class="section level3">
 <h3 id="calculate-tp---fp-ratio-no-threshold">Calculate TP - FP ratio (no threshold)<a class="anchor" aria-label="anchor" href="#calculate-tp---fp-ratio-no-threshold"></a>
 </h3>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createPositives.html" class="external-link">createPositives</a></span><span class="op">(</span></span>
 <span>    object <span class="op">=</span> <span class="va">DA_output</span>, </span>
 <span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>, </span>
@@ -336,7 +342,7 @@ subgingival plaque</h1>
 <div class="section level3">
 <h3 id="plot-tp---fp">Plot TP - FP<a class="anchor" aria-label="anchor" href="#plot-tp---fp"></a>
 </h3>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">positive_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_positives.html">plot_positives</a></span><span class="op">(</span><span class="va">positives</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span> <span class="op">~</span> <span class="op">{</span></span>
 <span>        <span class="va">.x</span> <span class="op">+</span></span>
@@ -354,7 +360,7 @@ subgingival plaque</h1>
 <div class="section level2">
 <h2 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">##  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
@@ -511,6 +517,7 @@ subgingival plaque</h1>
 <span><span class="co">##  lattice                           0.22-6     <span style="color: #555555;">2024-03-20</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.4.1)</span></span></span>
 <span><span class="co">##  latticeExtra                      0.6-30     <span style="color: #555555;">2022-07-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  lazyeval                          0.2.2      <span style="color: #555555;">2019-03-15</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  lefser                            1.14.0     <span style="color: #555555;">2024-04-30</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.19 (R 4.4.1)</span></span></span>
 <span><span class="co">##  leiden                            0.4.3.1    <span style="color: #555555;">2023-11-17</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  libcoin                           1.0-10     <span style="color: #555555;">2023-09-27</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  lifecycle                         1.0.4      <span style="color: #555555;">2023-11-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
