@@ -334,7 +334,7 @@ same</p>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="va">tim</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt; 285.659  33.344 286.130</span></span></code></pre></div>
+<span><span class="co">#&gt; 287.240  33.315 288.224</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="enrichment-analysis">Enrichment analysis<a class="anchor" aria-label="anchor" href="#enrichment-analysis"></a>
@@ -347,23 +347,52 @@ same</p>
 <div class="section level3">
 <h3 id="enrichment-adjp-0-1">Enrichment (adjP &lt;= 0.1)<a class="anchor" aria-label="anchor" href="#enrichment-adjp-0-1"></a>
 </h3>
-<p>Run enrichment:</p>
+<p>Lefse is the strictest method, defining DA with p-values and effect
+size thresholds (based on linear discriminant analysis). CLR affects the
+magnitud of the effect size, so let’s define a new one.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.TSS</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="HMP_2012_16S_gingival_V35_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.CLR</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="HMP_2012_16S_gingival_V35_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    lefse.TSS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.TSS</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span><span class="op">)</span>,</span>
+<span>    lefse.CLR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.CLR</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;  lefse.TSS  lefse.CLR </span></span>
+<span><span class="co">#&gt; 2.16749921 0.06591452</span></span></code></pre></div>
+<p>Create variables of thresholds:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">adjThr</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">adjThr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">esThr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">esThr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span></span>
+<span><span class="va">esThr</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"lefse.TSS"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">esThr</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
+<span><span class="va">esThr</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"lefse.CLR"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">esThr</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.06</span></span>
+<span></span>
+<span><span class="va">slotV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span>, <span class="st">"statInfo"</span>, <span class="st">"pValMat"</span><span class="op">)</span></span>
+<span><span class="va">colNameV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span>, <span class="st">"LDA_scores"</span>, <span class="st">"adjP"</span><span class="op">)</span></span>
+<span><span class="va">typeV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span>, <span class="st">"logfc"</span>, <span class="st">"pvalue"</span><span class="op">)</span></span></code></pre></div>
+<p>Run enrichment:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createEnrichment.html" class="external-link">createEnrichment</a></span><span class="op">(</span></span>
 <span>    object <span class="op">=</span> <span class="va">DA_output</span>,</span>
 <span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>,</span>
 <span>    enrichmentCol <span class="op">=</span> <span class="st">"taxon_annotation"</span>,</span>
 <span>    namesCol <span class="op">=</span> <span class="st">"new_names"</span>,</span>
-<span>    slot <span class="op">=</span> <span class="st">"pValMat"</span>, colName <span class="op">=</span> <span class="st">"adjP"</span>, type <span class="op">=</span> <span class="st">"pvalue"</span>,</span>
+<span>    slot <span class="op">=</span> <span class="va">slotV</span>, colName <span class="op">=</span> <span class="va">colNameV</span>, type <span class="op">=</span> <span class="va">typeV</span>,</span>
 <span>    direction <span class="op">=</span> <span class="va">direction</span>,</span>
-<span>    threshold_pvalue <span class="op">=</span> <span class="fl">0.1</span>,</span>
-<span>    threshold_logfc <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>    threshold_pvalue <span class="op">=</span> <span class="va">adjThr</span>,</span>
+<span>    threshold_logfc <span class="op">=</span> <span class="va">esThr</span>,</span>
 <span>    top <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># No top feature selected</span></span>
 <span>    alternative <span class="op">=</span> <span class="st">"greater"</span>,</span>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span> </span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Extract summary of the enrichment analysis:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichmentSummary</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">enrichment</span>,  <span class="op">~</span> <span class="op">{</span></span>
 <span>    <span class="va">.x</span><span class="op">$</span><span class="va">summaries</span> <span class="op">|&gt;</span> </span>
 <span>        <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
@@ -396,7 +425,7 @@ same</p>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
 <p>Create enrichment plot</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enPlot</span> <span class="op">&lt;-</span> <span class="va">enrichmentSummary</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_meth_class.html">get_meth_class</a></span><span class="op">(</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">"method"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
@@ -434,27 +463,47 @@ same</p>
 <div class="section level3">
 <h3 id="calculate-tp---fp-ratio-no-threshold">Calculate TP - FP ratio (no threshold)<a class="anchor" aria-label="anchor" href="#calculate-tp---fp-ratio-no-threshold"></a>
 </h3>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createPositives.html" class="external-link">createPositives</a></span><span class="op">(</span></span>
-<span>    object <span class="op">=</span> <span class="va">DA_output</span>,</span>
-<span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>, </span>
-<span>    enrichmentCol <span class="op">=</span> <span class="st">"taxon_annotation"</span>, namesCol <span class="op">=</span> <span class="st">"new_names"</span>,</span>
-<span>    slot <span class="op">=</span> <span class="st">"pValMat"</span>, colName <span class="op">=</span> <span class="st">"rawP"</span>, type <span class="op">=</span> <span class="st">"pvalue"</span>,</span>
-<span>    direction <span class="op">=</span> <span class="va">direction</span>,</span>
-<span>    threshold_pvalue <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>    threshold_logfc <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>    top <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">50</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
-<span>    alternative <span class="op">=</span> <span class="st">"greater"</span>,</span>
-<span>    verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>    TP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    FP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_meth_class.html">get_meth_class</a></span><span class="op">(</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'method'</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createPositives.html" class="external-link">createPositives</a></span><span class="op">(</span></span>
+<span>        object <span class="op">=</span> <span class="va">DA_output</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
+<span>        priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>, </span>
+<span>        enrichmentCol <span class="op">=</span> <span class="st">"taxon_annotation"</span>, namesCol <span class="op">=</span> <span class="st">"new_names"</span>,</span>
+<span>        slot <span class="op">=</span> <span class="va">slotV</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, colName <span class="op">=</span> <span class="va">colNameV</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, type <span class="op">=</span> <span class="va">typeV</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
+<span>        direction <span class="op">=</span> <span class="va">direction</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
+<span>        threshold_pvalue <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        threshold_logfc <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>        top <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">50</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
+<span>        alternative <span class="op">=</span> <span class="st">"greater"</span>,</span>
+<span>        verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        TP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        FP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>        <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_meth_class.html">get_meth_class</a></span><span class="op">(</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'method'</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># names(positives) &lt;- names(DA_output)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># positives &lt;- createPositives(</span></span>
+<span><span class="co">#     object = DA_output,</span></span>
+<span><span class="co">#     priorKnowledge = prior_info, </span></span>
+<span><span class="co">#     enrichmentCol = "taxon_annotation", namesCol = "new_names",</span></span>
+<span><span class="co">#     slot = slotV, colName = colNameV, type = typeV,</span></span>
+<span><span class="co">#     direction = direction,</span></span>
+<span><span class="co">#     threshold_pvalue = 1,</span></span>
+<span><span class="co">#     threshold_logfc = 0,</span></span>
+<span><span class="co">#     top = seq.int(from = 0, to = 50, by = 5),</span></span>
+<span><span class="co">#     alternative = "greater",</span></span>
+<span><span class="co">#     verbose = FALSE,</span></span>
+<span><span class="co">#     TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),</span></span>
+<span><span class="co">#     FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))</span></span>
+<span><span class="co"># ) |&gt; </span></span>
+<span><span class="co">#     left_join(get_meth_class(), by = 'method')</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="plot-tp---fp">Plot TP - FP<a class="anchor" aria-label="anchor" href="#plot-tp---fp"></a>
 </h3>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec</span> <span class="op">&lt;-</span> <span class="va">positives</span><span class="op">$</span><span class="va">color</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">vec</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">positives</span><span class="op">$</span><span class="va">base_method</span></span>
 <span><span class="va">posPlot</span> <span class="op">&lt;-</span> <span class="va">positives</span> <span class="op">|&gt;</span> </span>
@@ -480,18 +529,18 @@ same</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <p>Combine plots:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span></span>
 <span>    plotlist <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">enPlot</span>, <span class="va">posPlot</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span>, heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">pp</span></span></code></pre></div>
-<p><img src="HMP_2012_16S_gingival_V35_files/figure-html/unnamed-chunk-18-1.png" width="960"></p>
+<p><img src="HMP_2012_16S_gingival_V35_files/figure-html/unnamed-chunk-22-1.png" width="960"></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
@@ -519,7 +568,7 @@ same</p>
 <span><span class="co">#&gt;  base64enc                         0.1-3      <span style="color: #555555;">2015-07-28</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  beachmat                          2.20.0     <span style="color: #555555;">2024-04-30</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.19 (R 4.4.1)</span></span></span>
 <span><span class="co">#&gt;  beeswarm                          0.4.0      <span style="color: #555555;">2021-06-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  benchdamic                      * 1.9.4      <span style="color: #555555;">2024-09-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Github (mcalgaro93/benchdamic@84a8ab3)</span></span></span>
+<span><span class="co">#&gt;  benchdamic                      * 1.11.1     <span style="color: #555555;">2024-09-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Github (mcalgaro93/benchdamic@7686034)</span></span></span>
 <span><span class="co">#&gt;  biglm                             0.9-3      <span style="color: #555555;">2024-06-12</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  Biobase                         * 2.64.0     <span style="color: #555555;">2024-04-30</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.19 (R 4.4.1)</span></span></span>
 <span><span class="co">#&gt;  BiocFileCache                     2.12.0     <span style="color: #555555;">2024-04-30</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.19 (R 4.4.1)</span></span></span>
@@ -530,7 +579,7 @@ same</p>
 <span><span class="co">#&gt;  biomformat                        1.32.0     <span style="color: #555555;">2024-04-30</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.19 (R 4.4.1)</span></span></span>
 <span><span class="co">#&gt;  Biostrings                      * 2.72.1     <span style="color: #555555;">2024-06-02</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.19 (R 4.4.1)</span></span></span>
 <span><span class="co">#&gt;  bit                               4.5.0      <span style="color: #555555;">2024-09-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  bit64                             4.0.5      <span style="color: #555555;">2020-08-30</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">#&gt;  bit64                             4.5.2      <span style="color: #555555;">2024-09-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  bitops                            1.0-8      <span style="color: #555555;">2024-07-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  blob                              1.2.4      <span style="color: #555555;">2023-03-17</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  bluster                           1.14.0     <span style="color: #555555;">2024-04-30</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.19 (R 4.4.1)</span></span></span>
@@ -807,8 +856,8 @@ same</p>
 <span><span class="co">#&gt;  tidyselect                        1.2.1      <span style="color: #555555;">2024-03-11</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  tidytext                          0.4.2      <span style="color: #555555;">2024-04-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  tidytree                          0.4.6      <span style="color: #555555;">2023-12-12</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  timeDate                          <span style="color: #BB00BB; font-weight: bold;">4032.109  </span> <span style="color: #555555;">2023-12-14</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  timeSeries                        <span style="color: #BB00BB; font-weight: bold;">4041.110  </span> <span style="color: #555555;">2024-09-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">#&gt;  timeDate                          <span style="color: #BB00BB; font-weight: bold;">4041.110  </span> <span style="color: #555555;">2024-09-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">#&gt;  timeSeries                        <span style="color: #BB00BB; font-weight: bold;">4041.111  </span> <span style="color: #555555;">2024-09-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  tokenizers                        0.3.0      <span style="color: #555555;">2022-12-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  treeio                            1.28.0     <span style="color: #555555;">2024-04-30</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.19 (R 4.4.1)</span></span></span>
 <span><span class="co">#&gt;  TreeSummarizedExperiment        * 2.12.0     <span style="color: #555555;">2024-04-30</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.19 (R 4.4.1)</span></span></span>
