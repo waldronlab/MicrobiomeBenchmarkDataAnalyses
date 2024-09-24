@@ -20,8 +20,7 @@ Suggests:
     tidySummarizedExperiment,
     ggpubr
 Remotes:
-    wdl2459/ZINQ-v2,
-    mcalgaro93/benchdamic
+    wdl2459/ZINQ-v2
 Imports: 
     SummarizedExperiment,
     microbiome,
