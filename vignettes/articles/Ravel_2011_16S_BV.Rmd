@@ -95,6 +95,7 @@ prior_info <- tse_genus |>
             TRUE ~ taxon_annotation
         )
     )
+head(prior_info)
 ```
 
 ## Convert to phyloseq
@@ -164,6 +165,43 @@ direction <- get_direction_cols(DA_output, conditions_col, conditions)
 head(direction)
 ```
 
+
+
+```{r}
+hist(abs(DA_output$lefse.CLR$statInfo$LDA_scores))
+```
+
+
+```{r}
+hist(abs(DA_output$lefse.TSS$statInfo$LDA_scores))
+```
+
+
+```{r}
+c(
+    lefse.TSS = median(DA_output$lefse.TSS$statInfo$abs_score),
+    lefse.CLR = median(DA_output$lefse.CLR$statInfo$abs_score)
+)
+```
+
+
+Create some variables for selecting and ranking differentially abundant
+features:
+
+```{r}
+adjThr<- rep(0.1, length(DA_output))
+names(adjThr) <- names(DA_output)
+
+esThr <- rep(0, length(DA_output))
+names(esThr) <- names(DA_output)
+esThr[grep("lefse.TSS", names(esThr))] <- 2
+esThr[grep("lefse.CLR", names(esThr))] <- 0.15
+
+slotV <- ifelse(grepl("lefse", names(DA_output)), "statInfo", "pValMat")
+colNameV <- ifelse(grepl("lefse", names(DA_output)), "LDA_scores", "adjP")
+typeV <- ifelse(grepl("lefse", names(DA_output)), "logfc", "pvalue")
+```
+
 Create enrichment. Threshold values is based on adjusted p-values
 
 ```{r enrichment}
@@ -172,40 +210,131 @@ enrichment <- createEnrichment(
     priorKnowledge = prior_info,
     enrichmentCol = "taxon_annotation",
     namesCol = "taxon_name",
-    slot = "pValMat", colName = "adjP", type = "pvalue",
+    slot = slotV, colName = colNameV, type = typeV,
     direction = direction,
-    threshold_pvalue = 0.1,
-    threshold_logfc = 0,
-    top = NULL, 
+    threshold_pvalue = adjThr,
+    threshold_logfc = esThr,
+    top = NULL, # No top feature selected
     alternative = "greater",
     verbose = FALSE 
 )
 
+# enrichment <- createEnrichment(
+#     object = DA_output,
+#     priorKnowledge = prior_info,
+#     enrichmentCol = "taxon_annotation",
+#     namesCol = "taxon_name",
+#     slot = "pValMat", colName = "adjP", type = "pvalue",
+#     direction = direction,
+#     threshold_pvalue = 0.1,
+#     threshold_logfc = 0,
+#     top = NULL, 
+#     alternative = "greater",
+#     verbose = FALSE 
+# )
+
 ```
 
-Create enrichment plot
+Create enrichment summary:
+
+```{r}
+enrichmentSummary <- purrr::map(enrichment,  ~ {
+    .x$summaries |> 
+        purrr::map(function(x) {
+            pos <- which(colnames(x) != "pvalue")
+            x |> 
+                tibble::rownames_to_column(var = "direction") |> 
+                tidyr::pivot_longer(
+                    names_to = "annotation", values_to = "n",
+                    cols = 2
+                )
+                
+        }) |> 
+        dplyr::bind_rows() |> 
+        dplyr::relocate(pvalue)
+}) |> 
+    dplyr::bind_rows(.id = "method") |> 
+    dplyr::mutate(
+        sig = dplyr::case_when(
+            pvalue < 0.05 & pvalue > 0.01 ~ "*",
+            pvalue < 0.01 & pvalue > 0.001 ~ "**",
+            pvalue < 0.001 ~ "***",
+            TRUE ~ ""
+        ) 
+    ) |> 
+    dplyr::mutate(
+        direction = dplyr::case_when(
+            direction == "DOWN Abundant" ~ "HV",
+            direction == "UP Abundant" ~ "BV",
+            TRUE ~ direction 
+        )
+    )
+```
+
+Create enrichment plot:
+
+```{r}
+enPlot <- enrichmentSummary |> 
+    left_join(get_meth_class(), by = "method") |> 
+    mutate(
+        direction = factor(
+            direction, levels = c("BV", "HV")
+        )
+    ) |> 
+    filter(annotation != "Unannotated") |> 
+    ggplot(aes(method, n)) +
+    geom_col(
+        aes(fill = annotation),
+        position = position_dodge2(width = 0.9)
+    ) +
+    geom_text(
+        aes(label = sig, color = annotation),
+        position = position_dodge2(width = 0.9)
+    ) +
+    facet_grid(
+        direction ~ method_class, scales = "free_x", space = "free"
+    ) +
+    scale_fill_viridis_d(option = "D", name = "Biological data") +
+    scale_color_viridis_d(option = "D", name = "Biological data") +
+    labs(
+        x = "DA method", y = "Number of DA taxa"
+    ) +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom"
+    )
+```
+
+
+
+
+
+
+
 
 ```{r enrichment plot, warning=FALSE, message=FALSE}
+# Create enrichment plot
 ## Not a plot. This is a data.frame that should be used as input for
 ## the plot_enrichment2 function.
-enrich_plot <- plot_enrichment(
-    enrichment = enrichment, 
-    enrichment_col = "taxon_annotation",
-    levels_to_plot = c("hv-associated", "bv-associated"),
-    conditions = c(condB = "HV", condA = "BV") 
-)
+# enrich_plot <- plot_enrichment(
+#     enrichment = enrichment, 
+#     enrichment_col = "taxon_annotation",
+#     levels_to_plot = c("hv-associated", "bv-associated"),
+#     conditions = c(condB = "HV", condA = "BV") 
+# )
 
 ## The actual plot.
-enrich_plot2 <- plot_enrichment_2(
-    enrich_plot,
-    dir = c(up = 'BV', down = 'HV')
-) +
-    theme(
-        axis.title = element_text(size = 17),
-        axis.text = element_text(size = 15),
-        legend.text = element_text(size = 13),
-        strip.text = element_text(size = 17)
-    )
+# enrich_plot2 <- plot_enrichment_2(
+#     enrich_plot,
+#     dir = c(up = 'BV', down = 'HV')
+# ) +
+#     theme(
+#         axis.title = element_text(size = 17),
+#         axis.text = element_text(size = 15),
+#         legend.text = element_text(size = 13),
+#         strip.text = element_text(size = 17)
+#     )
 # enrich_plot2
 ```
 
@@ -214,51 +343,116 @@ enrich_plot2 <- plot_enrichment_2(
 Create 'positives' object. No thresholds were added.
 
 ```{r putative positives}
-positives <- createPositives(
-    object = DA_output, 
-    priorKnowledge = prior_info, 
-    enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
-    slot = "pValMat", colName = "rawP", type = "pvalue",
-    direction = direction,
-    threshold_pvalue = 1,
-    threshold_logfc = 0,
-    top = seq.int(from = 0, to = 20, by = 2),
-    alternative = "greater",
-    verbose = FALSE,
-    TP = list(c("DOWN Abundant", "hv-associated"), c("UP Abundant", "bv-associated")),
-    FP = list(c("DOWN Abundant", "bv-associated"), c("UP Abundant", "hv-associated"))
-) |> 
-    left_join(get_meth_class(), by = 'method') |> 
-    relocate(method_class)
+positives <- map(1:length(DA_output), .f = function(i) {
+    positives <- createPositives(
+        object = DA_output[i],
+        priorKnowledge = prior_info, 
+        enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
+        slot = slotV[i], colName = colNameV[i], type = typeV[i],
+        direction = direction[i],
+        threshold_pvalue = 1,
+        threshold_logfc = 0,
+        top = seq.int(from = 2, to = 20, by = 2),
+        alternative = "greater",
+        verbose = FALSE,
+        TP = list(c("DOWN Abundant", "hv-associated"), c("UP Abundant", "bv-associated")),
+        FP = list(c("DOWN Abundant", "bv-associated"), c("UP Abundant", "hv-associated"))
+    ) |> 
+        left_join(get_meth_class(), by = 'method')
+}) |> bind_rows()
+
+
+
+
+
+
+
+
+# positives <- createPositives(
+#     object = DA_output, 
+#     priorKnowledge = prior_info, 
+#     enrichmentCol = "taxon_annotation", namesCol = "taxon_name",
+#     slot = "pValMat", colName = "rawP", type = "pvalue",
+#     direction = direction,
+#     threshold_pvalue = 1,
+#     threshold_logfc = 0,
+#     top = seq.int(from = 0, to = 20, by = 2),
+#     alternative = "greater",
+#     verbose = FALSE,
+#     TP = list(c("DOWN Abundant", "hv-associated"), c("UP Abundant", "bv-associated")),
+#     FP = list(c("DOWN Abundant", "bv-associated"), c("UP Abundant", "hv-associated"))
+# ) |> 
+#     left_join(get_meth_class(), by = 'method') |> 
+#     relocate(method_class)
 ```
 
 Create putative positives plot
 
 ```{r plot positves, fig.width=15, fig.height=10}
-plots <- plot_positives(positives) |> 
-    map( ~ {
-        .x +
-            theme(
-                axis.title = element_text(size = 17),
-                axis.text = element_text(size = 15),
-                legend.text = element_text(size = 13),
-                strip.text = element_text(size = 17)
-            )
-    })
-k <- grid.arrange(grobs = plots, ncol = 3)
+vec <- positives$color
+names(vec) <- positives$base_method
+posPlot <- positives |> 
+    # mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
+    mutate(diff = TP - FP) |>
+    ggplot(aes(top, diff)) +
+    geom_line(
+        aes(
+            group = method, color = base_method, linetype = norm,
+        ),
+    ) +
+    geom_point(
+        aes(
+            color = base_method, shape = norm
+        ),
+    ) +
+    facet_wrap(~method_class, nrow = 1) +
+    labs(
+        x = "Top DA features", y = "TP - FP"
+    ) +
+    scale_shape(name = "Normalization") +
+    scale_linetype(name = "Normalization") +
+    scale_color_manual(values = vec, name = "Base method") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+# plots <- plot_positives(positives) |> 
+#     map( ~ {
+#         .x +
+#             theme(
+#                 axis.title = element_text(size = 17),
+#                 axis.text = element_text(size = 15),
+#                 legend.text = element_text(size = 13),
+#                 strip.text = element_text(size = 17)
+#             )
+#     })
+# k <- grid.arrange(grobs = plots, ncol = 3)
 ```
 
-```{r, fig.width=15, fig.height=15, warning=FALSE}
-ePlot <- ggarrange(
-    enrich_plot2, k, ncol = 1, labels = c("a)", "b)"), heights = c(8, 10)
-)
+```{r, fig.width=15, fig.height=15, warning=FALSE, eval=FALSE}
+# ePlot <- ggarrange(
+#     enrich_plot2, k, ncol = 1, labels = c("a)", "b)"), heights = c(8, 10)
+# )
+
 ```
+
+
+```{r, fig.height=9, fig.width=10}
+pp <- ggarrange(
+    plotlist = list(enPlot, posPlot), ncol = 1, heights = c(1.5, 1)
+)
+pp
+```
+
+
 
 
 ```{r}
+# ggsave(
+#     filename = "Figure2.pdf", plot = ePlot,
+#     dpi = 300, height = 15, width = 15
+# )
 ggsave(
-    filename = "Figure2.pdf", plot = ePlot,
-    dpi = 300, height = 15, width = 15
+    filename = "Figure2.pdf", plot = pp,
+    dpi = 300, height = 9, width = 10
 )
 ```
 
