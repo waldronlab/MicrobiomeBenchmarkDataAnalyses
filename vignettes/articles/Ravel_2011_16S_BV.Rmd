@@ -299,7 +299,7 @@ enPlot <- enrichmentSummary |>
     labs(
         x = "DA method", y = "Number of DA taxa"
     ) +
-    theme_minimal() +
+    # theme_minimal() +
     theme(
         axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "bottom"
@@ -412,7 +412,7 @@ posPlot <- positives |>
     scale_shape(name = "Normalization") +
     scale_linetype(name = "Normalization") +
     scale_color_manual(values = vec, name = "Base method") +
-    theme_minimal() +
+    # theme_minimal() +
     theme(legend.position = "bottom")
 # plots <- plot_positives(positives) |> 
 #     map( ~ {
