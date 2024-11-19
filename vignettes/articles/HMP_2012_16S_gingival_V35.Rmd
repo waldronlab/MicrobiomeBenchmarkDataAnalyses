@@ -286,6 +286,17 @@ enrichmentSummary <- purrr::map(enrichment,  ~ {
             TRUE ~ direction 
         )
     )
+
+
+# enrichmentSummary <- enrichmentSummary |> 
+#     mutate(
+#         method = case_when(
+#             grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
+#             grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
+#             TRUE ~ method
+#         )
+#     )
+
 ```
 
 Create enrichment plot
@@ -296,6 +307,21 @@ enPlot <- enrichmentSummary |>
     mutate(
         direction = factor(
             direction, levels = c("Supragingival", "Subgingival")
+        )
+    ) |> 
+    mutate(
+        method = case_when(
+            grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
+            grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
+            TRUE ~ method
+        )
+    ) |> 
+    mutate(
+        annotation = case_when(
+            annotation == "aerobic" ~ "Aerobic",
+            annotation == "anaerobic" ~ "Anaerobic",
+            annotation == "facultative_anaerobic" ~ "Facultative anaerobic",
+            TRUE ~ annotation
         )
     ) |> 
     ggplot(aes(method, n)) +
@@ -315,7 +341,7 @@ enPlot <- enrichmentSummary |>
     labs(
         x = "DA method", y = "Number of DA taxa"
     ) +
-    # theme_minimal() +
+    theme_minimal() +
     theme(
         axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "bottom"
@@ -367,10 +393,24 @@ positives <- map(1:length(DA_output), .f = function(i) {
 ## Plot TP - FP 
 
 ```{r, fig.height = 4, fig.width=12}
+# names(vec) <- positives$base_method
+positives <- positives |> 
+    mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
+    mutate(
+        base_method = case_when(
+            grepl("lefse", base_method) ~ sub("lefse", "LEfSe", base_method),
+            grepl("wilcox", base_method) ~ sub("wilcox", "Wilcox", base_method),
+            TRUE ~ base_method 
+        ),
+        method = case_when(
+            grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
+            grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
+            TRUE ~ method
+        )
+    )
 vec <- positives$color
 names(vec) <- positives$base_method
 posPlot <- positives |> 
-    mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
     ggplot(aes(top, diff)) +
     geom_line(
         aes(
@@ -389,7 +429,7 @@ posPlot <- positives |>
     scale_shape(name = "Normalization") +
     scale_linetype(name = "Normalization") +
     scale_color_manual(values = vec, name = "Base method") +
-    # theme_minimal() +
+    theme_minimal() +
     theme(legend.position = "bottom")
 ```
 
@@ -406,7 +446,7 @@ pp
 ## Export the figure
 ggsave(
     filename = "Figure1.pdf", plot = pp, dpi = 300,
-    height = 9, width = 10, 
+    height = 9, width = 11, 
 )
 ```
 

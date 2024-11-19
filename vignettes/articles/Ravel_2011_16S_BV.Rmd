@@ -282,6 +282,19 @@ enPlot <- enrichmentSummary |>
         )
     ) |> 
     filter(annotation != "Unannotated") |> 
+    mutate(
+        method = case_when(
+            grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
+            grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
+            TRUE ~ method
+        )
+    ) |> 
+    mutate(
+        annotation = case_when(
+            annotation == "bv-associated" ~ "BV-associated",
+            annotation == "hv-associated" ~ "HV-associated"
+        )
+    ) |> 
     ggplot(aes(method, n)) +
     geom_col(
         aes(fill = annotation),
@@ -299,7 +312,7 @@ enPlot <- enrichmentSummary |>
     labs(
         x = "DA method", y = "Number of DA taxa"
     ) +
-    # theme_minimal() +
+    theme_minimal() +
     theme(
         axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "bottom"
@@ -389,8 +402,22 @@ positives <- map(1:length(DA_output), .f = function(i) {
 Create putative positives plot
 
 ```{r plot positves, fig.width=15, fig.height=10}
+positives <- positives |> 
+    mutate(
+        base_method = case_when(
+            grepl("lefse", base_method) ~ sub("lefse", "LEfSe", base_method),
+            grepl("wilcox", base_method) ~ sub("wilcox", "Wilcox", base_method),
+            TRUE ~ base_method 
+        ),
+        method = case_when(
+            grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
+            grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
+            TRUE ~ method
+        )
+    )
 vec <- positives$color
 names(vec) <- positives$base_method
+
 posPlot <- positives |> 
     # mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
     mutate(diff = TP - FP) |>
@@ -412,7 +439,7 @@ posPlot <- positives |>
     scale_shape(name = "Normalization") +
     scale_linetype(name = "Normalization") +
     scale_color_manual(values = vec, name = "Base method") +
-    # theme_minimal() +
+    theme_minimal() +
     theme(legend.position = "bottom")
 # plots <- plot_positives(positives) |> 
 #     map( ~ {
@@ -452,7 +479,7 @@ pp
 # )
 ggsave(
     filename = "Figure2.pdf", plot = pp,
-    dpi = 300, height = 9, width = 10
+    dpi = 300, height = 9, width = 11
 )
 ```
 
@@ -460,7 +487,7 @@ ggsave(
 
 ```{r manual transformations}
 tssFun <- function(x) {
-    (x) / sum(x) * 100
+    (x) / sum(x) * 1e6
 }
 clrFun <- function(x) {
     log(x / exp(mean(log(x))))
@@ -636,16 +663,27 @@ head(wilcox_raw)
 Box plot of incorrect values:
 
 ```{r plot abundance values, fig.height=7}
+l <- wilcox_raw |> 
+    mutate(taxon_name = sub('genus:', '', taxon_name)) |> 
+    {\(y) split(y, y$transformation)}()
+l$`TSS + CLR` <- NULL
+l$counts$value <- log(l$counts$value + 1)
+l$TSS$value <- log(l$TSS$value + 1)
+wilcox_raw <- reduce(l, bind_rows)
+
+
+
+
 wilcox_genus_plot <- wilcox_raw |> 
-    mutate(taxon_name = sub('genus:', '', taxon_name)) |>
-    mutate(
-        value = case_when(
-            transformation %in% c("counts", "TSS") ~ log(value + 1),
-            TRUE ~ value
-        )
-    ) |> 
+    # mutate(taxon_name = sub('genus:', '', taxon_name)) |>
+    # mutate(
+    #     value = case_when(
+    #         transformation %in% c("counts", "TSS") ~ log(value + 1),
+    #         TRUE ~ value
+    #     )
+    # ) |> 
     # mutate(value = log(value + 1)) |> 
-    filter(transformation != "TSS + CLR") |> 
+    # filter(transformation != "TSS + CLR") |> 
     mutate(transformation = factor(
         transformation, levels = c('counts', 'TSS', 'CLR'),
         labels = c('log(counts + 1)', 'log(TSS + 1)', 'CLR')
@@ -669,7 +707,8 @@ wilcox_genus_plot <- wilcox_raw |>
     theme(
         panel.grid.major.x = element_blank(),
         legend.title = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1)
+        axis.text.x = element_text(angle = 45, hjust = 1, face = "italic")
+        
     )
 wilcox_genus_plot
 ```
@@ -1000,13 +1039,13 @@ incorrect_taxa_lefse_clr ## the same as in wilcox.
 ANCOM-BC
 
 ```{r ancombc}
-ancombc <- as.data.frame(DA_output$ancombc.none$statInfo)
-ancombc$taxon_name <- rownames(ancombc)
-ancombc <- left_join(ancombc, taxa_annotations, by = "taxon_name") |> 
-    relocate(taxon_name, taxon_annotation)
-ancombc |> 
-    filter(q_val <= 0.1, lfc < 0, taxon_annotation == 'bv-associated') |> 
-    pull(taxon_name)
+# ancombc <- as.data.frame(DA_output$ancombc.none$statInfo)
+# ancombc$taxon_name <- rownames(ancombc)
+# ancombc <- left_join(ancombc, taxa_annotations, by = "taxon_name") |> 
+#     relocate(taxon_name, taxon_annotation)
+# ancombc |> 
+#     filter(q_val <= 0.1, lfc < 0, taxon_annotation == 'bv-associated') |> 
+#     pull(taxon_name)
 
 ```
 
@@ -1312,11 +1351,12 @@ plot_1b <- data_with_lact |>
     ) + 
     labs(
         # title = 'Relative abundace vs CLR',
-        title = 'Actinomyces (BV-associated)',
+        title = expression(italic('Actinomyces') ~ '(BV-associated)'),
         x = 'log(TSS + 1)'
     ) +
     scale_color_discrete(name = 'Condition') +
-    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    # scale_size(name = 'Lactobacillus Rel. Ab.') +
+    scale_size(name = expression(italic('Lactobacillus') ~ 'Rel. Ab.')) +
     theme_bw()
 
 plot_2b <- data_with_lact |> 
@@ -1334,11 +1374,12 @@ plot_2b <- data_with_lact |>
     ) + 
     labs(
         # title = 'Relative abundace vs CLR',
-        title = 'Corynebacterium (BV-associated)',
+        title = expression(italic('Corynebacterium') ~ '(BV-associated)'),
         x = 'log(TSS + 1)'
     ) +
     scale_color_discrete(name = 'Condition') +
-    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    # scale_size(name = 'Lactobacillus Rel. Ab.') +
+    scale_size(name = expression(italic('Lactobacillus') ~ 'Rel. Ab.')) +
     theme_bw()
 
 plot_3b <- data_with_lact |> 
@@ -1356,11 +1397,12 @@ plot_3b <- data_with_lact |>
     ) + 
     labs(
         # title = 'Relative abundace vs CLR',
-        title = 'Prevotella (BV-associated)',
+        title = expression(italic("Prevotella") ~ "(BV-associated)"),
         x = 'log(TSS + 1)'
     ) +
     scale_color_discrete(name = 'Condition') +
-    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    # scale_size(name = 'Lactobacillus Rel. Ab.') +
+    scale_size(name = expression(italic('Lactobacillus') ~ 'Rel. Ab.')) +
     theme_bw()
 
 plot_4b <- data_with_lact |> 
@@ -1378,11 +1420,13 @@ plot_4b <- data_with_lact |>
     ) + 
     labs(
         # title = 'Relative abundace vs CLR',
-        title = 'Lactobacillus (HV)',
+        # title = 'Lactobacillus (HV-associated)',
+        title = expression(italic("Lactobacillus") ~ "(HV-associated)"),
         x = 'log(TSS + 1)'
     ) +
     scale_color_discrete(name = 'Condition') +
-    scale_size(name = 'Lactobacillus Rel. Ab.') +
+    # scale_size(name = 'Lactobacillus Rel. Ab.') +
+    scale_size(name = expression(italic('Lactobacillus') ~ 'Rel. Ab.')) +
     theme_bw()
 
 plotsb <- ggpubr::ggarrange(
@@ -1391,6 +1435,7 @@ plotsb <- ggpubr::ggarrange(
     labels = c('a)', 'b)', 'c)', 'd)')
 ) 
 ```
+
 
 ```{r, fig.height=6, fig.width=8}
 plotsb

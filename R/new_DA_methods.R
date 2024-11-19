@@ -263,7 +263,7 @@ DA_lefse <- function(
     statInfo$adjP <- seq(0.09, 0, length.out = nrow(statInfo))
     # statInfo$adj_pval <- stats::p.adjust(statInfo$rawP, method = "fdr")
     rownames(statInfo) <- statInfo[["features"]] ## lefser version 1.15
-    rownames(statInfo) <- statInfo[["Names"]] ## lefser version 1.14
+    # rownames(statInfo) <- statInfo[["Names"]] ## lefser version 1.14
     colnames(statInfo) <- c("Taxa", "LDA_scores", "abs_score", "rawP", "adjP")
    
     pValMat <- statInfo[, c("rawP", "adjP")]
