@@ -23,6 +23,8 @@ library(tidyr)
 library(biobroom)
 library(ggplot2)
 library(purrr)
+library(ggrepel)
+library(ggpubr)
 ```
 
 # Introduction
@@ -105,6 +107,7 @@ DT::datatable(data, filter = 'top')
 ```{r}
 get_cv <- function(x) {
     cv <- function(x, n) { sd(x[n]) / abs(mean(x[n])) } 
+    ## Output is one row data.frame
     boot::boot(x, cv, R = 1000) |>
         broom::tidy() |>
         dplyr::rename(cv = statistic)
@@ -190,6 +193,179 @@ cv_res |>
         legend.position = 'none'
     )
 ```
+
+## Ranking
+
+Get coefficient of variation for all features:
+
+```{r}
+tss_mat <- assay(tse, "TSS")
+system.time({
+    tss_cv <- tss_mat |> 
+        apply(MARGIN = 1, FUN = get_cv) |> 
+        bind_rows(.id = "feature")
+})
+```
+
+Get coefficient of variation for all features:
+
+```{r}
+gmn_mat <- assay(tse, "GMN")
+system.time({
+    gmn_cv <- gmn_mat |> 
+        apply(MARGIN = 1, FUN = get_cv) |> 
+        bind_rows(.id = "feature")
+})
+```
+
+Add rankings
+
+```{r}
+tss <- tss_cv |> 
+    mutate(
+        ranking = min_rank(cv)
+    )
+gmn <- gmn_cv |> 
+    mutate(
+        ranking = min_rank(cv)
+    )
+
+tss$mean <- apply(tss_mat, 1, mean)
+gmn$mean <- apply(gmn_mat, 1, mean)
+
+tss <- rename_with(tss, ~ paste0("tss_", .x), -matches("feature"))
+gmn <- rename_with(gmn, ~ paste0("gmn_", .x), -matches("feature"))
+
+dat <- left_join(tss, gmn, by = "feature") |> 
+    mutate(
+        spikein = ifelse(feature %in% spk_bac, "Spike-in", "Non-spike-in")
+    )
+
+dat$feature_label <- ""
+dat$feature_label[match(spk_bac, dat$feature)] <- names(spk_bac)
+
+dat <- relocate(dat, feature_label, spikein, .after = feature)
+head(dat)
+```
+
+```{r}
+p_a <- dat |> 
+    mutate(
+        spikein = factor(spikein, levels = c("Spike-in", "Non-spike-in"))
+    ) |> 
+    ggplot(aes(x = tss_ranking, y = gmn_ranking)) +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, linewidth = 0.3) +
+    geom_point(
+        aes(color = spikein, shape = spikein, size = spikein)
+    ) +
+    geom_label_repel(
+        data = filter(dat, feature_label != ""),
+        mapping = aes(label = feature_label), 
+        fontface = "italic"
+    )+
+    scale_fill_viridis_c(option = "C") +
+    scale_size_manual(values = c(3, 1)) +
+    scale_x_continuous(labels = \(x) format(x, big.mark = ",")) +
+    scale_y_continuous(labels = \(x) format(x, big.mark = ",")) +
+    labs(
+        x = "TSS ranking", y = "GM ranking"
+    ) +
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        legend.title = element_blank()
+    )
+
+p_b <- dat |> 
+    ggplot(aes(x = tss_ranking, y = gmn_ranking)) +
+    geom_hex(
+        color = "white"
+    ) +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, linewidth = 0.3) +
+    # geom_label_repel(
+    #     data = filter(dat, feature_label != ""),
+    #     mapping = aes(label = feature_label),
+    #     fontface = "italic"
+    # ) +
+    scale_fill_viridis_c(
+        option = "C", name = "# features",
+        label = \(x) format(x, big.mark = ",")
+    ) +
+    scale_size_manual(values = c(3, 1)) +
+    scale_x_continuous(labels = \(x) format(x, big.mark = ",")) +
+    scale_y_continuous(labels = \(x) format(x, big.mark = ",")) +
+    labs(
+        x = "TSS ranking", y = "GM ranking"
+    ) +
+    theme_bw() +
+    theme(
+        legend.position = "bottom"
+    )
+plts_1 <- ggarrange(
+    plotlist = list(p_a, p_b), 
+    labels = c("A", "B"),
+    nrow = 1
+)
+plts_1
+```
+
+
+
+```{r}
+hexFun <- function(myDat, xvar, yvar) {
+    xvar <- enquo(xvar)
+    yvar <- enquo(yvar)
+    myDat |> 
+        ggplot(aes(!!xvar, !!yvar)) +
+        geom_hex(color = "white") +
+        geom_label_repel(
+            data = filter(myDat, feature_label != ""),
+            mapping = aes(label = feature_label),
+            fontface = "italic"
+        ) +
+        scale_fill_viridis_c(
+            option = "C", name = "# features", 
+            labels = \(x) format(x, big.mark = ",")
+        ) +
+        scale_x_continuous(labels = \(x) format(x, big.mark = ",")) +
+        scale_y_continuous(labels = \(x) format(x, big.mark = ",")) +
+        theme_bw()
+}
+
+
+p1 <- hexFun(dat, tss_cv, tss_ranking) +
+    labs(
+        x = "TSS CV", y = "TSS ranking"
+    )
+p2 <- hexFun(dat, gmn_cv, gmn_ranking) +
+    labs(
+        x = "GM CV", y = "GM ranking"
+    )
+p3 <- hexFun(dat, tss_mean, tss_ranking) +
+    labs(
+        x = "TSS mean", y = "TSS ranking"
+    )
+    # geom_label_repel(
+    #     data = filter(dat, feature_label != ""),
+    #     mapping = aes(label = feature_label)
+    # )
+p4 <- hexFun(dat, gmn_mean, gmn_ranking) +
+    labs(
+        x = "GM mean", y = "GM ranking"
+    )
+    # geom_label_repel(
+    #     data = filter(dat, feature_label != ""),
+    #     mapping = aes(label = feature_label)
+    # )
+plts <- ggarrange(
+    plotlist = list(p1, p2, p3, p4),
+    labels = c("A", "B", "C", "D"),
+    ncol = 2, nrow = 2
+)
+plts
+```
+
+
 
 # Conclusion
 

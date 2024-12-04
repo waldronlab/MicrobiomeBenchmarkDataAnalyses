@@ -17,7 +17,6 @@ Suggests:
     knitr,
     MicrobiomeBenchmarkData,
     rmarkdown,
-    tidySummarizedExperiment,
     ggpubr
 Remotes:
     wdl2459/ZINQ-v2
@@ -43,7 +42,10 @@ Imports:
     mia,
     tidyr,
     DT,
-    lefser
+    lefser,
+    tidySummarizedExperiment,
+    ggrepel,
+    hexbin
 Depends: 
     R (>= 4.2)
 URL: https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses
