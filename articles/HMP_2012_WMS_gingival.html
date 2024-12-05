@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MicrobiomeBenchmarkDataAnalyses</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.13</span>
       </span>
     </div>
 
@@ -229,14 +229,14 @@ subgingival plaque</h1>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_flatten.html" class="external-link">list_flatten</a></span><span class="op">(</span><span class="va">DA_output</span>, name_spec <span class="op">=</span> <span class="st">"{inner}"</span><span class="op">)</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/keep.html" class="external-link">discard</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">is.null</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-12-05 16:02:14.501891</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-12-05 16:02:18.576526</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-12-05 16:02:23.689239</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-12-05 16:02:23.712355</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-12-05 16:02:23.728688</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-12-05 16:02:24.195417</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-12-05 16:02:25.994972</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-12-05 16:02:27.20649</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 1: DA_DESeq2.1 - 2024-12-05 16:05:22.071728</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 2: DA_DESeq2.1 - 2024-12-05 16:05:26.176034</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 3: DA_limma.1 - 2024-12-05 16:05:31.337445</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 4: DA_limma.1 - 2024-12-05 16:05:31.360731</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 5: DA_metagenomeSeq.1 - 2024-12-05 16:05:31.37743</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 6: DA_ALDEx2.1 - 2024-12-05 16:05:31.852531</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 7: DA_MAST.1 - 2024-12-05 16:05:33.634798</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 8: DA_Seurat.1 - 2024-12-05 16:05:34.858328</span></span></code></pre>
 <pre><code><span><span class="co">## For a (much!) faster implementation of the Wilcoxon Rank Sum Test,</span></span>
 <span><span class="co">## (default method for FindMarkers) please install the presto package</span></span>
 <span><span class="co">## --------------------------------------------</span></span>
@@ -246,23 +246,23 @@ subgingival plaque</h1>
 <span><span class="co">## After installation of presto, Seurat will automatically use the more </span></span>
 <span><span class="co">## efficient implementation (no further action necessary).</span></span>
 <span><span class="co">## This message will be shown once per session</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-12-05 16:02:27.747812</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-12-05 16:02:27.795011</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-12-05 16:02:28.000154</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-12-05 16:02:28.12656</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-12-05 16:02:29.56781</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-12-05 16:02:30.717139</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 9: ancombc.1 - 2024-12-05 16:05:35.392476</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 10: wilcox.3 - 2024-12-05 16:05:35.44001</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 11: wilcox.4 - 2024-12-05 16:05:35.645567</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 12: ZINQ.9 - 2024-12-05 16:05:35.77339</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 13: ZINQ.10 - 2024-12-05 16:05:37.221766</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 14: lefse.12 - 2024-12-05 16:05:38.373494</span></span></code></pre>
 <pre><code><span><span class="co">## Running lefse original</span></span></code></pre>
 <pre><code><span><span class="co">## The outcome variable is specified as 'body_subsite' and the reference category is 'subgingival_plaque'.</span></span>
 <span><span class="co">##  See `?factor` or `?relevel` to change the reference category.</span></span></code></pre>
-<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-12-05 16:02:31.146333</span></span></code></pre>
+<pre><code><span><span class="co">## Running method 15: lefse.13 - 2024-12-05 16:05:38.805146</span></span></code></pre>
 <pre><code><span><span class="co">## Running lefse original</span></span></code></pre>
 <pre><code><span><span class="co">## The outcome variable is specified as 'body_subsite' and the reference category is 'subgingival_plaque'.</span></span>
 <span><span class="co">##  See `?factor` or `?relevel` to change the reference category.</span></span></code></pre>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  16.822   0.120  16.931</span></span></code></pre>
+<span><span class="co">##  16.898   0.152  17.022</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -544,7 +544,7 @@ subgingival plaque</h1>
 <span><span class="co">##  mice                              3.17.0     <span style="color: #555555;">2024-11-27</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  microbiome                        1.28.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  MicrobiomeBenchmarkData         * 1.8.0      <span style="color: #555555;">2024-10-31</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
-<span><span class="co">##  MicrobiomeBenchmarkDataAnalyses * 0.99.12    <span style="color: #555555;">2024-12-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">local</span></span></span>
+<span><span class="co">##  MicrobiomeBenchmarkDataAnalyses * 0.99.13    <span style="color: #555555;">2024-12-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">local</span></span></span>
 <span><span class="co">##  MicrobiomeStat                    1.2        <span style="color: #555555;">2024-04-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  mime                              0.12       <span style="color: #555555;">2021-09-28</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  miniUI                            0.1.1.1    <span style="color: #555555;">2018-05-18</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
