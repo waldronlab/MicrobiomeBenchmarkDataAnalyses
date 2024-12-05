@@ -68,7 +68,7 @@ assay(tse, 'SCML') <- SCML_data
 ## Tranform with TSS (relative abundance) and CLR
 
 ```{r}
-tss_fun <- function(x) (x + 1) / sum((x + 1))
+tss_fun <- function(x) (x + 1) / sum((x + 1)) * 1e6
 # tss_fun <- function(x) (x + 1) / sum((x + 1))
 # tss_fun <- function(x) log((x + 1) / sum((x + 1)))
 gmn_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
