@@ -69,12 +69,12 @@ assay(tse, 'SCML') <- SCML_data
 
 ```{r}
 tss_fun <- function(x) (x + 1) / sum((x + 1))
+# tss_fun <- function(x) (x + 1) / sum((x + 1))
 # tss_fun <- function(x) log((x + 1) / sum((x + 1)))
-# tss_fun <- function(x) (x) / sum((x))
 gmn_fun <- function(x) (x + 1) / exp(mean(log((x + 1))))
 # gnm_fun <- function(x) (x + 1) / prod((x + 1)^(1 / length(x)))
 # gmn_fun <- function(x) log((x + 1) / exp(mean(log((x + 1)))))
-assay(tse, "TSS") <- apply(assay(tse, 'counts'), 2,  tss_fun)
+assay(tse, "TSS") <- apply(assay(tse, 'counts'), 2, tss_fun)
 assay(tse, "GMN") <- apply(assay(tse, 'counts'), 2, gmn_fun) 
 ```
 
@@ -230,6 +230,7 @@ gmn <- gmn_cv |>
         ranking = min_rank(cv)
     )
 
+
 tss$mean <- apply(tss_mat, 1, mean)
 gmn$mean <- apply(gmn_mat, 1, mean)
 
@@ -254,10 +255,10 @@ p_a <- dat |>
         spikein = factor(spikein, levels = c("Spike-in", "Non-spike-in"))
     ) |> 
     ggplot(aes(x = tss_ranking, y = gmn_ranking)) +
-    geom_abline(slope = 1, intercept = 0, linetype = 2, linewidth = 0.3) +
     geom_point(
         aes(color = spikein, shape = spikein, size = spikein)
     ) +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, linewidth = 0.3) +
     geom_label_repel(
         data = filter(dat, feature_label != ""),
         mapping = aes(label = feature_label), 
@@ -265,6 +266,8 @@ p_a <- dat |>
     )+
     scale_fill_viridis_c(option = "C") +
     scale_size_manual(values = c(3, 1)) +
+    scale_color_manual(values = c("gray20", "gray70")) +
+    scale_shape_manual(values = c(20, 4)) +
     scale_x_continuous(labels = \(x) format(x, big.mark = ",")) +
     scale_y_continuous(labels = \(x) format(x, big.mark = ",")) +
     labs(
@@ -279,9 +282,9 @@ p_a <- dat |>
 p_b <- dat |> 
     ggplot(aes(x = tss_ranking, y = gmn_ranking)) +
     geom_hex(
-        color = "white"
+        color = "black", alpha = 0.9
     ) +
-    geom_abline(slope = 1, intercept = 0, linetype = 2, linewidth = 0.3) +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, linewidth = 0.3, color = "red") +
     # geom_label_repel(
     #     data = filter(dat, feature_label != ""),
     #     mapping = aes(label = feature_label),
@@ -306,18 +309,30 @@ plts_1 <- ggarrange(
     labels = c("A", "B"),
     nrow = 1
 )
+```
+
+
+```{r, fig.width=11, fig.height=5.5}
 plts_1
 ```
 
 
+```{r, echo=FALSE, eval=FALSE,}
+ggsave(
+    filename = "Figure5.pdf", plot = plts_1,
+    width = 11, height = 5.5, dpi = 150
+)
+```
 
-```{r}
+
+
+```{r, fig.width=11, fig.height=8}
 hexFun <- function(myDat, xvar, yvar) {
     xvar <- enquo(xvar)
     yvar <- enquo(yvar)
     myDat |> 
         ggplot(aes(!!xvar, !!yvar)) +
-        geom_hex(color = "white") +
+        geom_hex(color = "black", alpha = 0.9) +
         geom_label_repel(
             data = filter(myDat, feature_label != ""),
             mapping = aes(label = feature_label),
@@ -365,6 +380,12 @@ plts <- ggarrange(
 plts
 ```
 
+```{r, echo=FALSE, eval=FALSE}
+ggsave(
+    filename = "Supplementary_Figure_S1.pdf", plot = plts,
+    width = 11, height = 8, dpi = 150
+)
+```
 
 
 # Conclusion
