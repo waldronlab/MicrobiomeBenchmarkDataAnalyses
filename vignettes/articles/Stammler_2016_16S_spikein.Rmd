@@ -312,21 +312,21 @@ plts_1 <- ggarrange(
 ```
 
 
-```{r, fig.width=11, fig.height=5.5}
-plts_1
+```{r, fig.width=6, fig.height=5}
+p_a
 ```
 
 
 ```{r, echo=FALSE, eval=FALSE,}
 ggsave(
-    filename = "Figure5.pdf", plot = plts_1,
-    width = 11, height = 5.5, dpi = 150
+    filename = "Figure5.pdf", plot = p_a,
+    width = 6, height = 5, dpi = 300
 )
 ```
 
 
 
-```{r, fig.width=11, fig.height=8}
+```{r, fig.width=10, fig.height=5}
 hexFun <- function(myDat, xvar, yvar) {
     xvar <- enquo(xvar)
     yvar <- enquo(yvar)
@@ -373,9 +373,9 @@ p4 <- hexFun(dat, gmn_mean, gmn_ranking) +
     #     mapping = aes(label = feature_label)
     # )
 plts <- ggarrange(
-    plotlist = list(p1, p2, p3, p4),
-    labels = c("A", "B", "C", "D"),
-    ncol = 2, nrow = 2
+    plotlist = list(p3, p4),
+    labels = c("A", "B"),
+    nrow = 1
 )
 plts
 ```
@@ -383,10 +383,9 @@ plts
 ```{r, echo=FALSE, eval=FALSE}
 ggsave(
     filename = "Supplementary_Figure_S1.pdf", plot = plts,
-    width = 11, height = 8, dpi = 150
+    width = 10, height = 4, dpi = 300
 )
 ```
-
 
 # Conclusion
 
