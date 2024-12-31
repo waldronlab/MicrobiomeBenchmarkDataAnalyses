@@ -25,8 +25,3 @@ BiocManager::install("waldronlab/MicrobiomeBenchmarkDataAnalyses")
 + R package issues: https://github.com/waldronlab/MicrobiomeBenchmarkData/issues
 + Scripts for preparing the datasets: https://github.com/waldronlab/MicrobiomeBenchmarkDataPrep
 + Code for reproducibility of the analyses: https://waldronlab.io/MicrobiomeBenchmarkDataAnalyses
-
-
-## TODO
-
-+ Create a custom function for plotting enrichment and positives.

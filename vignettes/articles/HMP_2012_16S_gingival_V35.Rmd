@@ -5,7 +5,7 @@ output:
         toc: true
 ---
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -14,84 +14,49 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, message=FALSE, warning=FALSE}
+```{r load packages, message=FALSE, warning=FALSE}
 library(MicrobiomeBenchmarkDataAnalyses)
 library(MicrobiomeBenchmarkData)
-library(mia)
-library(phyloseq)
-library(benchdamic)
 library(dplyr)
 library(purrr)
+library(phyloseq)
+library(mia)
+library(benchdamic)
 library(ggplot2)
-library(gridExtra)
 library(ggpubr)
 ```
 
-# Data
++ Analyses were carried out in a subset of subjects: subjects with samples
+taken for both subgingival and supragingival body subsites in the same visit.
+Only one visit was considered per subject.
 
-Import dataset:
++ All analyses were performed at the OTU level.
+
+## Data
 
 ```{r import data}
 dat_name <- 'HMP_2012_16S_gingival_V35'
 conditions_col <- 'body_subsite'
 conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
-
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 tse
 ```
 
-## Exploring some of the data
+Unique subjects:
 
-Let's convert the col_data into a tibble (jsut for ease of handling):
-
-```{r}
+```{r extract subjects}
 col_data <- tse |> 
     colData() |> 
     as.data.frame() |> 
     tibble::rownames_to_column("sample_name") |> 
     as_tibble()
-```
-
-Total number of subjects:
-
-```{r}
 subjects <- col_data |> 
     pull(subject_id) |> 
     unique()
 length(subjects)
 ```
 
-The number of male and female subjects:
-
-```{r}
-col_data |> 
-    select(subject_id, gender) |> 
-    unique() |> 
-    count(gender) |> 
-    arrange(-n)
-```
-
-Number of subjects per visit number:
-
-```{r}
-col_data |> 
-    select(subject_id, visit_number) |> 
-    unique() |> 
-    count(visit_number) |> 
-    arrange(-n)
-```
-
-Number of subjects per run_center:
-
-```{r}
-col_data |> 
-    select(subject_id, run_center) |> 
-    unique() |> 
-    count(run_center) |> 
-    arrange(-n)
-```
-
-```{r}
+```{r sample subset}
 sample_names <- vector("list", length(subjects))
 names(sample_names) <- subjects
 for (i in seq_along(subjects))  {
@@ -99,10 +64,11 @@ for (i in seq_along(subjects))  {
     sub_dat <- col_data |> 
         filter(subject_id == current_subject) |> 
         slice_max(order_by = visit_number, with_ties = TRUE, n = 1)
-    if (nrow(sub_dat) < 2) {
+    if (nrow(sub_dat) != 2) {
+        ## Only get subjects with samples from both subgingival and supragingival
+        ## plaque taken in the same visit.
         next
     }
-    
     lgl_vct <- all(sort(sub_dat[["body_subsite"]]) == conditions)
     if (isFALSE(lgl_vct)) {
         next
@@ -111,25 +77,27 @@ for (i in seq_along(subjects))  {
 }
 sample_names <- discard(sample_names, is.null)
 col_data_subset <- bind_rows(sample_names)
+nrow(col_data_subset)
 ```
+The number of female and male samples is still practically the same:
 
-The number of female and male samples is still practically the same
-
-```{r}
+```{r subjects summary by gender and subsite}
 col_data_subset |> 
-    count(gender)
+    count(gender, body_subsite)
 ```
 
-```{r}
+This is a subset of V35, but still is larger than the subset included in
+the MicrobiomeBenchmarkData package:
+
+```{r tse subset}
 selected_samples <- col_data_subset |> 
     pull(sample_name)
 tse_subset <- tse[, selected_samples]
 tse_subset <- filterTaxa(tse_subset)
 tse_subset
 ```
-# Prior information
 
-OTU level:
+# Prior information
 
 ```{r prior information}
 row_data <- as.data.frame(rowData(tse_subset))
@@ -143,7 +111,7 @@ head(prior_info)
 
 Convert to phyloseq
 
-```{r}
+```{r convert to phyloseq}
 ps <- makePhyloseqFromTreeSummarizedExperiment(tse_subset)
 sample_data(ps)[[conditions_col]] <- 
     factor(sample_data(ps)[[conditions_col]], levels = conditions)
@@ -152,14 +120,15 @@ ps
 
 ## Differential abundance analysis
 
-Select methods for DA:
+Perform normalization, calculate weights, and select DA methods:
 
-```{r}
+```{r norm, weights, methods}
 ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
 
 for (i in seq_along(DA_methods)) {
+    ## This was a nacessary change for when the version increased:
     if (grepl("Seurat", names(DA_methods)[i])) {
         names(DA_methods[[i]]$contrast) <- NULL
     } else {
@@ -171,7 +140,7 @@ names(DA_methods)
 
 Run all of the differential analysis (DA) methods:
 
-```{r, warning=FALSE}
+```{r run DA, warning=FALSE}
 tim <- system.time({
     DA_output <- vector("list", length(DA_methods))
     for (i in seq_along(DA_output)) {
@@ -191,36 +160,30 @@ tim
 
 ## Enrichment analysis
 
-Get the column name indicating the direction of the features
-(increased or decreased). This is the stats output.
+### Define a threshold for LEFSE with CLR
 
-```{r}
-direction <- get_direction_cols(DA_output, conditions_col, conditions)
-```
+Lefser uses two values to define differential abundant taxa, p-value and LDA.
 
-## Enrichment (adjP <= 0.1)
-
-Lefse is the strictest method, defining DA with p-values and effect
-size thresholds (based on linear discriminant analysis). CLR affects
-the magnitud of the effect size, so let's define a new one.
-
-```{r}
+```{r LEFSER TSS scores hist}
 DA_output$lefse.TSS$statInfo$abs_score |> hist()
 ```
-```{r}
+
+```{r LEFSE CLR scores hist}
 DA_output$lefse.CLR$statInfo$abs_score |> hist()
 ```
-```{r}
+
+```{r check median scores}
 c(
     lefse.TSS = median(DA_output$lefse.TSS$statInfo$abs_score),
     lefse.CLR = median(DA_output$lefse.CLR$statInfo$abs_score)
 )
 ```
 
-
 Create variables of thresholds:
 
-```{r}
+```{r define variables to use in createEnrichment}
+direction <- get_direction_cols(DA_output, conditions_col, conditions)
+
 adjThr<- rep(0.1, length(DA_output))
 names(adjThr) <- names(DA_output)
 
@@ -236,7 +199,7 @@ typeV <- ifelse(grepl("lefse", names(DA_output)), "logfc", "pvalue")
 
 Run enrichment:
 
-```{r enrichment}
+```{r perform enrichment}
 enrichment <- createEnrichment(
     object = DA_output,
     priorKnowledge = prior_info,
@@ -254,7 +217,7 @@ enrichment <- createEnrichment(
 
 Extract summary of the enrichment analysis:
 
-```{r}
+```{r enrichment summary}
 enrichmentSummary <- purrr::map(enrichment,  ~ {
     .x$summaries |> 
         purrr::map(function(x) {
@@ -286,24 +249,16 @@ enrichmentSummary <- purrr::map(enrichment,  ~ {
             TRUE ~ direction 
         )
     )
-
-
-# enrichmentSummary <- enrichmentSummary |> 
-#     mutate(
-#         method = case_when(
-#             grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
-#             grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
-#             TRUE ~ method
-#         )
-#     )
-
+head(enrichmentSummary)
 ```
 
-Create enrichment plot
+## Plots
 
-```{r}
+### Enrichment plot
+
+```{r enrichment plot}
 enPlot <- enrichmentSummary |> 
-    left_join(get_meth_class(), by = "method") |> 
+    dplyr::left_join(get_meth_class(), by = "method") |> 
     mutate(
         direction = factor(
             direction, levels = c("Supragingival", "Subgingival")
@@ -348,11 +303,11 @@ enPlot <- enrichmentSummary |>
     )
 ```
 
-# Putative true positives - putative false positives
+### Putative true positives - putative false positives
 
-## Calculate TP - FP ratio (no threshold)
+Calculate TP - FP ratio (no threshold)
 
-```{r}
+```{r positives object}
 positives <- map(1:length(DA_output), .f = function(i) {
     positives <- createPositives(
         object = DA_output[i],
@@ -368,31 +323,13 @@ positives <- map(1:length(DA_output), .f = function(i) {
         TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
         FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
     ) |> 
-        left_join(get_meth_class(), by = 'method')
+        dplyr::left_join(get_meth_class(), by = 'method')
 }) |> bind_rows()
-# names(positives) <- names(DA_output)
-
-
-# positives <- createPositives(
-#     object = DA_output,
-#     priorKnowledge = prior_info, 
-#     enrichmentCol = "taxon_annotation", namesCol = "new_names",
-#     slot = slotV, colName = colNameV, type = typeV,
-#     direction = direction,
-#     threshold_pvalue = 1,
-#     threshold_logfc = 0,
-#     top = seq.int(from = 0, to = 50, by = 5),
-#     alternative = "greater",
-#     verbose = FALSE,
-#     TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
-#     FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
-# ) |> 
-#     left_join(get_meth_class(), by = 'method')
 ```
 
-## Plot TP - FP 
+Positives plot:
 
-```{r, fig.height = 4, fig.width=12}
+```{r positives plot, fig.height = 4, fig.width=12}
 # names(vec) <- positives$base_method
 positives <- positives |> 
     mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
@@ -433,16 +370,16 @@ posPlot <- positives |>
     theme(legend.position = "bottom")
 ```
 
-Combine plots:
+### Combined plots
 
-```{r, fig.height=9, fig.width=10}
+```{r combined plots, fig.height=9, fig.width=10}
 pp <- ggarrange(
     plotlist = list(enPlot, posPlot), ncol = 1, heights = c(1.5, 1)
 )
 pp
 ```
 
-```{r, eval=TRUE, echo=FALSE}
+```{r export plots, eval=TRUE, echo=FALSE}
 ## Export the figure
 ggsave(
     filename = "Figure1.pdf", plot = pp, dpi = 300,
@@ -452,6 +389,6 @@ ggsave(
 
 # Session Info
 
-```{r}
+```{r session information}
 sessioninfo::session_info()
 ```
