@@ -246,24 +246,26 @@ DA_lefse <- function(
         abundances <- norm_tss(abundances)
     }
     
-    ## Analysis with lefser(2)
-    
     SummarizedExperiment::assay(se) <- abundances
     
-    # statInfo <- lefser2(expr = se, groupCol = groupCol, ...) 
-    message("Running lefse original")
     statInfo <- lefser::lefser(se, groupCol = groupCol, ...) 
     
     statInfo <- statInfo |> 
         dplyr::mutate(abs_score = abs(.data$scores)) |> 
         dplyr::arrange(abs_score)
-    ## These raw p-values and adjusted p-values are artificial.
-    ## I'm only leaving them here for now to help in the ordering of the DA features
+   
+    ## Add artificial p-values and adjusted p-values. This is for
+    ## compatibility with the benchdamic workflow.
+    ## I used these artificial values to order the lefse results by
+    ## (adjusted) p-values, just like the other methods,
+    ## That's why I'm using 'seq' below. 
+    ## This is no longer necessary beacuse the results are now
+    ## ordered according to LDA.
+    ## However, I'm leaving the code here.
+     
     statInfo$rawP <- seq(0.04, 0, length.out = nrow(statInfo))
     statInfo$adjP <- seq(0.09, 0, length.out = nrow(statInfo))
-    # statInfo$adj_pval <- stats::p.adjust(statInfo$rawP, method = "fdr")
-    rownames(statInfo) <- statInfo[["features"]] ## lefser version 1.15
-    # rownames(statInfo) <- statInfo[["Names"]] ## lefser version 1.14
+    rownames(statInfo) <- statInfo[["features"]]
     colnames(statInfo) <- c("Taxa", "LDA_scores", "abs_score", "rawP", "adjP")
    
     pValMat <- statInfo[, c("rawP", "adjP")]

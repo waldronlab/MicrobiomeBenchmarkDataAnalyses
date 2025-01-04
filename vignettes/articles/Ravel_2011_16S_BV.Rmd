@@ -23,17 +23,7 @@ library(ggpubr)
 library(tidySummarizedExperiment)
 ```
 
-In this vignette, several differential abundance (DA) methods will be compared
-using the *Ravel\_2011\_16S\_BV* dataset. Lactobacillus is expected to 
-be enriched in healthy vagina (HV) samples. BV-associated taxa,
-such as Gardnerella and Prevotella, are expected to be more abundant or
-enriched in bacterial vaginosis (BV) samples.
-
 ## Data
-
-+ Select equal number of samples per ethnicity group. This was based on the
-minimum number of samples in an ethnicity.
-+ Summarize (agglomerate) by genus.
 
 ```{r import data, warning=FALSE, message=FALSE}
 dat_name <- 'Ravel_2011_16S_BV'
@@ -47,7 +37,9 @@ col_data <- tse |>
     dplyr::filter(study_condition %in% conditions)
 col_data |> 
     summarise(
-        .by = c("ethnicity", "nugent_score_category", "study_condition"),
+        .by = c(
+            "ethnicity", "nugent_score_category", "study_condition"
+        ),
         range = paste0(min(nugent_score), "-", max(nugent_score)),
         n = n()
     ) |> 
@@ -91,14 +83,16 @@ tse_genus |>
     colData() |> 
     as_tibble() |> 
         summarise(
-        .by = c("ethnicity", "nugent_score_category", "study_condition"),
+        .by = c(
+            "ethnicity", "nugent_score_category", "study_condition"
+        ),
         range = paste0(min(nugent_score), "-", max(nugent_score)),
         n = n()
     ) |> 
     arrange(ethnicity, study_condition, n)
 ```
 
-## Prior info - biological annotations
+## Prior info (biological annotations)
 
 ```{r prior info}
 prior_info <- tse_genus |> 
@@ -124,7 +118,6 @@ ps <- convertToPhyloseq(tse_genus)
 sample_data(ps)[[conditions_col]] <- factor(
     sample_data(ps)[[conditions_col]], levels = conditions
 )
-ps
 ```
 
 ```{r normalization, weights, DA methods}
@@ -182,19 +175,19 @@ features:
 ```{r variables for enrichment funs}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
 
+## The methods based on lefse have artificial p-values because
+## the lefser output doesn't provide such information
 adjThr<- rep(0.1, length(DA_output))
 names(adjThr) <- names(DA_output)
 
-esThr <- rep(0, length(DA_output))
-names(esThr) <- names(DA_output)
+esThr <- case_when(
+    grepl("lefse.TSS", names(DA_output)) ~ 2,
+    grepl("lefse.CLR", names(DA_output)) ~ 0.15,
+    TRUE ~ 0
+) |> 
+    set_names(names(DA_output))
 
-## Lefse needs an effect size threshold because the
-## method requires both LDA and p-value.
-## Otherwise, it would only be a wilcox-test
-esThr[grep("lefse.TSS", names(esThr))] <- 2
-esThr[grep("lefse.CLR", names(esThr))] <- 0.15
-
-## Lefse will be based on LDA rather than p-value
+## Use effect size for lefser and adjusted p-value for all of the other methods
 slotV <- ifelse(grepl("lefse", names(DA_output)), "statInfo", "pValMat")
 colNameV <- ifelse(grepl("lefse", names(DA_output)), "LDA_scores", "adjP")
 typeV <- ifelse(grepl("lefse", names(DA_output)), "logfc", "pvalue")
@@ -394,7 +387,7 @@ clrFun <- function(x) {
     log(x / exp(mean(log(x))))
 }
 
-assay(tse_genus, "TSS") <- apply(assay(tse_genus, "counts") + 1, 2, tssFun)
+assay(tse_genus, "TSS") <- apply(assay(tse_genus, "counts"), 2, tssFun)
 assay(tse_genus, "CLR") <- apply(assay(tse_genus, "counts") + 1, 2, clrFun)
 
 data <- tse_genus |> 
@@ -506,8 +499,8 @@ wilcox_DA |>
     labs(
         title = 'Wilcoxon test',
         y = 'Number of DA taxa', x = 'Transformation method' 
-    ) 
-    # scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))
+    ) +
+    theme_bw()
 ```
 
 Plot the abundances of the taxa that were incorrect
@@ -542,8 +535,7 @@ wilcox_raw <- bind_rows(l1, .id = 'transformation') |>
         y, cols = 3:ncol(y), values_to = 'value', names_to = 'sample'
     )}() |> 
     left_join(
-        data[,c('sample', 'study_condition')], by = 'sample',
-        relationship = "many-to-many"
+        distinct(data[,c('sample', 'study_condition')]), by = 'sample'
     )
 
 head(wilcox_raw)
@@ -556,8 +548,8 @@ l <- wilcox_raw |>
     mutate(taxon_name = sub('genus:', '', taxon_name)) |> 
     {\(y) split(y, y$transformation)}()
 l$counts$value <- log(l$counts$value + 1)
-# l$TSS$value <- log(l$TSS$value + 1) # this (pseudocount) should not be necessary since a pseudocount was added above
-l$TSS$value <- log(l$TSS$value) # this should not be necessary since a pseudocount was added above
+l$TSS$value <- log(l$TSS$value + 1)
+## CLR is already in log scale
 wilcox_raw <- reduce(l, bind_rows)
 
 wilcox_genus_plot <- wilcox_raw |> 
@@ -593,7 +585,6 @@ ggsave(
     file = "Figure3.pdf", plot = wilcox_genus_plot,
     dpi = 300, width = 9, height = 4
 )
-
 ```
 
 ## Lefse
@@ -604,26 +595,10 @@ Define a function for running Lefse:
 calcLefse <- function(se, assay) {
     res <- lefser::lefser(
         se, kruskal.threshold = 0.05, wilcox.threshold = 0.05, 
-        lda.threshold = 0, classCol = 'study_condition', assay = assay
+        lda.threshold = 0.15, classCol = 'study_condition', assay = assay
     )
     
     return(res)
-    # adj_pvalues <- p.adjust(res$kw_pvalues)
-    
-    # dplyr::mutate(res, rawP = kw_pvalues, adjP = adj_pvalues)
-    
-    # res <- lefser2(
-    #     dat, kruskal.threshold = 0.05, wilcox.threshold = 0.05, 
-    #     lda.threshold = 0, groupCol = 'study_condition', assay = assay ,
-    #     log = log
-    # )
-    
-    ## Add some made up rawP and adjP
-    # res |> 
-    #     dplyr::mutate(
-    #         rawP = kw_pvalues,
-    #         adjP = stats::p.adjust(rawP, method = 'fdr')
-    #     )
 }
 
 ```
@@ -640,7 +615,7 @@ lefse <- list(
 )  |> 
     bind_rows(.id = 'method') |> 
     mutate(
-        DA = ifelse(scores > 0, 'OA', 'UA')
+        DA = ifelse(scores > 0.15, 'OA', 'UA')
     ) |> 
     rename(taxon_name = 'features') |> 
     left_join(taxa_annotations, by = 'taxon_name')
@@ -683,49 +658,6 @@ incorrect_taxa_lefse_clr <- lefse_DA |>
     pull(taxon_name) |> 
     unique()
 incorrect_taxa_lefse_clr ## the same as in wilcox.
-```
-
-
-
-# Plots of BV-associated genera
-
-These are all of the BV-associated bacteria present in the Ravel_2011 dataset.
-This is independent of any statistical test or effect size calculation.
-
-## CLR
-
-```{r}
-data |> 
-    filter(taxon_annotation == 'bv-associated') |> 
-    mutate(taxon_name = sub("^genus:", "", taxon_name)) |> 
-    # mutate(CLR = log(CLR + 1)) |> 
-    ggplot(aes(taxon_name, CLR)) +
-    geom_boxplot(aes(color = study_condition)) + 
-    labs(
-        title = 'CLR values of BV-associated bacteria',
-        x = 'Genus', y = 'log(CLR)'
-    ) +
-    theme_bw() + 
-    theme(
-        axis.text.x = element_text(angle = 45, hjust = 1)
-    )
-```
-
-## Relative abundance
-
-```{r}
-data |> 
-    filter(taxon_annotation == 'bv-associated') |> 
-    mutate(taxon_name = sub("^genus:", "", taxon_name)) |> 
-    mutate(TSS = log(TSS + 1)) |> 
-    ggplot(aes(taxon_name, TSS)) +
-    geom_boxplot(aes(color = study_condition)) + 
-    labs(title = 'Relative abundance values of BV-associated bacteria',
-         y = 'log2(relative abundance)') +
-    theme_bw() + 
-    theme(
-        axis.text.x = element_text(angle = 45, hjust = 1)
-    )
 ```
 
 ## Compositions with TSS data
@@ -845,7 +777,7 @@ plot_1b <- data_with_lact |>
             labels = c('BV', 'HV')
         )
     ) |> 
-    ggplot(aes(log(TSS), CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3
@@ -868,7 +800,7 @@ plot_2b <- data_with_lact |>
             labels = c('BV', 'HV')
         )
     ) |> 
-    ggplot(aes(log(TSS), CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3
@@ -891,7 +823,7 @@ plot_3b <- data_with_lact |>
             labels = c('BV', 'HV')
         )
     ) |> 
-    ggplot(aes(log(TSS), CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3
@@ -914,7 +846,7 @@ plot_4b <- data_with_lact |>
             labels = c('BV', 'HV')
         )
     ) |> 
-    ggplot(aes(log(TSS), CLR)) +
+    ggplot(aes(log(TSS + 1), CLR)) +
     geom_point(
         aes(color = study_condition, size = lact_tss), 
         alpha = 0.3
