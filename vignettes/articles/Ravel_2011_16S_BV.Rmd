@@ -1,5 +1,5 @@
 ---
-title: "Ravel_2011_16S_BV - Bacterial vaginosis"
+title: "Ravel_2011_16S_BV - Bacterial vaginosis - Ethnicity undersampling"
 output:
     html_document:
         toc: yes
@@ -46,7 +46,7 @@ col_data |>
     arrange(ethnicity, study_condition, n)
 ```
 
-```{r}
+```{r subset data}
 row_names_list <- col_data |>
     {\(y) split(y, factor(y$ethnicity))}() |>
     {\(y) map(y, ~split(.x, .x$study_condition))}() |>
@@ -62,23 +62,20 @@ select_samples <- row_names_list |>
 # select_samples <- unique(unlist(row_names_list))
 tse_subset <- tse[, select_samples]
 
-## Summarize by genus
 tse_genus <- agglomerateByRank(
     tse_subset, rank = 'genus', na.rm = FALSE, onRankOnly = FALSE 
 )
 
-## Filter low abundance/presence taxa
 tse_genus <- filterTaxa(tse_genus, min_ab = 1, min_per = 0.2)
 rownames(tse_genus) <- editMiaTaxaNames(tse_genus)
 
-## Set study conditions in the right order for analysis
 colData(tse_genus)$study_condition <- 
     factor(colData(tse_genus)$study_condition, levels = conditions)
 
 tse_genus
 ```
 
-```{r}
+```{r sample counts}
 tse_genus |> 
     colData() |> 
     as_tibble() |> 
@@ -111,7 +108,7 @@ head(prior_info)
 
 ## DA analysis
 
-Convert to phyloseq
+Convert to phyloseq:
 
 ```{r convert to phyloseq}
 ps <- convertToPhyloseq(tse_genus)
@@ -120,7 +117,9 @@ sample_data(ps)[[conditions_col]] <- factor(
 )
 ```
 
-```{r normalization, weights, DA methods}
+Set method parameters:
+
+```{r method parameters, weights, DA methods}
 norm_methods <- set_norm_list()
 
 ps <- runNormalizations(norm_methods, ps, verbose = FALSE)
@@ -388,6 +387,7 @@ clrFun <- function(x) {
 }
 
 assay(tse_genus, "TSS") <- apply(assay(tse_genus, "counts"), 2, tssFun)
+## PseudoCount only needed for CLR
 assay(tse_genus, "CLR") <- apply(assay(tse_genus, "counts") + 1, 2, clrFun)
 
 data <- tse_genus |> 
@@ -401,7 +401,7 @@ data <- tse_genus |>
 head(data)
 ```
 
-## Wilcox
+### Wilcox
 
 Define function:
 
@@ -491,16 +491,25 @@ Plot
 wilcox_DA |> 
     dplyr::filter(taxon_annotation != 'Unannotated') |> 
     count(method, taxon_annotation, DA) |> 
-    mutate(n = ifelse(DA == 'UA', -n, n)) |> 
+    # mutate(n = ifelse(DA == 'UA', -n, n)) |> 
+    mutate(
+        DA = case_when(
+            DA == "UA"  ~ "HV",
+            DA == "OA" ~ "BV"
+        )
+    ) |> 
+    tidyr::complete(DA, method, taxon_annotation, fill = list(n = 0)) |> 
     mutate(method = sub('wilcox_', '', method)) |> 
     ggplot(aes(method, n)) + 
     geom_col(aes(fill = taxon_annotation), position = 'dodge') +
     geom_hline(yintercept = 0) +
+    scale_y_continuous(breaks = \(x) pretty(x)) +
+    facet_wrap(. ~ DA) + 
     labs(
         title = 'Wilcoxon test',
         y = 'Number of DA taxa', x = 'Transformation method' 
     ) +
-    theme_bw()
+    theme_minimal()
 ```
 
 Plot the abundances of the taxa that were incorrect
@@ -562,14 +571,18 @@ wilcox_genus_plot <- wilcox_raw |>
         labels = c('HV', 'BV')
     )) |> 
     ggplot(aes(taxon_name, value)) + 
-    geom_boxplot(aes(color = study_condition)) +
+    geom_boxplot(aes(color = study_condition), position = position_dodge2(0.9)) +
+    # geom_point(
+    #     aes(color = study_condition), position = position_dodge2(0.9),
+    #     size = 0.1
+    # ) +
     facet_wrap(~ transformation, scales = 'free') +
     labs(
         y = 'Abundance values', x = 'Genus'
     ) +
-    scale_color_manual(
-        values = c('dodgerblue1', 'firebrick1')
-    ) +
+    # scale_color_manual(
+    #     values = c('dodgerblue1', 'firebrick1')
+    # ) +
     theme_bw() +
     theme(
         panel.grid.major.x = element_blank(),
@@ -580,14 +593,14 @@ wilcox_genus_plot <- wilcox_raw |>
 wilcox_genus_plot
 ```
 
-```{r, eval=FALSE, echo=FALSE}
+```{r save plot, eval=FALSE, echo=FALSE}
 ggsave(
     file = "Figure3.pdf", plot = wilcox_genus_plot,
     dpi = 300, width = 9, height = 4
 )
 ```
 
-## Lefse
+### Lefse
 
 Define a function for running Lefse:
 
@@ -608,7 +621,7 @@ Run lefse
 ```{r lefse run, warning=FALSE}
 taxa_annotations <-
         dplyr::distinct(dplyr::select(data, dplyr::starts_with('taxon')))
-lefse <- list(
+lefse_DA <- list(
     lefse_counts = calcLefse(tse_genus, 'counts'),
     lefse_relab = calcLefse(tse_genus, 'TSS'),
     lefse_clr = calcLefse(tse_genus, 'CLR')
@@ -620,36 +633,36 @@ lefse <- list(
     rename(taxon_name = 'features') |> 
     left_join(taxa_annotations, by = 'taxon_name')
 
-head(lefse)
+lefse
 ```
-
-```{r}
-lefse_DA <- lefse
-# lefse_DA <- lefse |> 
-#     dplyr::filter(adjP <= 0.1, abs(scores) > 0) |> 
-#     mutate(DA = ifelse(scores > 0, "OA", "UA"))
-```
-
 Plot lefse results:
 
-```{r}
+```{r plot DA}
 lefse_DA |> 
     dplyr::filter(taxon_annotation != 'Unannotated') |> 
     count(method, taxon_annotation, DA) |> 
-    mutate(n = ifelse(DA == 'UA', -n, n)) |> 
+    # mutate(n = ifelse(DA == 'UA', -n, n)) |> 
+    mutate(
+        DA = case_when(
+            DA == "UA" ~ "HV",
+            DA == "OA" ~ "BV"
+        )
+    ) |> 
     mutate(method = sub('lefse_', '', method)) |> 
+    tidyr::complete(method, taxon_annotation, DA, fill = list(n = 0)) |> 
     ggplot(aes(method, n)) + 
     geom_col(aes(fill = taxon_annotation), position = 'dodge') +
     geom_hline(yintercept = 0) +
+    facet_wrap(. ~ DA) +
+    scale_y_continuous(breaks = pretty) +
     labs(
         title = 'LEfSe test',
-        y = 'Number of DA taxa', x = 'Transformation method' 
-    )
-    # scale_y_continuous(limits = c(-3, 11), breaks = seq(-3, 11, 2))
-
+        y = 'Number of DA taxa', x = 'Transformation/Normalization method' 
+    ) +
+    theme_minimal()
 ```
 
-```{r}
+```{r get incorrect taxa lefse}
 incorrect_taxa_lefse_clr <- lefse_DA |> 
     dplyr::filter(
         method %in% c('lefse_clr', 'lefse_relab_clr'), DA == 'UA', 
@@ -660,9 +673,9 @@ incorrect_taxa_lefse_clr <- lefse_DA |>
 incorrect_taxa_lefse_clr ## the same as in wilcox.
 ```
 
-## Compositions with TSS data
+## Compositions with TSS and CLR
 
-order of taxa
+Plot TSS:
 
 ```{r}
 first_set <- data |> 
@@ -672,8 +685,6 @@ first_set <- data |>
     ) |> 
     arrange(desc(TSS)) |> 
     pull(sample)
-
-
 second_set <- data |> 
     filter(
         nugent_score_category == 'high',
@@ -683,10 +694,6 @@ second_set <- data |>
     pull(sample)
 samples_order <- c(first_set, second_set)
 
-```
-
-
-```{r}
 p1 <- data |> 
     mutate(
         sample = factor(sample, levels = samples_order),
@@ -720,6 +727,7 @@ p1 <- data |>
 p1
 ```
 
+Plot CLR:
 
 ```{r}
 p2 <- data |> 
@@ -755,7 +763,7 @@ p2 <- data |>
 p2
 ```
 
-# Distributions
+## Distributions
 
 Get Latobacillus relative abundance per sample
 
