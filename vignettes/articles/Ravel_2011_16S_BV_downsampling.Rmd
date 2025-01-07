@@ -1,5 +1,5 @@
 ---
-title: "Ravel_2011_16S_BV - Bacterial vaginosis - Ethnicity undersampling"
+title: "Ravel_2011_16S_BV - Bacterial vaginosis - downsampling"
 output:
     html_document:
         toc: yes
@@ -110,7 +110,7 @@ head(prior_info)
 
 Convert to phyloseq:
 
-```{r convert to phyloseq}
+```{r convert to phyloseq, warning=FALSE}
 ps <- convertToPhyloseq(tse_genus)
 sample_data(ps)[[conditions_col]] <- factor(
     sample_data(ps)[[conditions_col]], levels = conditions
@@ -119,7 +119,7 @@ sample_data(ps)[[conditions_col]] <- factor(
 
 Set method parameters:
 
-```{r method parameters, weights, DA methods}
+```{r method parameters, weights, DA methods, warning=FALSE}
 norm_methods <- set_norm_list()
 
 ps <- runNormalizations(norm_methods, ps, verbose = FALSE)
@@ -632,8 +632,7 @@ lefse_DA <- list(
     ) |> 
     rename(taxon_name = 'features') |> 
     left_join(taxa_annotations, by = 'taxon_name')
-
-lefse
+head(lefse_DA)
 ```
 Plot lefse results:
 
@@ -880,7 +879,6 @@ plotsb <- ggpubr::ggarrange(
 
 ```{r, fig.height=6, fig.width=8}
 plotsb
-
 ```
 
 ```{r, echo=FALSE}
