@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MicrobiomeBenchmarkDataAnalyses</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.19</span>
       </span>
     </div>
 
@@ -64,7 +64,10 @@
       <a href="../articles/HMP_2012_WMS_gingival.html">HMP_2012_WMS_gingiva - Supragingival vs subgingival plaque</a>
     </li>
     <li>
-      <a href="../articles/Ravel_2011_16S_BV.html">Ravel_2011_16S_BV - Bacterial vaginosis</a>
+      <a href="../articles/Ravel_2011_16S_BV_downsampling.html">Ravel_2011_16S_BV - Bacterial vaginosis - downsampling</a>
+    </li>
+    <li>
+      <a href="../articles/Ravel_2011_16S_BV_full.html">Ravel_2011_16S_BV - Bacterial vaginosis - Whole dataset</a>
     </li>
     <li>
       <a href="../articles/Stammler_2016_16S_spikein.html">Sammler_2016_16S_spikein - Spike-in bacteria</a>
@@ -226,7 +229,7 @@ vs supragingival</h1>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  48.574   0.548  48.855</span></span></code></pre>
+<span><span class="co">##  48.370   0.551  48.651</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="enrichment">Enrichment<a class="anchor" aria-label="anchor" href="#enrichment"></a>
@@ -326,7 +329,7 @@ vs supragingival</h1>
 <span><span class="co">##  collate  en_US.UTF-8</span></span>
 <span><span class="co">##  ctype    en_US.UTF-8</span></span>
 <span><span class="co">##  tz       Etc/UTC</span></span>
-<span><span class="co">##  date     2025-01-04</span></span>
+<span><span class="co">##  date     2025-01-07</span></span>
 <span><span class="co">##  pandoc   3.6 @ /usr/bin/ (via rmarkdown)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="color: #00BBBB; font-weight: bold;">─ Packages ───────────────────────────────────────────────────────────────────</span></span></span>
@@ -378,7 +381,7 @@ vs supragingival</h1>
 <span><span class="co">##  corpcor                           1.6.10     <span style="color: #555555;">2021-09-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  cowplot                           1.1.3      <span style="color: #555555;">2024-01-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  crayon                            1.5.3      <span style="color: #555555;">2024-06-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">##  curl                              6.0.1      <span style="color: #555555;">2024-11-14</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  curl                              6.1.0      <span style="color: #555555;">2025-01-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  CVXR                              1.0-15     <span style="color: #555555;">2024-11-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  data.table                        1.16.4     <span style="color: #555555;">2024-12-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  DBI                               1.2.3      <span style="color: #555555;">2024-06-02</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -424,7 +427,7 @@ vs supragingival</h1>
 <span><span class="co">##  genefilter                        1.88.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  generics                          0.1.3      <span style="color: #555555;">2022-07-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  GenomeInfoDb                    * 1.42.1     <span style="color: #555555;">2024-11-28</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
-<span><span class="co">##  GenomeInfoDbData                  1.2.13     <span style="color: #555555;">2025-01-04</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">##  GenomeInfoDbData                  1.2.13     <span style="color: #555555;">2025-01-07</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">##  GenomicRanges                   * 1.58.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  getopt                            1.20.4     <span style="color: #555555;">2023-10-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggbeeswarm                        0.7.2      <span style="color: #555555;">2023-04-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -506,7 +509,7 @@ vs supragingival</h1>
 <span><span class="co">##  mice                              3.17.0     <span style="color: #555555;">2024-11-27</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  microbiome                        1.28.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  MicrobiomeBenchmarkData         * 1.8.0      <span style="color: #555555;">2024-10-31</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
-<span><span class="co">##  MicrobiomeBenchmarkDataAnalyses * 0.99.18    <span style="color: #555555;">2025-01-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">local</span></span></span>
+<span><span class="co">##  MicrobiomeBenchmarkDataAnalyses * 0.99.19    <span style="color: #555555;">2025-01-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">local</span></span></span>
 <span><span class="co">##  MicrobiomeStat                    1.2        <span style="color: #555555;">2024-04-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  mime                              0.12       <span style="color: #555555;">2021-09-28</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  miniUI                            0.1.1.1    <span style="color: #555555;">2018-05-18</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -659,7 +662,7 @@ vs supragingival</h1>
 <span><span class="co">##  yulab.utils                       0.1.8      <span style="color: #555555;">2024-11-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  zCompositions                     1.5.0-4    <span style="color: #555555;">2024-06-19</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  zinbwave                          1.28.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
-<span><span class="co">##  ZINQ                              2.0        <span style="color: #555555;">2025-01-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Github (wdl2459/ZINQ-v2@40391a6)</span></span></span>
+<span><span class="co">##  ZINQ                              2.0        <span style="color: #555555;">2025-01-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Github (wdl2459/ZINQ-v2@40391a6)</span></span></span>
 <span><span class="co">##  zlibbioc                          1.52.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  zoo                               1.8-12     <span style="color: #555555;">2023-04-13</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">## </span></span>
