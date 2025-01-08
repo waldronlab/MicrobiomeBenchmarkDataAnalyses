@@ -1,5 +1,5 @@
 ---
-title: "Ravel_2011_16S_BV - Bacterial vaginosis - Whole dataset"
+title: "Ravel_2011_16S_BV - Bacterial vaginosis - whole dataset"
 output:
     html_document:
         toc: yes
@@ -47,27 +47,17 @@ col_data |>
 ```
 
 ```{r subset data}
-row_names_list <- col_data |>
-    {\(y) split(y, factor(y$ethnicity))}() |>
-    {\(y) map(y, ~split(.x, .x$study_condition))}() |>
-    unlist(recursive = FALSE) |>
-    map(rownames)
-min_n <- row_names_list |>
-    map_int(length) |>
-    min()
-# set.seed(4567)
-# select_samples <- row_names_list |>
-#     {\(y) map(y, ~ sample(.x, min_n, replace = FALSE))}() |>
-#     unlist(use.names = FALSE)
-select_samples <- unique(unlist(row_names_list))
+select_samples <- col_data |>
+    {\(y) split(y, factor(y$study_condition))}() |> 
+    map(rownames) |> 
+    flatten_chr()
 tse_subset <- tse[, select_samples]
 
 tse_genus <- agglomerateByRank(
     tse_subset, rank = 'genus', na.rm = FALSE, onRankOnly = FALSE 
-)
-
-tse_genus <- filterTaxa(tse_genus, min_ab = 1, min_per = 0.2)
-rownames(tse_genus) <- editMiaTaxaNames(tse_genus)
+) |> 
+    filterTaxa(min_ab = 1, min_per = 0.2) |> 
+    {\(y) magrittr::set_rownames(y, editMiaTaxaNames(y))}()
 
 colData(tse_genus)$study_condition <- 
     factor(colData(tse_genus)$study_condition, levels = conditions)
@@ -81,12 +71,14 @@ tse_genus |>
     as_tibble() |> 
         summarise(
         .by = c(
-            "ethnicity", "nugent_score_category", "study_condition"
+            # "ethnicity", "nugent_score_category", "study_condition"
+            "nugent_score_category", "study_condition"
         ),
         range = paste0(min(nugent_score), "-", max(nugent_score)),
         n = n()
     ) |> 
-    arrange(ethnicity, study_condition, n)
+    arrange(study_condition, n) |> 
+    relocate(study_condition)
 ```
 
 ## Prior info (biological annotations)
@@ -552,7 +544,7 @@ head(wilcox_raw)
 
 Box plot of incorrect values:
 
-```{r plot abundance values, fig.height=7}
+```{r plot abundance values, fig.height=4.5, fig.width=9}
 l <- wilcox_raw |> 
     mutate(taxon_name = sub('genus:', '', taxon_name)) |> 
     {\(y) split(y, y$transformation)}()
@@ -680,14 +672,16 @@ Plot TSS:
 first_set <- data |> 
     filter(
         nugent_score_category == 'low',
-        taxon_annotation == 'hv-associated'
+        # taxon_annotation == 'hv-associated'
+        taxon_name == 'genus:Lactobacillus'
     ) |> 
     arrange(desc(TSS)) |> 
     pull(sample)
 second_set <- data |> 
     filter(
         nugent_score_category == 'high',
-        taxon_annotation == 'hv-associated'
+        # taxon_annotation == 'hv-associated'
+        taxon_name == 'genus:Lactobacillus'
     ) |> 
     arrange(desc(TSS)) |> 
     pull(sample)
@@ -710,11 +704,13 @@ p1 <- data |>
         )
     ) |>
     ggplot(aes(sample, TSS )) +
-    geom_col(aes(fill = taxon_annotation)) +
+    geom_col(aes(fill = taxon_annotation), width = 1) +
     scale_fill_manual(values = c('gray60', 'firebrick2', 'dodgerblue2')) +
     labs(
         x = "Samples",
-        y = "Relative abundance values (TSS)"
+        y = "Relative abundance values (TSS)",
+        title = "Relative abundance",
+        subtitle = "Samples are ordered according Lactobacillus relab."
     ) +
     facet_wrap(~nugent_score_category, ncol = 2, scales = "free_x") +
     theme_bw() +
@@ -746,11 +742,13 @@ p2 <- data |>
         )
     ) |>
     ggplot(aes(sample, exp(CLR))) +
-    geom_col(aes(fill = taxon_annotation)) +
+    geom_col(aes(fill = taxon_annotation), width = 1) +
     scale_fill_manual(values = c('gray60', 'firebrick2', 'dodgerblue2')) +
     labs(
         x = "Samples",
-        y = "Geometric mean normalization (exp(CLR))"
+        y = "Geometric mean normalization (exp(CLR))",
+        title = "Relative abundance",
+        subtitle = "Samples are ordered according Lactobacillus relab."
     ) +
     facet_wrap(~nugent_score_category, ncol = 2, scales = "free_x") +
     theme_bw() +
@@ -777,7 +775,7 @@ Corynebacterium.
 
 ```{r, fig.height=5, fig.width=7}
 plot_1b <- data_with_lact |> 
-    filter(taxon_name == 'genus:Actinomyces') |> 
+    filter(taxon_name == 'genus:Streptococcus') |> 
     mutate(
         study_condition = factor(
             study_condition, levels = c('bacterial_vaginosis', 'healthy'),
@@ -791,7 +789,7 @@ plot_1b <- data_with_lact |>
     ) + 
     labs(
         # title = 'Relative abundace vs CLR',
-        title = expression(italic('Actinomyces') ~ '(BV-associated)'),
+        title = expression(italic('Streptococcus') ~ '(BV-associated)'),
         x = 'log(TSS + 1)'
     ) +
     scale_color_discrete(name = 'Condition') +
@@ -877,14 +875,14 @@ plotsb <- ggpubr::ggarrange(
 ```
 
 
-```{r, fig.height=6, fig.width=8}
+```{r, fig.height=8, fig.width=10}
 plotsb
 ```
 
 ```{r, echo=FALSE}
 ggsave(
     plotsb, filename = 'Figure4.pdf',
-    width = 8, height = 6, dpi = 300
+    width = 10, height = 8, dpi = 300
 )
 ```
 
