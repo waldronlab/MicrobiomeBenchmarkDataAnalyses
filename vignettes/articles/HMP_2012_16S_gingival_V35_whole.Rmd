@@ -1,5 +1,5 @@
 ---
-title: " HMP_2012_16S_gingival_V35 - subgingival vs supgragingival plaque - downsampling"
+title: " HMP_2012_16S_gingival_V35 - subgingival vs supgragingival plaque - whole"
 output: 
     html_document:
         toc: true
@@ -39,62 +39,26 @@ dat_name <- 'HMP_2012_16S_gingival_V35'
 conditions_col <- 'body_subsite'
 conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
-tse
+tse_subset <- filterTaxa(tse, min_ab = 1, min_per = 0.2)
+tse_subset
 ```
 
 Unique subjects:
 
 ```{r extract subjects}
-col_data <- tse |> 
+col_data <- tse_subset |> 
     colData() |> 
     as.data.frame() |> 
     tibble::rownames_to_column("sample_name") |> 
     as_tibble()
+col_data |> 
+    count(body_subsite)
+```
+```{r}
 subjects <- col_data |> 
     pull(subject_id) |> 
     unique()
 length(subjects)
-```
-
-```{r sample subset}
-sample_names <- vector("list", length(subjects))
-names(sample_names) <- subjects
-for (i in seq_along(subjects))  {
-    current_subject <- subjects[i]
-    sub_dat <- col_data |> 
-        filter(subject_id == current_subject) |> 
-        slice_max(order_by = visit_number, with_ties = TRUE, n = 1)
-    if (nrow(sub_dat) != 2) {
-        ## Only get subjects with samples from both subgingival and supragingival
-        ## plaque taken in the same visit.
-        next
-    }
-    lgl_vct <- all(sort(sub_dat[["body_subsite"]]) == conditions)
-    if (isFALSE(lgl_vct)) {
-        next
-    }
-    sample_names[[i]] <- sub_dat
-}
-sample_names <- discard(sample_names, is.null)
-col_data_subset <- bind_rows(sample_names)
-nrow(col_data_subset)
-```
-The number of female and male samples is still practically the same:
-
-```{r subjects summary by gender and subsite}
-col_data_subset |> 
-    count(gender, body_subsite)
-```
-
-This is a subset of V35, but still is larger than the subset included in
-the MicrobiomeBenchmarkData package:
-
-```{r tse subset}
-selected_samples <- col_data_subset |> 
-    pull(sample_name)
-tse_subset <- tse[, selected_samples]
-tse_subset <- filterTaxa(tse_subset)
-tse_subset
 ```
 
 # Prior information
@@ -112,7 +76,7 @@ head(prior_info)
 Convert to phyloseq
 
 ```{r convert to phyloseq}
-ps <- makePhyloseqFromTreeSummarizedExperiment(tse_subset)
+ps <- convertToPhyloseq(tse_subset)
 sample_data(ps)[[conditions_col]] <- 
     factor(sample_data(ps)[[conditions_col]], levels = conditions)
 ps

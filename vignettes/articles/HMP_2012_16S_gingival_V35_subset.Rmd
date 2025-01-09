@@ -29,7 +29,7 @@ conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
 
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 
-tse <- filterTaxa(tse)
+tse <- filterTaxa(tse, min_ab = 1, min_per = 0.2)
 
 colData(tse)[[conditions_col]] <- 
     factor(colData(tse)[[conditions_col]], levels = conditions)

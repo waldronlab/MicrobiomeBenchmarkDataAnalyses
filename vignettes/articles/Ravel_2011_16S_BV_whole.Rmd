@@ -675,7 +675,7 @@ first_set <- data |>
         # taxon_annotation == 'hv-associated'
         taxon_name == 'genus:Lactobacillus'
     ) |> 
-    arrange(desc(TSS)) |> 
+    arrange(desc(TSS)) |>
     pull(sample)
 second_set <- data |> 
     filter(
