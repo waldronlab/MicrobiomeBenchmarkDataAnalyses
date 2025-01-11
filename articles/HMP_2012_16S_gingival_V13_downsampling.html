@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> HMP_2012_16S_gingival_V35 - subgingival vs supgragingival plaque - whole • MicrobiomeBenchmarkDataAnalyses</title>
+<title> HMP_2012_16S_gingival_V13 - subgingival vs supgragingival plaque • MicrobiomeBenchmarkDataAnalyses</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content=" HMP_2012_16S_gingival_V35 - subgingival vs supgragingival plaque - whole">
+<script src="../pkgdown.js"></script><meta property="og:title" content=" HMP_2012_16S_gingival_V13 - subgingival vs supgragingival plaque">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -104,12 +104,12 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>HMP_2012_16S_gingival_V35 - subgingival vs
-supgragingival plaque - whole</h1>
+      <h1 data-toc-skip>HMP_2012_16S_gingival_V13 - subgingival vs
+supgragingival plaque</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses/blob/main/vignettes/articles/HMP_2012_16S_gingival_V13_whole.Rmd" class="external-link"><code>vignettes/articles/HMP_2012_16S_gingival_V13_whole.Rmd</code></a></small>
-      <div class="hidden name"><code>HMP_2012_16S_gingival_V13_whole.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses/blob/main/vignettes/articles/HMP_2012_16S_gingival_V13_downsampling.Rmd" class="external-link"><code>vignettes/articles/HMP_2012_16S_gingival_V13_downsampling.Rmd</code></a></small>
+      <div class="hidden name"><code>HMP_2012_16S_gingival_V13_downsampling.Rmd</code></div>
 
     </div>
 
@@ -118,36 +118,144 @@ supgragingival plaque - whole</h1>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/waldronlab/MicrobiomeBenchmarkDataAnalyses" class="external-link">MicrobiomeBenchmarkDataAnalyses</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/waldronlab/MicrobiomeBenchmarkData" class="external-link">MicrobiomeBenchmarkData</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/microbiome/mia" class="external-link">mia</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217" class="external-link">phyloseq</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">benchdamic</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217" class="external-link">phyloseq</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/microbiome/mia" class="external-link">mia</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">benchdamic</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rpkgs.datanovia.com/ggpubr/" class="external-link">ggpubr</a></span><span class="op">)</span></span></code></pre></div>
-<ul>
-<li><p>Analyses were carried out in a subset of subjects: subjects with
-samples taken for both subgingival and supragingival body subsites in
-the same visit. Only one visit was considered per subject.</p></li>
-<li><p>All analyses were performed at the OTU level.</p></li>
-</ul>
-<div class="section level3">
-<h3 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
-</h3>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">gridExtra</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
+</h2>
+<p>Import dataset:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat_name</span> <span class="op">&lt;-</span> <span class="st">'HMP_2012_16S_gingival_V13'</span></span>
 <span><span class="va">conditions_col</span> <span class="op">&lt;-</span> <span class="st">'body_subsite'</span></span>
 <span><span class="va">conditions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>condB <span class="op">=</span> <span class="st">'subgingival_plaque'</span>, condA <span class="op">=</span> <span class="st">'supragingival_plaque'</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://waldronlab.io/MicrobiomeBenchmarkData/reference/getBenchmarkData.html" class="external-link">getBenchmarkData</a></span><span class="op">(</span><span class="va">dat_name</span>, dryrun <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="va">tse_subset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filterTaxa.html">filterTaxa</a></span><span class="op">(</span><span class="va">tse</span>,min_ab <span class="op">=</span> <span class="fl">1</span>, min_per <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<span><span class="va">tse</span></span>
+<span><span class="co">#&gt; class: TreeSummarizedExperiment </span></span>
+<span><span class="co">#&gt; dim: 33127 311 </span></span>
+<span><span class="co">#&gt; metadata(0):</span></span>
+<span><span class="co">#&gt; assays(1): counts</span></span>
+<span><span class="co">#&gt; rownames(33127): OTU_97.1 OTU_97.10 ... OTU_97.9997 OTU_97.9999</span></span>
+<span><span class="co">#&gt; rowData names(7): superkingdom phylum ... genus taxon_annotation</span></span>
+<span><span class="co">#&gt; colnames(311): 700103497 700106940 ... 700111586 700109119</span></span>
+<span><span class="co">#&gt; colData names(15): dataset subject_id ... sequencing_method</span></span>
+<span><span class="co">#&gt;   variable_region_16s</span></span>
+<span><span class="co">#&gt; reducedDimNames(0):</span></span>
+<span><span class="co">#&gt; mainExpName: NULL</span></span>
+<span><span class="co">#&gt; altExpNames(0):</span></span>
+<span><span class="co">#&gt; rowLinks: a LinkDataFrame (33127 rows)</span></span>
+<span><span class="co">#&gt; rowTree: 1 phylo tree(s) (33184 leaves)</span></span>
+<span><span class="co">#&gt; colLinks: NULL</span></span>
+<span><span class="co">#&gt; colTree: NULL</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="exploring-some-of-the-data">Exploring some of the data<a class="anchor" aria-label="anchor" href="#exploring-some-of-the-data"></a>
+</h3>
+<p>Let’s convert the col_data into a tibble (jsut for ease of
+handling):</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">col_data</span> <span class="op">&lt;-</span> <span class="va">tse</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/rownames.html" class="external-link">rownames_to_column</a></span><span class="op">(</span><span class="st">"sample_name"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Total number of subjects:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">subjects</span> <span class="op">&lt;-</span> <span class="va">col_data</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">subject_id</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">subjects</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 132</span></span></code></pre></div>
+<p>The number of male and female subjects:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">col_data</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">subject_id</span>, <span class="va">gender</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">gender</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="op">-</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
+<span><span class="co">#&gt;   gender     n</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> female    67</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> male      65</span></span></code></pre></div>
+<p>Number of subjects per visit number:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">col_data</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">subject_id</span>, <span class="va">visit_number</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">visit_number</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="op">-</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
+<span><span class="co">#&gt;   visit_number     n</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>            1    88</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>            2    76</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>            3     1</span></span></code></pre></div>
+<p>Number of subjects per run_center:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">col_data</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">subject_id</span>, <span class="va">run_center</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">run_center</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="op">-</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 2</span></span></span>
+<span><span class="co">#&gt;   run_center     n</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> WUGC          74</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> JCVI          32</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> BCM           17</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> BCM,WUGC       6</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> JCVI,WUGC      6</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> BCM,JCVI       3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> WUGC,BCM       2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> BI,BCM         1</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sample_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">subjects</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sample_names</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">subjects</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">subjects</span><span class="op">)</span><span class="op">)</span>  <span class="op">{</span></span>
+<span>    <span class="va">current_subject</span> <span class="op">&lt;-</span> <span class="va">subjects</span><span class="op">[</span><span class="va">i</span><span class="op">]</span></span>
+<span>    <span class="va">sub_dat</span> <span class="op">&lt;-</span> <span class="va">col_data</span> <span class="op">|&gt;</span> </span>
+<span>        <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">subject_id</span> <span class="op">==</span> <span class="va">current_subject</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>        <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span>order_by <span class="op">=</span> <span class="va">visit_number</span>, with_ties <span class="op">=</span> <span class="cn">TRUE</span>, n <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sub_dat</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="kw">next</span></span>
+<span>    <span class="op">}</span></span>
+<span>    </span>
+<span>    <span class="va">lgl_vct</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">sub_dat</span><span class="op">[[</span><span class="st">"body_subsite"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">==</span> <span class="va">conditions</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isFALSE</a></span><span class="op">(</span><span class="va">lgl_vct</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="kw">next</span></span>
+<span>    <span class="op">}</span></span>
+<span>    <span class="va">sample_names</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">sub_dat</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">sample_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/keep.html" class="external-link">discard</a></span><span class="op">(</span><span class="va">sample_names</span>, <span class="va">is.null</span><span class="op">)</span></span>
+<span><span class="va">col_data_subset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">sample_names</span><span class="op">)</span></span></code></pre></div>
+<p>The number of female and male samples is still practically the
+same</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">col_data_subset</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">gender</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
+<span><span class="co">#&gt;   gender     n</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> female   118</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> male     112</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">selected_samples</span> <span class="op">&lt;-</span> <span class="va">col_data_subset</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">sample_name</span><span class="op">)</span></span>
+<span><span class="va">tse_subset</span> <span class="op">&lt;-</span> <span class="va">tse</span><span class="op">[</span>, <span class="va">selected_samples</span><span class="op">]</span></span>
+<span><span class="va">tse_subset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filterTaxa.html">filterTaxa</a></span><span class="op">(</span><span class="va">tse_subset</span><span class="op">)</span></span>
 <span><span class="va">tse_subset</span></span>
 <span><span class="co">#&gt; class: TreeSummarizedExperiment </span></span>
-<span><span class="co">#&gt; dim: 1124 311 </span></span>
+<span><span class="co">#&gt; dim: 1124 230 </span></span>
 <span><span class="co">#&gt; metadata(0):</span></span>
 <span><span class="co">#&gt; assays(1): counts</span></span>
 <span><span class="co">#&gt; rownames(1124): OTU_97.10 OTU_97.1000 ... OTU_97.994 OTU_97.995</span></span>
 <span><span class="co">#&gt; rowData names(7): superkingdom phylum ... genus taxon_annotation</span></span>
-<span><span class="co">#&gt; colnames(311): 700103497 700106940 ... 700111586 700109119</span></span>
+<span><span class="co">#&gt; colnames(230): 700103497 700103496 ... 700109120 700109119</span></span>
 <span><span class="co">#&gt; colData names(15): dataset subject_id ... sequencing_method</span></span>
 <span><span class="co">#&gt;   variable_region_16s</span></span>
 <span><span class="co">#&gt; reducedDimNames(0):</span></span>
@@ -157,31 +265,13 @@ the same visit. Only one visit was considered per subject.</p></li>
 <span><span class="co">#&gt; rowTree: 1 phylo tree(s) (33184 leaves)</span></span>
 <span><span class="co">#&gt; colLinks: NULL</span></span>
 <span><span class="co">#&gt; colTree: NULL</span></span></code></pre></div>
-<p>Unique subjects:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">col_data</span> <span class="op">&lt;-</span> <span class="va">tse_subset</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/rownames.html" class="external-link">rownames_to_column</a></span><span class="op">(</span><span class="st">"sample_name"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">col_data</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">body_subsite</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
-<span><span class="co">#&gt;   body_subsite             n</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> subgingival_plaque     152</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> supragingival_plaque   159</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">subjects</span> <span class="op">&lt;-</span> <span class="va">col_data</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">subject_id</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">subjects</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 132</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="prior-information">Prior information<a class="anchor" aria-label="anchor" href="#prior-information"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>OTU level:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">row_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">tse_subset</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">prior_info</span> <span class="op">&lt;-</span> <span class="va">row_data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'genus'</span>, <span class="st">'taxon_annotation'</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">prior_info</span><span class="op">$</span><span class="va">taxon_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">row_data</span><span class="op">)</span></span>
@@ -204,28 +294,26 @@ the same visit. Only one visit was considered per subject.</p></li>
 <span><span class="co">#&gt; OTU_97.10165 facultative_anaerobic</span></span>
 <span><span class="co">#&gt; OTU_97.1017              anaerobic</span></span></code></pre></div>
 <p>Convert to phyloseq</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/convertFromPhyloseq.html" class="external-link">convertToPhyloseq</a></span><span class="op">(</span><span class="va">tse_subset</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">makePhyloseqFromTreeSummarizedExperiment</a></span><span class="op">(</span><span class="va">tse_subset</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html" class="external-link">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html" class="external-link">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span>, levels <span class="op">=</span> <span class="va">conditions</span><span class="op">)</span></span>
 <span><span class="va">ps</span></span>
 <span><span class="co">#&gt; phyloseq-class experiment-level object</span></span>
-<span><span class="co">#&gt; otu_table()   OTU Table:         [ 1124 taxa and 311 samples ]</span></span>
-<span><span class="co">#&gt; sample_data() Sample Data:       [ 311 samples by 15 sample variables ]</span></span>
+<span><span class="co">#&gt; otu_table()   OTU Table:         [ 1124 taxa and 230 samples ]</span></span>
+<span><span class="co">#&gt; sample_data() Sample Data:       [ 230 samples by 15 sample variables ]</span></span>
 <span><span class="co">#&gt; tax_table()   Taxonomy Table:    [ 1124 taxa by 6 taxonomic ranks ]</span></span>
-<span><span class="co">#&gt; phy_tree()    Phylogenetic Tree: [ 1124 tips and 940 internal nodes ]</span></span></code></pre></div>
+<span><span class="co">#&gt; phy_tree()    Phylogenetic Tree: [ 1124 tips and 938 internal nodes ]</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="differential-abundance-analysis">Differential abundance analysis<a class="anchor" aria-label="anchor" href="#differential-abundance-analysis"></a>
 </h3>
-<p>Perform normalization, calculate weights, and select DA methods:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ps2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/runNormalizations.html" class="external-link">runNormalizations</a></span><span class="op">(</span><span class="fu"><a href="../reference/set_norm_list.html">set_norm_list</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, <span class="va">ps</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<p>Select methods for DA:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/runNormalizations.html" class="external-link">runNormalizations</a></span><span class="op">(</span><span class="fu"><a href="../reference/set_norm_list.html">set_norm_list</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">ps</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">zw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/weights_ZINB.html" class="external-link">weights_ZINB</a></span><span class="op">(</span><span class="va">ps</span>, design <span class="op">=</span> <span class="va">conditions_col</span><span class="op">)</span></span>
 <span><span class="va">DA_methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_DA_methods_list.html">set_DA_methods_list</a></span><span class="op">(</span><span class="va">conditions_col</span>, <span class="va">conditions</span><span class="op">)</span></span>
-<span><span class="va">DA_methods</span> <span class="op">&lt;-</span> <span class="va">DA_methods</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"metagenomeSeq"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span>, invert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co">## This was a nacessary change for when the version increased:</span></span>
 <span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Seurat"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">contrast</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
 <span>    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
@@ -233,18 +321,20 @@ the same visit. Only one visit was considered per subject.</p></li>
 <span>    <span class="op">}</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] "DA_edgeR.1"  "DA_edgeR.1"  "DA_DESeq2.1" "DA_DESeq2.1" "DA_limma.1" </span></span>
-<span><span class="co">#&gt;  [6] "DA_limma.1"  "DA_ALDEx2.1" "DA_MAST.1"   "DA_Seurat.1" "ancombc.1"  </span></span>
-<span><span class="co">#&gt; [11] "wilcox.3"    "wilcox.4"    "ZINQ.9"      "ZINQ.10"     "lefse.12"   </span></span>
-<span><span class="co">#&gt; [16] "lefse.13"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] "DA_edgeR.1"         "DA_edgeR.1"         "DA_DESeq2.1"       </span></span>
+<span><span class="co">#&gt;  [4] "DA_DESeq2.1"        "DA_limma.1"         "DA_limma.1"        </span></span>
+<span><span class="co">#&gt;  [7] "DA_metagenomeSeq.1" "DA_ALDEx2.1"        "DA_MAST.1"         </span></span>
+<span><span class="co">#&gt; [10] "DA_Seurat.1"        "ancombc.1"          "wilcox.3"          </span></span>
+<span><span class="co">#&gt; [13] "wilcox.4"           "ZINQ.9"             "ZINQ.10"           </span></span>
+<span><span class="co">#&gt; [16] "lefse.12"           "lefse.13"</span></span></code></pre></div>
 <p>Run all of the differential analysis (DA) methods:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span></span>
-<span>            <span class="st">"Running method "</span>, <span class="va">i</span>, <span class="st">": "</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="st">" - "</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>        <span class="op">)</span></span>
+<span>        <span class="co"># message(</span></span>
+<span>        <span class="co">#     "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()</span></span>
+<span>        <span class="co"># )</span></span>
 <span>        <span class="va">DA_output</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
 <span>            error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="cn">NULL</span>,</span>
 <span>            <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/runDA.html" class="external-link">runDA</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">ps</span>, weights <span class="op">=</span> <span class="va">zw</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span>
@@ -255,235 +345,99 @@ the same visit. Only one visit was considered per subject.</p></li>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="va">tim</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;  85.482  22.527  89.160</span></span></code></pre></div>
+<span><span class="co">#&gt; 100.661  23.009 104.239</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="enrichment-analysis">Enrichment analysis<a class="anchor" aria-label="anchor" href="#enrichment-analysis"></a>
 </h3>
-<div class="section level4">
-<h4 id="define-a-threshold-for-lefse-with-clr">Define a threshold for LEFSE with CLR<a class="anchor" aria-label="anchor" href="#define-a-threshold-for-lefse-with-clr"></a>
-</h4>
-<p>Lefser uses two values to define differential abundant taxa, p-value
-and LDA.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.TSS</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="HMP_2012_16S_gingival_V13_whole_files/figure-html/LEFSER%20TSS%20scores%20hist-1.png" width="700"></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.CLR</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="HMP_2012_16S_gingival_V13_whole_files/figure-html/LEFSE%20CLR%20scores%20hist-1.png" width="700"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    lefse.TSS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.TSS</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span><span class="op">)</span>,</span>
-<span>    lefse.CLR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.CLR</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; lefse.TSS lefse.CLR </span></span>
-<span><span class="co">#&gt; 2.1732540 0.0580966</span></span></code></pre></div>
-<p>Create variables of thresholds:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">direction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_direction_cols.html">get_direction_cols</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">conditions_col</span>, <span class="va">conditions</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">adjThr</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">adjThr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">esThr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">esThr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span></span>
-<span><span class="va">esThr</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"lefse.TSS"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">esThr</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
-<span><span class="va">esThr</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"lefse.CLR"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">esThr</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.06</span></span>
-<span></span>
-<span><span class="va">slotV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span>, <span class="st">"statInfo"</span>, <span class="st">"pValMat"</span><span class="op">)</span></span>
-<span><span class="va">colNameV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span>, <span class="st">"LDA_scores"</span>, <span class="st">"adjP"</span><span class="op">)</span></span>
-<span><span class="va">typeV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span>, <span class="st">"logfc"</span>, <span class="st">"pvalue"</span><span class="op">)</span></span></code></pre></div>
-<p>Run enrichment:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<p>Get the column name indicating the direction of the features
+(increased or decreased). This is the stats output.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">direction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_direction_cols.html">get_direction_cols</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">conditions_col</span>, <span class="va">conditions</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="enrichment-adjp-0-1">Enrichment (adjP &lt;= 0.1)<a class="anchor" aria-label="anchor" href="#enrichment-adjp-0-1"></a>
+</h3>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createEnrichment.html" class="external-link">createEnrichment</a></span><span class="op">(</span></span>
 <span>    object <span class="op">=</span> <span class="va">DA_output</span>,</span>
 <span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>,</span>
 <span>    enrichmentCol <span class="op">=</span> <span class="st">"taxon_annotation"</span>,</span>
 <span>    namesCol <span class="op">=</span> <span class="st">"new_names"</span>,</span>
-<span>    slot <span class="op">=</span> <span class="va">slotV</span>, colName <span class="op">=</span> <span class="va">colNameV</span>, type <span class="op">=</span> <span class="va">typeV</span>,</span>
+<span>    slot <span class="op">=</span> <span class="st">"pValMat"</span>, colName <span class="op">=</span> <span class="st">"adjP"</span>, type <span class="op">=</span> <span class="st">"pvalue"</span>,</span>
 <span>    direction <span class="op">=</span> <span class="va">direction</span>,</span>
-<span>    threshold_pvalue <span class="op">=</span> <span class="va">adjThr</span>,</span>
-<span>    threshold_logfc <span class="op">=</span> <span class="va">esThr</span>,</span>
+<span>    threshold_pvalue <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>    threshold_logfc <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>    top <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># No top feature selected</span></span>
 <span>    alternative <span class="op">=</span> <span class="st">"greater"</span>,</span>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span> </span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Extract summary of the enrichment analysis:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enrichmentSummary</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">enrichment</span>,  <span class="op">~</span> <span class="op">{</span></span>
-<span>    <span class="va">.x</span><span class="op">$</span><span class="va">summaries</span> <span class="op">|&gt;</span> </span>
-<span>        <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>            <span class="va">pos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">!=</span> <span class="st">"pvalue"</span><span class="op">)</span></span>
-<span>            <span class="va">x</span> <span class="op">|&gt;</span> </span>
-<span>                <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/rownames.html" class="external-link">rownames_to_column</a></span><span class="op">(</span>var <span class="op">=</span> <span class="st">"direction"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>                <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
-<span>                    names_to <span class="op">=</span> <span class="st">"annotation"</span>, values_to <span class="op">=</span> <span class="st">"n"</span>,</span>
-<span>                    cols <span class="op">=</span> <span class="fl">2</span></span>
-<span>                <span class="op">)</span></span>
-<span>                </span>
-<span>        <span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/relocate.html" class="external-link">relocate</a></span><span class="op">(</span><span class="va">pvalue</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span>.id <span class="op">=</span> <span class="st">"method"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>        sig <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>            <span class="va">pvalue</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">pvalue</span> <span class="op">&gt;</span> <span class="fl">0.01</span> <span class="op">~</span> <span class="st">"*"</span>,</span>
-<span>            <span class="va">pvalue</span> <span class="op">&lt;</span> <span class="fl">0.01</span> <span class="op">&amp;</span> <span class="va">pvalue</span> <span class="op">&gt;</span> <span class="fl">0.001</span> <span class="op">~</span> <span class="st">"**"</span>,</span>
-<span>            <span class="va">pvalue</span> <span class="op">&lt;</span> <span class="fl">0.001</span> <span class="op">~</span> <span class="st">"***"</span>,</span>
-<span>            <span class="cn">TRUE</span> <span class="op">~</span> <span class="st">""</span></span>
-<span>        <span class="op">)</span> </span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>        direction <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>            <span class="va">direction</span> <span class="op">==</span> <span class="st">"DOWN Abundant"</span> <span class="op">~</span> <span class="st">"Subgingival"</span>,</span>
-<span>            <span class="va">direction</span> <span class="op">==</span> <span class="st">"UP Abundant"</span> <span class="op">~</span> <span class="st">"Supragingival"</span>,</span>
-<span>            <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">direction</span> </span>
-<span>        <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">enrichmentSummary</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 6</span></span></span>
-<span><span class="co">#&gt;   method                       pvalue direction     annotation           n sig  </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ALDEx2.all.wilcox.unpaired 1   <span style="color: #949494;">e</span>+ 0 Subgingival   aerobic              0 <span style="color: #949494;">""</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ALDEx2.all.wilcox.unpaired 1.01<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span> Subgingival   anaerobic           44 <span style="color: #949494;">"</span>***<span style="color: #949494;">"</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ALDEx2.all.wilcox.unpaired 1.00<span style="color: #949494;">e</span>+ 0 Subgingival   facultative_ana…     7 <span style="color: #949494;">""</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> ALDEx2.all.wilcox.unpaired 1   <span style="color: #949494;">e</span>+ 0 Supragingival aerobic              0 <span style="color: #949494;">""</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> ALDEx2.all.wilcox.unpaired 1   <span style="color: #949494;">e</span>+ 0 Supragingival anaerobic            0 <span style="color: #949494;">""</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ALDEx2.all.wilcox.unpaired 4.39<span style="color: #949494;">e</span><span style="color: #BB0000;">- 1</span> Supragingival facultative_ana…     1 <span style="color: #949494;">""</span></span></span></code></pre></div>
-</div>
 </div>
 <div class="section level3">
-<h3 id="plots">Plots<a class="anchor" aria-label="anchor" href="#plots"></a>
+<h3 id="plot-enrichment">Plot enrichment<a class="anchor" aria-label="anchor" href="#plot-enrichment"></a>
 </h3>
-<div class="section level4">
-<h4 id="enrichment-plot">Enrichment plot<a class="anchor" aria-label="anchor" href="#enrichment-plot"></a>
-</h4>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enPlot</span> <span class="op">&lt;-</span> <span class="va">enrichmentSummary</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_meth_class.html">get_meth_class</a></span><span class="op">(</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">"method"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>        direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
-<span>            <span class="va">direction</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Supragingival"</span>, <span class="st">"Subgingival"</span><span class="op">)</span></span>
-<span>        <span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>        method <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="va">method</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="st">"LEfSe"</span>, <span class="va">method</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"wilcox"</span>, <span class="va">method</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"wilcox"</span>, <span class="st">"Wilcox"</span>, <span class="va">method</span><span class="op">)</span>,</span>
-<span>            <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">method</span></span>
-<span>        <span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>        annotation <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>            <span class="va">annotation</span> <span class="op">==</span> <span class="st">"aerobic"</span> <span class="op">~</span> <span class="st">"Aerobic"</span>,</span>
-<span>            <span class="va">annotation</span> <span class="op">==</span> <span class="st">"anaerobic"</span> <span class="op">~</span> <span class="st">"Anaerobic"</span>,</span>
-<span>            <span class="va">annotation</span> <span class="op">==</span> <span class="st">"facultative_anaerobic"</span> <span class="op">~</span> <span class="st">"Facultative anaerobic"</span>,</span>
-<span>            <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">annotation</span></span>
-<span>        <span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">n</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">annotation</span><span class="op">)</span>,</span>
-<span>        position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge2</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="va">sig</span>, color <span class="op">=</span> <span class="va">annotation</span><span class="op">)</span>,</span>
-<span>        position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge2</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span></span>
-<span>        <span class="va">direction</span> <span class="op">~</span> <span class="va">method_class</span>, scales <span class="op">=</span> <span class="st">"free_x"</span>, space <span class="op">=</span> <span class="st">"free"</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"D"</span>, name <span class="op">=</span> <span class="st">"Biological data"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_color_viridis_d</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"D"</span>, name <span class="op">=</span> <span class="st">"Biological data"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>        x <span class="op">=</span> <span class="st">"DA method"</span>, y <span class="op">=</span> <span class="st">"Number of DA taxa"</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
-<span>        axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>        legend.position <span class="op">=</span> <span class="st">"bottom"</span></span>
-<span>    <span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="putative-true-positives---putative-false-positives">Putative true positives - putative false positives<a class="anchor" aria-label="anchor" href="#putative-true-positives---putative-false-positives"></a>
-</h4>
-<p>Calculate TP - FP ratio (no threshold)</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createPositives.html" class="external-link">createPositives</a></span><span class="op">(</span></span>
-<span>        object <span class="op">=</span> <span class="va">DA_output</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
-<span>        priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>, </span>
-<span>        enrichmentCol <span class="op">=</span> <span class="st">"taxon_annotation"</span>, namesCol <span class="op">=</span> <span class="st">"new_names"</span>,</span>
-<span>        slot <span class="op">=</span> <span class="va">slotV</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, colName <span class="op">=</span> <span class="va">colNameV</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, type <span class="op">=</span> <span class="va">typeV</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
-<span>        direction <span class="op">=</span> <span class="va">direction</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
-<span>        threshold_pvalue <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>        threshold_logfc <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>        top <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">50</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
-<span>        alternative <span class="op">=</span> <span class="st">"greater"</span>,</span>
-<span>        verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        TP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>        FP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_meth_class.html">get_meth_class</a></span><span class="op">(</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'method'</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Positives plot:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># names(vec) &lt;- positives$base_method</span></span>
-<span><span class="va">positives</span> <span class="op">&lt;-</span> <span class="va">positives</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>diff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/jitter.html" class="external-link">jitter</a></span><span class="op">(</span><span class="va">TP</span> <span class="op">-</span> <span class="va">FP</span>, amount <span class="op">=</span> <span class="fl">1.5</span>, factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>        base_method <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="va">base_method</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="st">"LEfSe"</span>, <span class="va">base_method</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"wilcox"</span>, <span class="va">base_method</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"wilcox"</span>, <span class="st">"Wilcox"</span>, <span class="va">base_method</span><span class="op">)</span>,</span>
-<span>            <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">base_method</span> </span>
-<span>        <span class="op">)</span>,</span>
-<span>        method <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="va">method</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="st">"LEfSe"</span>, <span class="va">method</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"wilcox"</span>, <span class="va">method</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"wilcox"</span>, <span class="st">"Wilcox"</span>, <span class="va">method</span><span class="op">)</span>,</span>
-<span>            <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">method</span></span>
-<span>        <span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span><span class="va">vec</span> <span class="op">&lt;-</span> <span class="va">positives</span><span class="op">$</span><span class="va">color</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">vec</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">positives</span><span class="op">$</span><span class="va">base_method</span></span>
-<span><span class="va">posPlot</span> <span class="op">&lt;-</span> <span class="va">positives</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">top</span>, <span class="va">diff</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
-<span>            group <span class="op">=</span> <span class="va">method</span>, color <span class="op">=</span> <span class="va">base_method</span>, linetype <span class="op">=</span> <span class="va">norm</span>,</span>
-<span>        <span class="op">)</span>,</span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
-<span>            color <span class="op">=</span> <span class="va">base_method</span>, shape <span class="op">=</span> <span class="va">norm</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">method_class</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>        x <span class="op">=</span> <span class="st">"Top DA features"</span>, y <span class="op">=</span> <span class="st">"TP - FP"</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_shape.html" class="external-link">scale_shape</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Normalization"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_linetype.html" class="external-link">scale_linetype</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Normalization"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">vec</span>, name <span class="op">=</span> <span class="st">"Base method"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="combined-plots">Combined plots<a class="anchor" aria-label="anchor" href="#combined-plots"></a>
-</h4>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span></span>
-<span>    plotlist <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">enPlot</span>, <span class="va">posPlot</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span>, heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">enrich_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_enrichment.html">plot_enrichment</a></span><span class="op">(</span></span>
+<span>    enrichment <span class="op">=</span> <span class="va">enrichment</span>, </span>
+<span>    enrichment_col <span class="op">=</span> <span class="st">"taxon_annotation"</span>,</span>
+<span>    levels_to_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aerobic"</span>, <span class="st">"anaerobic"</span>, <span class="st">"facultative_anaerobic"</span><span class="op">)</span>,</span>
+<span>    conditions <span class="op">=</span> <span class="va">conditions</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">pp</span></span></code></pre></div>
-<p><img src="HMP_2012_16S_gingival_V13_whole_files/figure-html/combined%20plots-1.png" width="960"></p>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_enrichment_2.html">plot_enrichment_2</a></span><span class="op">(</span></span>
+<span>    <span class="va">enrich_plot</span>, </span>
+<span>    dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>up <span class="op">=</span> <span class="st">'Sup Plq'</span>, down <span class="op">=</span> <span class="st">'Sub Plq'</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">p</span></span></code></pre></div>
+<p><img src="HMP_2012_16S_gingival_V13_downsampling_files/figure-html/unnamed-chunk-14-1.png" width="960"></p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="putative-true-positives---putative-false-positives">Putative true positives - putative false positives<a class="anchor" aria-label="anchor" href="#putative-true-positives---putative-false-positives"></a>
+</h2>
+<div class="section level3">
+<h3 id="calculate-tp---fp-ratio-no-threshold">Calculate TP - FP ratio (no threshold)<a class="anchor" aria-label="anchor" href="#calculate-tp---fp-ratio-no-threshold"></a>
+</h3>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createPositives.html" class="external-link">createPositives</a></span><span class="op">(</span></span>
+<span>    <span class="co"># object = DA_output, </span></span>
+<span>    object <span class="op">=</span> <span class="va">DA_output</span>,</span>
+<span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>, </span>
+<span>    enrichmentCol <span class="op">=</span> <span class="st">"taxon_annotation"</span>, namesCol <span class="op">=</span> <span class="st">"new_names"</span>,</span>
+<span>    slot <span class="op">=</span> <span class="st">"pValMat"</span>, colName <span class="op">=</span> <span class="st">"rawP"</span>, type <span class="op">=</span> <span class="st">"pvalue"</span>,</span>
+<span>    <span class="co"># direction = direction,</span></span>
+<span>    direction <span class="op">=</span> <span class="va">direction</span>,</span>
+<span>    threshold_pvalue <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    threshold_logfc <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>    top <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">50</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
+<span>    alternative <span class="op">=</span> <span class="st">"greater"</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    TP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    FP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOWN Abundant"</span>, <span class="st">"aerobic"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UP Abundant"</span>, <span class="st">"anaerobic"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_meth_class.html">get_meth_class</a></span><span class="op">(</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'method'</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="plot-tp---fp">Plot TP - FP<a class="anchor" aria-label="anchor" href="#plot-tp---fp"></a>
+</h3>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">positive_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_positives.html">plot_positives</a></span><span class="op">(</span><span class="va">positives</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span> <span class="op">~</span> <span class="op">{</span></span>
+<span>        <span class="va">.x</span> <span class="op">+</span></span>
+<span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>                axis.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">17</span><span class="op">)</span>,</span>
+<span>                axis.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>,</span>
+<span>                legend.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">13</span><span class="op">)</span>,</span>
+<span>                strip.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">17</span><span class="op">)</span></span>
+<span>            <span class="op">)</span></span>
+<span>    <span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">grid.arrange</a></span><span class="op">(</span>grobs <span class="op">=</span> <span class="va">positive_plots</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<p><img src="HMP_2012_16S_gingival_V13_downsampling_files/figure-html/unnamed-chunk-16-1.png" width="1440"></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
@@ -532,8 +486,6 @@ and LDA.</p>
 <span><span class="co">#&gt;  broom                             1.0.7      <span style="color: #555555;">2024-09-26</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  bslib                             0.8.0      <span style="color: #555555;">2024-07-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  cachem                            1.1.0      <span style="color: #555555;">2024-05-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  car                               3.1-3      <span style="color: #555555;">2024-09-27</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  carData                           3.0-5      <span style="color: #555555;">2022-01-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  caTools                           1.18.3     <span style="color: #555555;">2024-09-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  cellranger                        1.1.0      <span style="color: #555555;">2016-07-27</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  checkmate                         2.3.2      <span style="color: #555555;">2024-07-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -603,10 +555,8 @@ and LDA.</p>
 <span><span class="co">#&gt;  ggfun                             0.1.8      <span style="color: #555555;">2024-12-03</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  ggplot2                         * 3.5.1      <span style="color: #555555;">2024-04-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  ggplotify                         0.1.2      <span style="color: #555555;">2023-08-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  ggpubr                          * 0.6.0      <span style="color: #555555;">2023-02-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  ggrepel                           0.9.6      <span style="color: #555555;">2024-09-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  ggridges                          0.5.6      <span style="color: #555555;">2024-01-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  ggsignif                          0.6.4      <span style="color: #555555;">2022-10-13</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  ggtree                            3.14.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">#&gt;  gld                               2.6.6      <span style="color: #555555;">2022-10-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  glmnet                            4.1-8      <span style="color: #555555;">2023-08-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -615,7 +565,7 @@ and LDA.</p>
 <span><span class="co">#&gt;  gmp                               0.7-5      <span style="color: #555555;">2024-08-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  goftest                           1.2-3      <span style="color: #555555;">2021-10-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  gplots                            3.2.0      <span style="color: #555555;">2024-10-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  gridExtra                         2.3        <span style="color: #555555;">2017-09-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">#&gt;  gridExtra                       * 2.3        <span style="color: #555555;">2017-09-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  gridGraphics                      0.5-1      <span style="color: #555555;">2020-12-13</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  gsl                               2.1-8      <span style="color: #555555;">2023-01-24</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  gtable                            0.3.6      <span style="color: #555555;">2024-10-25</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -755,7 +705,6 @@ and LDA.</p>
 <span><span class="co">#&gt;  rpart                             4.1.23     <span style="color: #555555;">2023-12-05</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.4.2)</span></span></span>
 <span><span class="co">#&gt;  RSpectra                          0.16-2     <span style="color: #555555;">2024-07-18</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  RSQLite                           2.3.9      <span style="color: #555555;">2024-12-03</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">#&gt;  rstatix                           0.7.2      <span style="color: #555555;">2023-02-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  rstudioapi                        0.17.1     <span style="color: #555555;">2024-10-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  rsvd                              1.0.5      <span style="color: #555555;">2021-04-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">#&gt;  Rtsne                             0.17       <span style="color: #555555;">2023-12-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
