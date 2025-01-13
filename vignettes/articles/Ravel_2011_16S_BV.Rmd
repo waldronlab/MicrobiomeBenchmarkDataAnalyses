@@ -346,7 +346,7 @@ pp
 ```{r save plots, eval=FALSE, echo=FALSE}
 ggsave(
     filename = "Figure2.pdf", plot = pp,
-    dpi = 300, height = 9, width = 11
+    dpi = 300, height = 9, width = 10
 )
 ```
 
@@ -571,7 +571,7 @@ wilcox_genus_plot
 ```{r save plot, eval=FALSE, echo=FALSE}
 ggsave(
     file = "Figure3.pdf", plot = wilcox_genus_plot,
-    dpi = 300, width = 9, height = 4
+    dpi = 300, width = 9, height = 4.5
 )
 ```
 
