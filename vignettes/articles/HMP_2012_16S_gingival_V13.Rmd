@@ -223,7 +223,7 @@ head(enrichmentSummary)
 
 ```{r enrichment plot}
 enPlot <- enrichmentSummary |> 
-    dplyr::left_join(get_meth_class(), by = "method") |> 
+    dplyr::left_join(getMethodClass(), by = "method") |> 
     mutate(
         direction = factor(
             direction, levels = c("Supragingival", "Subgingival")
@@ -288,7 +288,7 @@ positives <- map(1:length(DA_output), .f = function(i) {
         TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
         FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
     ) |> 
-        dplyr::left_join(get_meth_class(), by = 'method')
+        dplyr::left_join(getMethodClass(), by = 'method')
 }) |> bind_rows()
 ```
 

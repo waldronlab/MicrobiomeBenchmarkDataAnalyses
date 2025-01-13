@@ -1,10 +1,10 @@
 
 #' MicrobiomeBenchmarkDataAnalyses
 #' 
-#' \code{MicrobiomeBenchmarkDataAnalyses} is a package for the DA analyses
-#' performed on the MicrobiomeBenchmarkData package.
+#' \code{MicrobiomeBenchmarkDataAnalyses} contains the code used
+#' to analyze the microbiome datasets in the \code{MicrobiomeBenchmarkData}
+#' package.
 #' 
 #' @name MicrobiomeBenchmarkDataAnalyses
-#' @importFrom magrittr %>%
 #' 
 NULL

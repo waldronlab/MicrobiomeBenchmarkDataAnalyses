@@ -154,7 +154,7 @@ positives <- createPositives(
     TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
     FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
 ) |> 
-    left_join(get_meth_class(), by = 'method')
+    left_join(getMethodClass(), by = 'method')
 ```
 
 ## Plot TP - FP 

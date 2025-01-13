@@ -1,12 +1,20 @@
 ---
-title: "Ravel_2011_16S_BV - Bacterial vaginosis - whole dataset"
+title: "Bacterial vaginosis vs healthy vaginal samples"
+subtitle: "Ravel_2011_16S_BV"
+author: "Samuel Gamboa"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
     html_document:
         toc: yes
 ---
 
 ```{r, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
 ```
 
 ```{r setup, message=FALSE, warning=FALSE}
@@ -223,7 +231,7 @@ Create enrichment plot:
 
 ```{r enrichment plot}
 enPlot <- enrichmentSummary |> 
-    left_join(get_meth_class(), by = "method") |> 
+    left_join(getMethodClass(), by = "method") |> 
     mutate(
         direction = factor(
             direction, levels = c("BV", "HV")
@@ -287,7 +295,7 @@ positives <- map(1:length(DA_output), .f = function(i) {
         TP = list(c("DOWN Abundant", "hv-associated"), c("UP Abundant", "bv-associated")),
         FP = list(c("DOWN Abundant", "bv-associated"), c("UP Abundant", "hv-associated"))
     ) |> 
-        left_join(get_meth_class(), by = 'method')
+        left_join(getMethodClass(), by = 'method')
 }) |>
     bind_rows() |> 
         mutate(

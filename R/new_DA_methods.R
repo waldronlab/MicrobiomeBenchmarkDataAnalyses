@@ -504,7 +504,7 @@ DA_ancombc <- function(
     ## Perform analysis with ancombc
     phyloseq::otu_table(object) <- counts ## replace otu table 
     res <- ANCOMBC::ancombc(
-        phyloseq = object, group = group, formula = formula, ...
+        data = object, group = group, formula = formula, ...
     )[['res']]
     
     # Create pValMat and statInfo

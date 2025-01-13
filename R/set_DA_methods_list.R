@@ -16,196 +16,123 @@
 #'
 set_DA_methods_list <- function(conditions_col, conditions) {
     c(
-        # edgeR
-        my_edger <- benchdamic::set_edgeR(
+        edgeR.TMM = benchdamic::set_edgeR(
             group_name = conditions_col,
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM",
             coef = 2,
             weights_logical = FALSE
-        ),
-        
-        # edgeR + weights
-        my_edger <- benchdamic::set_edgeR(
+        ) |> 
+            unname(),
+        edgeR.TMM.weighted = benchdamic::set_edgeR(
             group_name = conditions_col,
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM",
             coef = 2,
             weights_logical = TRUE
-        ),
-        
-        # DESeq2
-        my_deseq2 <- benchdamic::set_DESeq2(
+        ) |> 
+            unname(),
+        DESeq2.poscounts = benchdamic::set_DESeq2(
             contrast = c(conditions_col, conditions['condA'], conditions['condB']),
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "poscounts",
             weights_logical = FALSE
-        ),
-        
-        # DESeq2 + weights
-        my_deseq2 <- benchdamic::set_DESeq2(
+        ) |> 
+            unname(),
+        DESeq2.poscounts.weighted = benchdamic::set_DESeq2(
             contrast = c(conditions_col, conditions['condA'], conditions['condB']),
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "poscounts",
             weights_logical = TRUE
-        ),
-        
-        # limma 
-        my_limma <- benchdamic::set_limma( # I get a warning
+        ) |> 
+            unname(),
+        limma.TMM = benchdamic::set_limma(
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM",
             coef = 2,
             weights_logical = FALSE
-        ),
-        
-        # limma + weights 
-        my_limma <- benchdamic::set_limma(
+        ) |> 
+            unname(),
+        limma.TMM.weighted = benchdamic::set_limma(
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM", 
             coef = 2,
             weights_logical = TRUE
-        ),
-        
-        ## metagenomeSeq
-        my_metagenomeseq <- benchdamic::set_metagenomeSeq(
+        ) |> 
+            unname(),
+        metagenomeSeq.CSS = benchdamic::set_metagenomeSeq(
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = c("CSS"),
             coef = 2
-        ),
-
-        ## ALDEx2 with t-test
-        # my_aldex2 <- benchdamic::set_ALDEx2(
-        #     conditions = conditions_col,
-        #     test = "t",
-        #     norm = "none"
-        # ),
-
-        ## ALDEx2 with wilcox
-        my_aldex2 <- benchdamic::set_ALDEx2(
-            # conditions = conditions_col,
+        ) |> 
+            unname(),
+        ALDEx2 = benchdamic::set_ALDEx2(
             contrast = c(conditions_col, conditions[[2]], conditions[[1]]),
             test = "wilcox",
             design = conditions_col
-            # norm = "none"
-        ),
-
-        ## corncob Corncob stopped working and was removed from benchdamic (temporarily maybe)
-        # my_corncob <- benchdamic::set_corncob(
-        #     formula = stats::as.formula(paste0("~", conditions_col)),
-        #     phi.formula = stats::as.formula(paste0("~", conditions_col)),
-        #     formula_null = ~ 1,
-        #     phi.formula_null = stats::as.formula(paste0("~", conditions_col)),
-        #     test = "Wald",
-        #     coefficient = paste0(conditions_col, conditions['condA']),
-        #     norm = "none"
-        # ),
-        
-        ## MAST
-        my_mast <- benchdamic::set_MAST(
+        ) |> 
+            unname(),
+        MAST = benchdamic::set_MAST(
             rescale = "median",
             design = stats::as.formula(paste0("~", conditions_col)),
             coefficient = paste0(conditions_col, conditions['condA'])
-            # norm = "none"
-        ),
-        
-        ## Seurat
-        my_seurat <- benchdamic::set_Seurat(
+        ) |> 
+            unname(),
+        Seurat = benchdamic::set_Seurat(
             test = "wilcox",
             contrast = c(conditions_col, conditions['condA'], conditions['condB']),
+            # contrast = NULL,
             norm = "none"
-        ),
-        
-        new_methods <- list(
-            ## ANCOMB-BC
-            ancombc.1 = list(
-               method = 'DA_ancombc',
-               conditions = conditions,
-               group = conditions_col,
-               formula = conditions_col,
-               norm = 'none',
-               p_adj_method = 'fdr'
+        ) |> 
+            unname(),
+        list(
+            ANCOMBC = list(
+                method = 'DA_ancombc',
+                conditions = conditions,
+                group = conditions_col,
+                formula = conditions_col,
+                norm = 'none',
+                p_adj_method = 'fdr'
             ),
-            ## Wilcox
-            # wilcox.2 = list(
-            #     method = 'DA_wilcox',
-            #     norm = 'none',
-            #     conditions_col = conditions_col,
-            #     conditions = conditions
-            # ),
-            wilcox.3 = list(
+            Wilcox.TSS = list(
                 method = 'DA_wilcox',
                 norm = 'TSS',
                 conditions_col = conditions_col,
                 conditions = conditions
             ),
-            wilcox.4 = list(
+            Wilcox.CLR = list(
                 method = 'DA_wilcox',
                 norm = 'CLR',
                 conditions_col = conditions_col,
                 conditions = conditions
             ),
-            ## ZINQ
-            # ZINQ.5 = list(
-            #     method = 'DA_ZINQ',
-            #     conditions_col = conditions_col,
-            #     conditions = conditions, 
-            #     norm = 'none', pval_method = 'MinP', y_CorD = 'D'
-            # ),
-            # ZINQ.6 = list(
-            #     method = 'DA_ZINQ',
-            #     conditions_col = conditions_col,
-            #     conditions = conditions, 
-            #     norm = 'TSS', pval_method = 'MinP', y_CorD = 'C'
-            # ),
-            # ZINQ.7 = list(
-            #     method = 'DA_ZINQ',
-            #     conditions_col = conditions_col,
-            #     conditions = conditions, 
-            #     norm = 'CLR', pval_method = 'MinP', y_CorD = 'C'
-            # ),
-            # ZINQ.8 = list(
-            #     method = 'DA_ZINQ',
-            #     conditions_col = conditions_col,
-            #     conditions = conditions, 
-            #     norm = 'none', pval_method = 'Cauchy', y_CorD = 'D'
-            # ),
-            ZINQ.9 = list(
+            ZINQ.TSS = list(
                 method = 'DA_ZINQ',
                 conditions_col = conditions_col,
                 conditions = conditions, 
                 norm = 'TSS', pval_method = 'Cauchy', y_CorD = 'C'
             ),
-            ZINQ.10 = list(
+            ZINQ.CLR = list(
                 method = 'DA_ZINQ',
                 conditions_col = conditions_col,
                 conditions = conditions, 
                 norm = 'CLR', pval_method = 'Cauchy', y_CorD = 'C'
             ),
-            # lefse.11 = list(
-            #     method = 'DA_lefse',
-            #     conditions = conditions,
-            #     norm = 'none',
-            #     groupCol = conditions_col,
-            #     kruskal.threshold = 1,
-            #     wilcox.threshold = 1,
-            #     lda.threshold = 0
-            # ),
-            
-            ## I really need p-values to help define DA abundant features
-            ## So I'm using a p-value threshold only for the lefse method
-            lefse.12 = list(
+            ## P-value thresholds are needed here since they are not provided
+            ## in the output of the lefser package
+            LEfSe.TSS = list(
                 method = 'DA_lefse',
                 conditions = conditions,
-                norm = 'CLR',
+                norm = 'TSS',
                 groupCol = conditions_col,
                 kruskal.threshold = 0.05,
                 wilcox.threshold = 0.05,
                 lda.threshold = 0
             ),
-            lefse.13 = list(
+            LEfSe.CLR = list(
                 method = 'DA_lefse',
                 conditions = conditions,
-                norm = 'TSS',
+                norm = 'CLR',
                 groupCol = conditions_col,
                 kruskal.threshold = 0.05,
                 wilcox.threshold = 0.05,
@@ -214,5 +141,4 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         )
         
     )
-
 }

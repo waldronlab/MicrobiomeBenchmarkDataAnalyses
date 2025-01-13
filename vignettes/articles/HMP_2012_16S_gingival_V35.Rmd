@@ -1,8 +1,11 @@
 ---
-title: " HMP_2012_16S_gingival_V35 - subgingival vs supgragingival plaque - whole"
-output: 
+title: "Subgingival vs supgragingival plaque"
+subtitle: "HMP_2012_16S_gingival_V35"
+author: "Samuel Gamboa"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
     html_document:
-        toc: true
+        toc: yes
 ---
 
 ```{r setup, include = FALSE}
@@ -14,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r load packages, message=FALSE, warning=FALSE}
+```{r packages, message=FALSE, warning=FALSE}
 library(MicrobiomeBenchmarkDataAnalyses)
 library(MicrobiomeBenchmarkData)
 library(dplyr)
@@ -26,12 +29,6 @@ library(ggplot2)
 library(ggpubr)
 ```
 
-+ Analyses were carried out in a subset of subjects: subjects with samples
-taken for both subgingival and supragingival body subsites in the same visit.
-Only one visit was considered per subject.
-
-+ All analyses were performed at the OTU level.
-
 ## Data
 
 ```{r import data}
@@ -39,31 +36,25 @@ dat_name <- 'HMP_2012_16S_gingival_V35'
 conditions_col <- 'body_subsite'
 conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
+tse
+```
+
+```{r filter features}
 tse_subset <- filterTaxa(tse, min_ab = 1, min_per = 0.2)
 tse_subset
 ```
 
-Unique subjects:
-
-```{r extract subjects}
-col_data <- tse_subset |> 
-    colData() |> 
-    as.data.frame() |> 
-    tibble::rownames_to_column("sample_name") |> 
-    as_tibble()
-col_data |> 
-    count(body_subsite)
+```{r samples per body subsite}
+col_data <- as_tibble(colData(tse_subset)) 
+count(col_data, body_subsite)
 ```
-```{r}
-subjects <- col_data |> 
-    pull(subject_id) |> 
-    unique()
-length(subjects)
+```{r unique subjects}
+length(unique(col_data$subject_id))
 ```
 
-# Prior information
+## Prior information
 
-```{r prior information}
+```{r feature annotations}
 row_data <- as.data.frame(rowData(tse_subset))
 prior_info <- row_data[, c('genus', 'taxon_annotation')]
 prior_info$taxon_name <- rownames(row_data)
@@ -73,7 +64,7 @@ prior_info <-
 head(prior_info)
 ```
 
-Convert to phyloseq
+## Convert to phyloseq
 
 ```{r convert to phyloseq}
 ps <- convertToPhyloseq(tse_subset)
@@ -84,15 +75,13 @@ ps
 
 ## Differential abundance analysis
 
-Perform normalization, calculate weights, and select DA methods:
+Set normalization, weight, and DA method options:
 
 ```{r norm, weights, methods}
 ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
-
 for (i in seq_along(DA_methods)) {
-    ## This was a nacessary change for when the version increased:
     if (grepl("Seurat", names(DA_methods)[i])) {
         names(DA_methods[[i]]$contrast) <- NULL
     } else {
@@ -102,7 +91,7 @@ for (i in seq_along(DA_methods)) {
 names(DA_methods)
 ```
 
-Run all of the differential analysis (DA) methods:
+Run DA analysis:
 
 ```{r run DA, warning=FALSE}
 tim <- system.time({
@@ -126,24 +115,7 @@ tim
 
 ### Define a threshold for LEFSE with CLR
 
-Lefser uses two values to define differential abundant taxa, p-value and LDA.
-
-```{r LEFSER TSS scores hist}
-DA_output$lefse.TSS$statInfo$abs_score |> hist()
-```
-
-```{r LEFSE CLR scores hist}
-DA_output$lefse.CLR$statInfo$abs_score |> hist()
-```
-
-```{r check median scores}
-c(
-    lefse.TSS = median(DA_output$lefse.TSS$statInfo$abs_score),
-    lefse.CLR = median(DA_output$lefse.CLR$statInfo$abs_score)
-)
-```
-
-Create variables of thresholds:
+Define threshold variables:
 
 ```{r define variables to use in createEnrichment}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
@@ -154,7 +126,8 @@ names(adjThr) <- names(DA_output)
 esThr <- rep(0, length(DA_output))
 names(esThr) <- names(DA_output)
 esThr[grep("lefse.TSS", names(esThr))] <- 2
-esThr[grep("lefse.CLR", names(esThr))] <- 0.06
+esThr[grep("lefse.CLR", names(esThr))] <-
+    median(DA_output$lefse.CLR$statInfo$abs_score)
 
 slotV <- ifelse(grepl("lefse", names(DA_output)), "statInfo", "pValMat")
 colNameV <- ifelse(grepl("lefse", names(DA_output)), "LDA_scores", "adjP")
@@ -185,7 +158,6 @@ Extract summary of the enrichment analysis:
 enrichmentSummary <- purrr::map(enrichment,  ~ {
     .x$summaries |> 
         purrr::map(function(x) {
-            pos <- which(colnames(x) != "pvalue")
             x |> 
                 tibble::rownames_to_column(var = "direction") |> 
                 tidyr::pivot_longer(
@@ -221,12 +193,14 @@ head(enrichmentSummary)
 ### Enrichment plot
 
 ```{r enrichment plot}
+nn <- unique(enrichmentSummary$annotation)
+nn <- nn[!is.na(nn)]
+colorPalette <- palette.colors(palette = "Okabe-Ito")[2:(length(nn) + 1)]
 enPlot <- enrichmentSummary |> 
-    dplyr::left_join(get_meth_class(), by = "method") |> 
+    dplyr::left_join(getMethodClass(), by = "method") |> 
     mutate(
-        direction = factor(
-            direction, levels = c("Supragingival", "Subgingival")
-        )
+        direction = factor(direction, levels = c("Supragingival", "Subgingival")),
+        annotation = factor(annotation, levels = nn)
     ) |> 
     mutate(
         method = case_when(
@@ -255,8 +229,8 @@ enPlot <- enrichmentSummary |>
     facet_grid(
         direction ~ method_class, scales = "free_x", space = "free"
     ) +
-    scale_fill_viridis_d(option = "D", name = "Biological data") +
-    scale_color_viridis_d(option = "D", name = "Biological data") +
+    scale_fill_manual(values = colorPalette) +
+    scale_color_manual(values = colorPalette) +
     labs(
         x = "DA method", y = "Number of DA taxa"
     ) +
@@ -287,14 +261,13 @@ positives <- map(1:length(DA_output), .f = function(i) {
         TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
         FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
     ) |> 
-        dplyr::left_join(get_meth_class(), by = 'method')
+        dplyr::left_join(getMethodClass(), by = 'method')
 }) |> bind_rows()
 ```
 
 Positives plot:
 
 ```{r positives plot, fig.height = 4, fig.width=12}
-# names(vec) <- positives$base_method
 positives <- positives |> 
     mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
     mutate(
@@ -344,7 +317,6 @@ pp
 ```
 
 ```{r export plots, eval=TRUE, echo=FALSE}
-## Export the figure
 ggsave(
     filename = "Figure1.pdf", plot = pp, dpi = 300,
     height = 9, width = 11, 

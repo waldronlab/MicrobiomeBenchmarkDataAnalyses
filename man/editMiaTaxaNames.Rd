@@ -15,6 +15,6 @@ A character vector with new names
 }
 \description{
 \code{editMiaTaxaNames} corrects the taxonomic names of the
-\code{agglomerateByRank} function of the \code{mia} package. For some reason,the names
-are coming bad for some datasets. This is a workaround.
+\code{agglomerateByRank} function of the \code{mia} package. This is used in the
+vignette of the Ravel dataset with bacterial vaginosis data.
 }

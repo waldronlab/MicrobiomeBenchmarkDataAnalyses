@@ -7,7 +7,7 @@
 get_direction_cols(x, conditions_col, conditions)
 }
 \arguments{
-\item{x}{Output of \code{\link{run_DA}}.}
+\item{x}{Output of \code{benchdamic::runDA}.}
 
 \item{conditions_col}{Character string indicating the name of the column
 containing the conditions of the samples in sample_metadata/colData.}

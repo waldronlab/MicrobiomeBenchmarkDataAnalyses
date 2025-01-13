@@ -12,9 +12,7 @@ framework.
 }
 \description{
 \code{set_norm_list} is a wrapper of the
-\code{\link[benchdamic]{setNormalizations}} function with already predefined
-normalization methods. The methods are: CSSdefault, CSSmedian, TMM,
-poscounts, and none.
+\code{\link[benchdamic]{setNormalizations}} function.
 }
 \details{
 The output should be used as input of the
