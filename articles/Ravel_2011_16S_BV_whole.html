@@ -136,53 +136,15 @@ dataset</h1>
 <span><span class="va">conditions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>condB <span class="op">=</span> <span class="st">'healthy'</span>, condA <span class="op">=</span> <span class="st">'bacterial_vaginosis'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://waldronlab.io/MicrobiomeBenchmarkData/reference/getBenchmarkData.html" class="external-link">getBenchmarkData</a></span><span class="op">(</span><span class="va">dat_name</span>, dryrun <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="va">col_data</span> <span class="op">&lt;-</span> <span class="va">tse</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">study_condition</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">conditions</span><span class="op">)</span></span>
-<span><span class="va">col_data</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
-<span>        .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>            <span class="st">"ethnicity"</span>, <span class="st">"nugent_score_category"</span>, <span class="st">"study_condition"</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">nugent_score</span><span class="op">)</span>, <span class="st">"-"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">nugent_score</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>        n <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">ethnicity</span>, <span class="va">study_condition</span>, <span class="va">n</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##   ethnicity nugent_score_category     study_condition range  n</span></span>
-<span><span class="co">## 1     Asian                  high bacterial_vaginosis   7-9 13</span></span>
-<span><span class="co">## 2     Asian                   low             healthy   0-3 69</span></span>
-<span><span class="co">## 3     Black                  high bacterial_vaginosis  7-10 42</span></span>
-<span><span class="co">## 4     Black                   low             healthy   0-3 52</span></span>
-<span><span class="co">## 5  Hispanic                  high bacterial_vaginosis  7-10 32</span></span>
-<span><span class="co">## 6  Hispanic                   low             healthy   0-3 50</span></span>
-<span><span class="co">## 7     White                  high bacterial_vaginosis  7-10 10</span></span>
-<span><span class="co">## 8     White                   low             healthy   0-3 77</span></span></code></pre>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">select_samples</span> <span class="op">&lt;-</span> <span class="va">col_data</span> <span class="op">|&gt;</span></span>
-<span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">y</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">study_condition</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">rownames</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu">flatten_chr</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">tse_subset</span> <span class="op">&lt;-</span> <span class="va">tse</span><span class="op">[</span>, <span class="va">select_samples</span><span class="op">]</span></span>
-<span></span>
-<span><span class="va">tse_genus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/agglomerate-methods.html" class="external-link">agglomerateByRank</a></span><span class="op">(</span></span>
-<span>    <span class="va">tse_subset</span>, rank <span class="op">=</span> <span class="st">'genus'</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span>, onRankOnly <span class="op">=</span> <span class="cn">FALSE</span> </span>
-<span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="../reference/filterTaxa.html">filterTaxa</a></span><span class="op">(</span>min_ab <span class="op">=</span> <span class="fl">1</span>, min_per <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="fu"><a href="https://magrittr.tidyverse.org/reference/aliases.html" class="external-link">set_rownames</a></span><span class="op">(</span><span class="va">y</span>, <span class="fu"><a href="../reference/editMiaTaxaNames.html">editMiaTaxaNames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span><span class="op">$</span><span class="va">study_condition</span> <span class="op">&lt;-</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span><span class="op">$</span><span class="va">study_condition</span>, levels <span class="op">=</span> <span class="va">conditions</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">tse_genus</span></span></code></pre></div>
+<span><span class="va">tse</span></span></code></pre></div>
 <pre><code><span><span class="co">## class: TreeSummarizedExperiment </span></span>
-<span><span class="co">## dim: 30 345 </span></span>
-<span><span class="co">## metadata(1): agglomerated_by_rank</span></span>
+<span><span class="co">## dim: 247 394 </span></span>
+<span><span class="co">## metadata(0):</span></span>
 <span><span class="co">## assays(1): counts</span></span>
-<span><span class="co">## rownames(30): genus:Mobiluncus genus:Gardnerella ... genus:Parvimonas</span></span>
-<span><span class="co">##   genus:Peptoniphilus</span></span>
+<span><span class="co">## rownames(247): Lactobacillus iners Lactobacillus crispatus ...</span></span>
+<span><span class="co">##   Bacilli_2 Microbacterium</span></span>
 <span><span class="co">## rowData names(7): kingdom class ... species taxon_annotation</span></span>
-<span><span class="co">## colnames(345): S008 S012 ... S393 S394</span></span>
+<span><span class="co">## colnames(394): S001 S002 ... S393 S394</span></span>
 <span><span class="co">## colData names(17): dataset gender ... nugent_score_category</span></span>
 <span><span class="co">##   community_group</span></span>
 <span><span class="co">## reducedDimNames(0):</span></span>
@@ -192,30 +154,78 @@ dataset</h1>
 <span><span class="co">## rowTree: NULL</span></span>
 <span><span class="co">## colLinks: NULL</span></span>
 <span><span class="co">## colTree: NULL</span></span></code></pre>
+<p>Select samples:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">select_samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse</span><span class="op">)</span><span class="op">$</span><span class="va">study_condition</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">conditions</span><span class="op">)</span></span>
+<span><span class="va">tse_subset</span> <span class="op">&lt;-</span> <span class="va">tse</span><span class="op">[</span>, <span class="va">select_samples</span><span class="op">]</span></span>
+<span><span class="va">tse_subset</span></span></code></pre></div>
+<pre><code><span><span class="co">## class: TreeSummarizedExperiment </span></span>
+<span><span class="co">## dim: 247 345 </span></span>
+<span><span class="co">## metadata(0):</span></span>
+<span><span class="co">## assays(1): counts</span></span>
+<span><span class="co">## rownames(247): Lactobacillus iners Lactobacillus crispatus ...</span></span>
+<span><span class="co">##   Bacilli_2 Microbacterium</span></span>
+<span><span class="co">## rowData names(7): kingdom class ... species taxon_annotation</span></span>
+<span><span class="co">## colnames(345): S001 S002 ... S393 S394</span></span>
+<span><span class="co">## colData names(17): dataset gender ... nugent_score_category</span></span>
+<span><span class="co">##   community_group</span></span>
+<span><span class="co">## reducedDimNames(0):</span></span>
+<span><span class="co">## mainExpName: NULL</span></span>
+<span><span class="co">## altExpNames(0):</span></span>
+<span><span class="co">## rowLinks: NULL</span></span>
+<span><span class="co">## rowTree: NULL</span></span>
+<span><span class="co">## colLinks: NULL</span></span>
+<span><span class="co">## colTree: NULL</span></span></code></pre>
+<p>Agglomerate by genus:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tse_genus</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>        <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">tse_genus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/agglomerate-methods.html" class="external-link">agglomerateByRank</a></span><span class="op">(</span></span>
+<span>    <span class="va">tse_subset</span>, rank <span class="op">=</span> <span class="st">'genus'</span>, na.rm <span class="op">=</span> <span class="cn">FALSE</span>, onRankOnly <span class="op">=</span> <span class="cn">FALSE</span> </span>
+<span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="../reference/filterTaxa.html">filterTaxa</a></span><span class="op">(</span>min_ab <span class="op">=</span> <span class="fl">1</span>, min_per <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="fu"><a href="https://magrittr.tidyverse.org/reference/aliases.html" class="external-link">set_rownames</a></span><span class="op">(</span><span class="va">y</span>, <span class="fu"><a href="../reference/editMiaTaxaNames.html">editMiaTaxaNames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span><span class="op">$</span><span class="va">study_condition</span> <span class="op">&lt;-</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span><span class="op">$</span><span class="va">study_condition</span>, levels <span class="op">=</span> <span class="va">conditions</span><span class="op">)</span></span>
+<span><span class="va">tse_genus</span></span></code></pre></div>
+<pre><code><span><span class="co">## class: TreeSummarizedExperiment </span></span>
+<span><span class="co">## dim: 30 345 </span></span>
+<span><span class="co">## metadata(1): agglomerated_by_rank</span></span>
+<span><span class="co">## assays(1): counts</span></span>
+<span><span class="co">## rownames(30): genus:Mobiluncus genus:Gardnerella ... genus:Parvimonas</span></span>
+<span><span class="co">##   genus:Peptoniphilus</span></span>
+<span><span class="co">## rowData names(7): kingdom class ... species taxon_annotation</span></span>
+<span><span class="co">## colnames(345): S001 S002 ... S393 S394</span></span>
+<span><span class="co">## colData names(17): dataset gender ... nugent_score_category</span></span>
+<span><span class="co">##   community_group</span></span>
+<span><span class="co">## reducedDimNames(0):</span></span>
+<span><span class="co">## mainExpName: NULL</span></span>
+<span><span class="co">## altExpNames(0):</span></span>
+<span><span class="co">## rowLinks: NULL</span></span>
+<span><span class="co">## rowTree: NULL</span></span>
+<span><span class="co">## colLinks: NULL</span></span>
+<span><span class="co">## colTree: NULL</span></span></code></pre>
+<p>Samples metadata:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">col_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">col_data</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
 <span>        .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>            <span class="co"># "ethnicity", "nugent_score_category", "study_condition"</span></span>
 <span>            <span class="st">"nugent_score_category"</span>, <span class="st">"study_condition"</span></span>
 <span>        <span class="op">)</span>,</span>
 <span>        range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">nugent_score</span><span class="op">)</span>, <span class="st">"-"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">nugent_score</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>        n <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">study_condition</span>, <span class="va">n</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/relocate.html" class="external-link">relocate</a></span><span class="op">(</span><span class="va">study_condition</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/relocate.html" class="external-link">relocate</a></span><span class="op">(</span><span class="va">study_condition</span>, <span class="va">n</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 2 × 4</span></span></span>
-<span><span class="co">##   study_condition     nugent_score_category range     n</span></span>
-<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> healthy             low                   0-3     248</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> bacterial_vaginosis high                  7-10     97</span></span></code></pre>
+<span><span class="co">##   study_condition         n nugent_score_category range</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> healthy               248 low                   0-3  </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> bacterial_vaginosis    97 high                  7-10</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="prior-info-biological-annotations">Prior info (biological annotations)<a class="anchor" aria-label="anchor" href="#prior-info-biological-annotations"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prior_info</span> <span class="op">&lt;-</span> <span class="va">tse_genus</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -240,15 +250,13 @@ dataset</h1>
 <h3 id="da-analysis">DA analysis<a class="anchor" aria-label="anchor" href="#da-analysis"></a>
 </h3>
 <p>Convert to phyloseq:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/convertFromPhyloseq.html" class="external-link">convertToPhyloseq</a></span><span class="op">(</span><span class="va">tse_genus</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html" class="external-link">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html" class="external-link">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span>, levels <span class="op">=</span> <span class="va">conditions</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html" class="external-link">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html" class="external-link">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[[</span><span class="va">conditions_col</span><span class="op">]</span><span class="op">]</span>, levels <span class="op">=</span> <span class="va">conditions</span><span class="op">)</span></span></code></pre></div>
 <p>Set method parameters:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">norm_methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_norm_list.html">set_norm_list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/runNormalizations.html" class="external-link">runNormalizations</a></span><span class="op">(</span><span class="va">norm_methods</span>, <span class="va">ps</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">zw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/weights_ZINB.html" class="external-link">weights_ZINB</a></span><span class="op">(</span><span class="va">ps</span>, design <span class="op">=</span> <span class="va">conditions_col</span><span class="op">)</span></span>
 <span><span class="va">DA_methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_DA_methods_list.html">set_DA_methods_list</a></span><span class="op">(</span><span class="va">conditions_col</span>, <span class="va">conditions</span><span class="op">)</span></span>
@@ -268,7 +276,7 @@ dataset</h1>
 <span><span class="co">## [13] "wilcox.4"           "ZINQ.9"             "ZINQ.10"           </span></span>
 <span><span class="co">## [16] "lefse.12"           "lefse.13"</span></span></code></pre>
 <p>Run DA analysis:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>    <span class="va">DA_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_methods</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -285,14 +293,13 @@ dataset</h1>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="va">tim</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##  12.414   0.935  12.404</span></span></code></pre>
+<span><span class="co">##  12.712   0.988  12.771</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="enrichment">Enrichment<a class="anchor" aria-label="anchor" href="#enrichment"></a>
 </h3>
-<p>We need a threshold for DA for lefse-CLR (It can’t be the same as
-when using lefse-TSS):</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p>We need a threshold for DA for lefse-CLR:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    lefse.TSS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.TSS</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span><span class="op">)</span>,</span>
 <span>    lefse.CLR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">$</span><span class="va">lefse.CLR</span><span class="op">$</span><span class="va">statInfo</span><span class="op">$</span><span class="va">abs_score</span><span class="op">)</span></span>
@@ -301,11 +308,9 @@ when using lefse-TSS):</p>
 <span><span class="co">## 3.8541431 0.1815828</span></span></code></pre>
 <p>Create some variables for selecting and ranking differentially
 abundant features:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">direction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_direction_cols.html">get_direction_cols</a></span><span class="op">(</span><span class="va">DA_output</span>, <span class="va">conditions_col</span>, <span class="va">conditions</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## The methods based on lefse have artificial p-values because</span></span>
-<span><span class="co">## the lefser output doesn't provide such information</span></span>
 <span><span class="va">adjThr</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">adjThr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span></span>
 <span></span>
@@ -316,12 +321,11 @@ abundant features:</p>
 <span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## Use effect size for lefser and adjusted p-value for all of the other methods</span></span>
 <span><span class="va">slotV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span>, <span class="st">"statInfo"</span>, <span class="st">"pValMat"</span><span class="op">)</span></span>
 <span><span class="va">colNameV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span>, <span class="st">"LDA_scores"</span>, <span class="st">"adjP"</span><span class="op">)</span></span>
 <span><span class="va">typeV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"lefse"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span><span class="op">)</span>, <span class="st">"logfc"</span>, <span class="st">"pvalue"</span><span class="op">)</span></span></code></pre></div>
 <p>Create enrichment:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createEnrichment.html" class="external-link">createEnrichment</a></span><span class="op">(</span></span>
 <span>    object <span class="op">=</span> <span class="va">DA_output</span>,</span>
 <span>    priorKnowledge <span class="op">=</span> <span class="va">prior_info</span>,</span>
@@ -336,7 +340,7 @@ abundant features:</p>
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span> </span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Create enrichment summary:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enrichmentSummary</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">enrichment</span>,  <span class="op">~</span> <span class="op">{</span></span>
 <span>    <span class="va">.x</span><span class="op">$</span><span class="va">summaries</span> <span class="op">|&gt;</span> </span>
 <span>        <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
@@ -367,7 +371,7 @@ abundant features:</p>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
 <p>Create enrichment plot:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">enPlot</span> <span class="op">&lt;-</span> <span class="va">enrichmentSummary</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_meth_class.html">get_meth_class</a></span><span class="op">(</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">"method"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
@@ -416,7 +420,7 @@ abundant features:</p>
 <h3 id="plot-putative-true-positves-and-true-negatives-ratio">Plot putative true positves and true negatives ratio<a class="anchor" aria-label="anchor" href="#plot-putative-true-positves-and-true-negatives-ratio"></a>
 </h3>
 <p>Create ‘positives’ object. No thresholds were added.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">DA_output</span><span class="op">)</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">positives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/benchdamic/man/createPositives.html" class="external-link">createPositives</a></span><span class="op">(</span></span>
 <span>        object <span class="op">=</span> <span class="va">DA_output</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
@@ -448,7 +452,7 @@ abundant features:</p>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
 <p>Create “positives” plot:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vec</span> <span class="op">&lt;-</span> <span class="va">positives</span><span class="op">$</span><span class="va">color</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">vec</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">positives</span><span class="op">$</span><span class="va">base_method</span></span>
 <span></span>
@@ -475,7 +479,7 @@ abundant features:</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <p>Combine enrichment and “positives” plot:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html" class="external-link">ggarrange</a></span><span class="op">(</span></span>
 <span>    plotlist <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">enPlot</span>, <span class="va">posPlot</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span>, heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -485,7 +489,7 @@ abundant features:</p>
 <div class="section level2">
 <h2 id="perform-da-with-lefse-and-wilcox">Perform DA with lefse and Wilcox<a class="anchor" aria-label="anchor" href="#perform-da-with-lefse-and-wilcox"></a>
 </h2>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tssFun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1e6</span></span>
 <span><span class="op">}</span></span>
@@ -508,14 +512,14 @@ abundant features:</p>
 <span>    <span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 29</span></span></span>
-<span><span class="co">##   taxon_name sample counts    TSS    CLR dataset gender body_site ncbi_accession</span></span>
-<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> genus:Mob… S008       24 <span style="text-decoration: underline;">13</span>423.  0.905 Ravel_… female vagina    SRR062677     </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> genus:Gar… S008        1   559. -<span style="color: #BB0000;">1.62</span>  Ravel_… female vagina    SRR062677     </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> genus:Cor… S008        0     0  -<span style="color: #BB0000;">2.31</span>  Ravel_… female vagina    SRR062677     </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">4</span> genus:Gem… S008        7  <span style="text-decoration: underline;">3</span>915. -<span style="color: #BB0000;">0.234</span> Ravel_… female vagina    SRR062677     </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">5</span> genus:Sta… S008        0     0  -<span style="color: #BB0000;">2.31</span>  Ravel_… female vagina    SRR062677     </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">6</span> genus:Aer… S008        0     0  -<span style="color: #BB0000;">2.31</span>  Ravel_… female vagina    SRR062677     </span></span>
+<span><span class="co">##   taxon_name  sample counts   TSS    CLR dataset gender body_site ncbi_accession</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> genus:Mobi… S001        0     0 -<span style="color: #BB0000;">0.424</span> Ravel_… female vagina    SRR062670     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> genus:Gard… S001        0     0 -<span style="color: #BB0000;">0.424</span> Ravel_… female vagina    SRR062670     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> genus:Cory… S001        0     0 -<span style="color: #BB0000;">0.424</span> Ravel_… female vagina    SRR062670     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> genus:Geme… S001        0     0 -<span style="color: #BB0000;">0.424</span> Ravel_… female vagina    SRR062670     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> genus:Stap… S001        0     0 -<span style="color: #BB0000;">0.424</span> Ravel_… female vagina    SRR062670     </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> genus:Aero… S001        0     0 -<span style="color: #BB0000;">0.424</span> Ravel_… female vagina    SRR062670     </span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 20 more variables: library_size &lt;dbl&gt;, sequencing_platform &lt;chr&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   pmid &lt;dbl&gt;, study_condition &lt;fct&gt;, sequencing_method &lt;chr&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   variable_region_16s &lt;chr&gt;, country &lt;chr&gt;, number_bases &lt;dbl&gt;,</span></span></span>
@@ -526,7 +530,7 @@ abundant features:</p>
 <h4 id="wilcox">Wilcox<a class="anchor" aria-label="anchor" href="#wilcox"></a>
 </h4>
 <p>Define function:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">calcWilcox</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span>, <span class="va">val_col</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    </span>
 <span>    <span class="co">## Separate components</span></span>
@@ -586,7 +590,7 @@ abundant features:</p>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">pval_results</span>, <span class="va">taxa_annotations</span>, by <span class="op">=</span> <span class="st">'taxon_name'</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Perform statistical test:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcoxRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    wilcox_counts <span class="op">=</span> <span class="fu">calcWilcox</span><span class="op">(</span><span class="va">data</span>, <span class="st">'counts'</span><span class="op">)</span>,</span>
 <span>    wilcox_relab <span class="op">=</span> <span class="fu">calcWilcox</span><span class="op">(</span><span class="va">data</span>, <span class="st">'TSS'</span><span class="op">)</span>,</span>
@@ -594,12 +598,12 @@ abundant features:</p>
 <span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span>.id <span class="op">=</span> <span class="st">'method'</span><span class="op">)</span></span></code></pre></div>
 <p>Filter DA taxa</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox_DA</span> <span class="op">&lt;-</span> <span class="va">wilcoxRes</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">adjP</span> <span class="op">&lt;=</span> <span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">logFC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>DA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">logFC</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"OA"</span>, <span class="st">"UA"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Plot</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wilcox_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">!=</span> <span class="st">'Unannotated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">taxon_annotation</span>, <span class="va">DA</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -624,7 +628,7 @@ abundant features:</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_whole_files/figure-html/plot%20numbers%20of%20taxa-1.png" width="700"></p>
 <p>Plot the abundances of the taxa that were incorrect</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">incorrect_taxa_wilcox_clr</span> <span class="op">&lt;-</span> <span class="va">wilcox_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">method</span> <span class="op">==</span> <span class="st">'wilcox_clr'</span>, <span class="va">DA</span> <span class="op">==</span> <span class="st">'UA'</span>, </span>
@@ -636,7 +640,7 @@ abundant features:</p>
 <span><span class="co">## [3] "genus:Mobiluncus"         "genus:Peptostreptococcus"</span></span>
 <span><span class="co">## [5] "genus:Staphylococcus"     "genus:Streptococcus"</span></span></code></pre>
 <p>Let’s plot their values for each matrix</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">transformations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'counts'</span>, <span class="st">'TSS'</span>, <span class="st">'CLR'</span><span class="op">)</span></span>
 <span><span class="va">l1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">'list'</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">transformations</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">l1</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">transformations</span></span>
@@ -659,16 +663,16 @@ abundant features:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">wilcox_raw</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
-<span><span class="co">##   transformation taxon_name            sample value study_condition    </span></span>
-<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>              </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> counts         genus:Corynebacterium S008       0 bacterial_vaginosis</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> counts         genus:Corynebacterium S012       0 bacterial_vaginosis</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> counts         genus:Corynebacterium S023       4 bacterial_vaginosis</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">4</span> counts         genus:Corynebacterium S025       0 bacterial_vaginosis</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">5</span> counts         genus:Corynebacterium S030       0 bacterial_vaginosis</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">6</span> counts         genus:Corynebacterium S031       0 bacterial_vaginosis</span></span></code></pre>
+<span><span class="co">##   transformation taxon_name            sample value study_condition</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>          </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> counts         genus:Corynebacterium S001       0 healthy        </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> counts         genus:Corynebacterium S002       3 healthy        </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> counts         genus:Corynebacterium S003       7 healthy        </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> counts         genus:Corynebacterium S004       3 healthy        </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> counts         genus:Corynebacterium S006       0 healthy        </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> counts         genus:Corynebacterium S007       0 healthy</span></span></code></pre>
 <p>Box plot of incorrect values:</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">l</span> <span class="op">&lt;-</span> <span class="va">wilcox_raw</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>taxon_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">'genus:'</span>, <span class="st">''</span>, <span class="va">taxon_name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="op">{</span>\<span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">y</span><span class="op">$</span><span class="va">transformation</span><span class="op">)</span><span class="op">}</span><span class="op">(</span><span class="op">)</span></span>
@@ -713,7 +717,7 @@ abundant features:</p>
 <h4 id="lefse">Lefse<a class="anchor" aria-label="anchor" href="#lefse"></a>
 </h4>
 <p>Define a function for running Lefse:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">calcLefse</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">se</span>, <span class="va">assay</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">lefser</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lefser/man/lefser.html" class="external-link">lefser</a></span><span class="op">(</span></span>
 <span>        <span class="va">se</span>, kruskal.threshold <span class="op">=</span> <span class="fl">0.05</span>, wilcox.threshold <span class="op">=</span> <span class="fl">0.05</span>, </span>
@@ -723,7 +727,7 @@ abundant features:</p>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Run lefse</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">taxa_annotations</span> <span class="op">&lt;-</span></span>
 <span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">'taxon'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">lefse_DA</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -743,7 +747,7 @@ abundant features:</p>
 <span><span class="co">##  See `?factor` or `?relevel` to change the reference category.</span></span>
 <span><span class="co">## The outcome variable is specified as 'study_condition' and the reference category is 'healthy'.</span></span>
 <span><span class="co">##  See `?factor` or `?relevel` to change the reference category.</span></span></code></pre>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lefse_DA</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##         method                taxon_name     scores DA taxon_annotation</span></span>
 <span><span class="co">## 1 lefse_counts       genus:Lactobacillus -2.9235121 UA    hv-associated</span></span>
@@ -753,7 +757,7 @@ abundant features:</p>
 <span><span class="co">## 5 lefse_counts        genus:Anaeroglobus  0.2695696 OA      Unannotated</span></span>
 <span><span class="co">## 6 lefse_counts          genus:Finegoldia  0.6394299 OA      Unannotated</span></span></code></pre>
 <p>Plot lefse results:</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lefse_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_annotation</span> <span class="op">!=</span> <span class="st">'Unannotated'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">taxon_annotation</span>, <span class="va">DA</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -777,7 +781,7 @@ abundant features:</p>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Ravel_2011_16S_BV_whole_files/figure-html/plot%20DA-1.png" width="700"></p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">incorrect_taxa_lefse_clr</span> <span class="op">&lt;-</span> <span class="va">lefse_DA</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">method</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'lefse_clr'</span>, <span class="st">'lefse_relab_clr'</span><span class="op">)</span>, <span class="va">DA</span> <span class="op">==</span> <span class="st">'UA'</span>, </span>
@@ -792,7 +796,7 @@ abundant features:</p>
 <h3 id="compositions-with-tss-and-clr">Compositions with TSS and CLR<a class="anchor" aria-label="anchor" href="#compositions-with-tss-and-clr"></a>
 </h3>
 <p>Plot TSS:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">first_set</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">nugent_score_category</span> <span class="op">==</span> <span class="st">'low'</span>,</span>
@@ -844,9 +848,9 @@ abundant features:</p>
 <span>        panel.grid <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span><span class="va">p1</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_whole_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
+<p><img src="Ravel_2011_16S_BV_whole_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 <p>Plot CLR:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>        sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sample</span>, levels <span class="op">=</span> <span class="va">samples_order</span><span class="op">)</span>,</span>
@@ -880,19 +884,19 @@ abundant features:</p>
 <span>        panel.grid <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span><span class="va">p2</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_whole_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p><img src="Ravel_2011_16S_BV_whole_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="distributions">Distributions<a class="anchor" aria-label="anchor" href="#distributions"></a>
 </h3>
 <p>Get Latobacillus relative abundance per sample</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample_sizes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">taxon_name</span> <span class="op">==</span> <span class="st">'genus:Lactobacillus'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">sample</span>, lact_tss <span class="op">=</span> <span class="va">TSS</span>, lact_clr <span class="op">=</span> <span class="va">CLR</span><span class="op">)</span></span>
 <span><span class="va">data_with_lact</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mia/man/deprecate.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">sample_sizes</span>, by <span class="op">=</span> <span class="st">'sample'</span><span class="op">)</span></span></code></pre></div>
 <p>Plotting log(CLR) vs log(Relab) of Lactobacillus, Prevotella,
 Actinomyces, and Corynebacterium.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_1b</span> <span class="op">&lt;-</span> <span class="va">data_with_lact</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taxon_name</span> <span class="op">==</span> <span class="st">'genus:Streptococcus'</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
@@ -991,15 +995,15 @@ Actinomyces, and Corynebacterium.</p>
 <span>    common.legend <span class="op">=</span> <span class="cn">TRUE</span>, legend <span class="op">=</span> <span class="st">'bottom'</span>, </span>
 <span>    labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'a)'</span>, <span class="st">'b)'</span>, <span class="st">'c)'</span>, <span class="st">'d)'</span><span class="op">)</span></span>
 <span><span class="op">)</span> </span></code></pre></div>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plotsb</span></span></code></pre></div>
-<p><img src="Ravel_2011_16S_BV_whole_files/figure-html/unnamed-chunk-6-1.png" width="960"></p>
+<p><img src="Ravel_2011_16S_BV_whole_files/figure-html/unnamed-chunk-8-1.png" width="960"></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">##  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
@@ -1011,7 +1015,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  collate  en_US.UTF-8</span></span>
 <span><span class="co">##  ctype    en_US.UTF-8</span></span>
 <span><span class="co">##  tz       Etc/UTC</span></span>
-<span><span class="co">##  date     2025-01-11</span></span>
+<span><span class="co">##  date     2025-01-13</span></span>
 <span><span class="co">##  pandoc   3.6 @ /usr/bin/ (via rmarkdown)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="color: #00BBBB; font-weight: bold;">─ Packages ───────────────────────────────────────────────────────────────────</span></span></span>
@@ -1057,6 +1061,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  cli                               3.6.3      <span style="color: #555555;">2024-06-21</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  clue                              0.3-66     <span style="color: #555555;">2024-11-13</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  cluster                           2.1.8      <span style="color: #555555;">2024-12-11</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  coda                              0.19-4.1   <span style="color: #555555;">2024-01-31</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  codetools                         0.2-20     <span style="color: #555555;">2024-03-31</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.4.2)</span></span></span>
 <span><span class="co">##  coin                              1.4-3      <span style="color: #555555;">2023-09-27</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  colorspace                        2.1-1      <span style="color: #555555;">2024-07-26</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1091,8 +1096,10 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  edgeR                             4.4.1      <span style="color: #555555;">2024-12-02</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  ellipse                           0.5.0      <span style="color: #555555;">2023-07-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ellipsis                          0.3.2      <span style="color: #555555;">2021-04-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  emmeans                           1.10.6     <span style="color: #555555;">2024-12-12</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  energy                            1.7-12     <span style="color: #555555;">2024-08-24</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">##  evaluate                          1.0.1      <span style="color: #555555;">2024-10-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  estimability                      1.5.1      <span style="color: #555555;">2024-05-12</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  evaluate                          1.0.3      <span style="color: #555555;">2025-01-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  Exact                             3.3        <span style="color: #555555;">2024-07-21</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  expm                              1.0-0      <span style="color: #555555;">2024-08-19</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  fansi                             1.0.6      <span style="color: #555555;">2023-12-08</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1101,6 +1108,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  fastmap                           1.2.0      <span style="color: #555555;">2024-05-15</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  fBasics                           <span style="color: #BB00BB; font-weight: bold;">4041.97   </span> <span style="color: #555555;">2024-08-19</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  filelock                          1.0.3      <span style="color: #555555;">2023-12-11</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  fillpattern                       1.0.2      <span style="color: #555555;">2024-06-24</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  fitdistrplus                      1.2-2      <span style="color: #555555;">2025-01-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  forcats                           1.0.0      <span style="color: #555555;">2023-01-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  foreach                           1.5.2      <span style="color: #555555;">2022-02-02</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1113,18 +1121,20 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  genefilter                        1.88.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  generics                          0.1.3      <span style="color: #555555;">2022-07-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  GenomeInfoDb                    * 1.42.1     <span style="color: #555555;">2024-11-28</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
-<span><span class="co">##  GenomeInfoDbData                  1.2.13     <span style="color: #555555;">2025-01-10</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">##  GenomeInfoDbData                  1.2.13     <span style="color: #555555;">2025-01-13</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
 <span><span class="co">##  GenomicRanges                   * 1.58.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  getopt                            1.20.4     <span style="color: #555555;">2023-10-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggbeeswarm                        0.7.2      <span style="color: #555555;">2023-04-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggdendro                          0.2.0      <span style="color: #555555;">2024-02-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggfun                             0.1.8      <span style="color: #555555;">2024-12-03</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  ggnewscale                        0.5.0      <span style="color: #555555;">2024-07-19</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggplot2                         * 3.5.1      <span style="color: #555555;">2024-04-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggplotify                         0.1.2      <span style="color: #555555;">2023-08-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggpubr                          * 0.6.0      <span style="color: #555555;">2023-02-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggrepel                           0.9.6      <span style="color: #555555;">2024-09-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggridges                          0.5.6      <span style="color: #555555;">2024-01-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggsignif                          0.6.4      <span style="color: #555555;">2022-10-13</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  ggtext                            0.1.2      <span style="color: #555555;">2022-09-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ggtree                            3.14.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  gld                               2.6.6      <span style="color: #555555;">2022-10-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  glmnet                            4.1-8      <span style="color: #555555;">2023-08-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1135,12 +1145,13 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  gplots                            3.2.0      <span style="color: #555555;">2024-10-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  gridExtra                       * 2.3        <span style="color: #555555;">2017-09-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  gridGraphics                      0.5-1      <span style="color: #555555;">2020-12-13</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  gridtext                          0.1.5      <span style="color: #555555;">2022-09-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  gsl                               2.1-8      <span style="color: #555555;">2023-01-24</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  gtable                            0.3.6      <span style="color: #555555;">2024-10-25</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  gtools                            3.9.5      <span style="color: #555555;">2023-11-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  GUniFrac                          1.8        <span style="color: #555555;">2023-09-14</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  haven                             2.5.4      <span style="color: #555555;">2023-11-30</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">##  Hmisc                             5.2-1      <span style="color: #555555;">2024-12-02</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  Hmisc                             5.2-2      <span style="color: #555555;">2025-01-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  hms                               1.1.3      <span style="color: #555555;">2023-03-21</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  htmlTable                         2.4.3      <span style="color: #555555;">2024-07-21</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  htmltools                         0.5.8.1    <span style="color: #555555;">2024-04-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1173,7 +1184,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  lifecycle                         1.0.4      <span style="color: #555555;">2023-11-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  limma                             3.62.1     <span style="color: #555555;">2024-11-03</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  listenv                           0.9.1      <span style="color: #555555;">2024-01-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">##  lme4                              1.1-35.5   <span style="color: #555555;">2024-07-03</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  lme4                              1.1-36     <span style="color: #555555;">2025-01-11</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  lmerTest                          3.1-3      <span style="color: #555555;">2020-10-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  lmom                              3.2        <span style="color: #555555;">2024-09-30</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  lmtest                            0.9-40     <span style="color: #555555;">2022-03-21</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1197,7 +1208,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  mice                              3.17.0     <span style="color: #555555;">2024-11-27</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  microbiome                        1.28.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  MicrobiomeBenchmarkData         * 1.8.0      <span style="color: #555555;">2024-10-31</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
-<span><span class="co">##  MicrobiomeBenchmarkDataAnalyses * 0.99.21    <span style="color: #555555;">2025-01-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">local</span></span></span>
+<span><span class="co">##  MicrobiomeBenchmarkDataAnalyses * 0.99.21    <span style="color: #555555;">2025-01-13</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">local</span></span></span>
 <span><span class="co">##  MicrobiomeStat                    1.2        <span style="color: #555555;">2024-04-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  mime                              0.12       <span style="color: #555555;">2021-09-28</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  miniUI                            0.1.1.1    <span style="color: #555555;">2018-05-18</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1211,7 +1222,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  MultiAssayExperiment            * 1.32.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  multtest                          2.62.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  munsell                           0.5.1      <span style="color: #555555;">2024-04-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">##  mvtnorm                           1.3-2      <span style="color: #555555;">2024-11-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  mvtnorm                           1.3-3      <span style="color: #555555;">2025-01-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  NADA                              1.6-1.1    <span style="color: #555555;">2020-03-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  nlme                              3.1-166    <span style="color: #555555;">2024-08-14</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.4.2)</span></span></span>
 <span><span class="co">##  nloptr                            2.1.1      <span style="color: #555555;">2024-06-25</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1247,7 +1258,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  RANN                              2.6.2      <span style="color: #555555;">2024-08-25</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  rARPACK                           0.11-0     <span style="color: #555555;">2016-03-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  rbibutils                         2.3        <span style="color: #555555;">2024-10-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
-<span><span class="co">##  rbiom                             1.0.3      <span style="color: #555555;">2021-11-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  rbiom                             2.0.7      <span style="color: #555555;">2025-01-11</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  RColorBrewer                      1.1-3      <span style="color: #555555;">2022-04-03</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  Rcpp                              1.0.13-1   <span style="color: #555555;">2024-11-02</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  RcppAnnoy                         0.0.22     <span style="color: #555555;">2024-01-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1255,7 +1266,9 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  RcppParallel                      5.1.9      <span style="color: #555555;">2024-08-19</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  RcppZiggurat                      0.1.6      <span style="color: #555555;">2020-10-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  Rdpack                            2.6.2      <span style="color: #555555;">2024-11-15</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  readr                             2.1.5      <span style="color: #555555;">2024-01-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  readxl                            1.4.3      <span style="color: #555555;">2023-07-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  reformulas                        0.4.0      <span style="color: #555555;">2024-11-03</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  reshape2                          1.4.4      <span style="color: #555555;">2020-04-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  reticulate                        1.40.0     <span style="color: #555555;">2024-11-15</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  Rfast                             2.1.3      <span style="color: #555555;">2024-12-31</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1324,6 +1337,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  textshaping                       0.4.1      <span style="color: #555555;">2024-12-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  TH.data                           1.1-2      <span style="color: #555555;">2023-04-17</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  tibble                            3.2.1      <span style="color: #555555;">2023-03-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  tidyplots                         0.2.0      <span style="color: #555555;">2024-12-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  tidyr                           * 1.3.1      <span style="color: #555555;">2024-01-24</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  tidyselect                        1.2.1      <span style="color: #555555;">2024-03-11</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  tidySummarizedExperiment        * 1.16.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
@@ -1336,6 +1350,7 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  TreeSummarizedExperiment        * 2.14.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  truncnorm                         1.0-9      <span style="color: #555555;">2023-03-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  ttservice                       * 0.4.1      <span style="color: #555555;">2024-06-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  tzdb                              0.4.0      <span style="color: #555555;">2023-05-12</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  UCSC.utils                        1.2.0      <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  utf8                              1.2.4      <span style="color: #555555;">2023-10-22</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  uwot                              0.2.2      <span style="color: #555555;">2024-04-21</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
@@ -1348,13 +1363,14 @@ Actinomyces, and Corynebacterium.</p>
 <span><span class="co">##  Wrench                            1.24.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  xfun                              0.50       <span style="color: #555555;">2025-01-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  XML                               3.99-0.18  <span style="color: #555555;">2025-01-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
+<span><span class="co">##  xml2                              1.3.6      <span style="color: #555555;">2023-12-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  xtable                            1.8-4      <span style="color: #555555;">2019-04-21</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  XVector                         * 0.46.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  yaml                              2.3.10     <span style="color: #555555;">2024-07-26</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  yulab.utils                       0.1.9      <span style="color: #555555;">2025-01-07</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  zCompositions                     1.5.0-4    <span style="color: #555555;">2024-06-19</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">##  zinbwave                          1.28.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
-<span><span class="co">##  ZINQ                              2.0        <span style="color: #555555;">2025-01-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Github (wdl2459/ZINQ-v2@40391a6)</span></span></span>
+<span><span class="co">##  ZINQ                              2.0        <span style="color: #555555;">2025-01-13</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Github (wdl2459/ZINQ-v2@40391a6)</span></span></span>
 <span><span class="co">##  zlibbioc                          1.52.0     <span style="color: #555555;">2024-10-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.20 (R 4.4.2)</span></span></span>
 <span><span class="co">##  zoo                               1.8-12     <span style="color: #555555;">2023-04-13</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.4.0)</span></span></span>
 <span><span class="co">## </span></span>
