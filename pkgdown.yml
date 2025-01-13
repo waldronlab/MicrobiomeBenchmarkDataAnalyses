@@ -3,17 +3,14 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   articles/compare_gingival_plaque: compare_gingival_plaque.html
-  articles/HMP_2012_16S_gingival_V13_downsampling: HMP_2012_16S_gingival_V13_downsampling.html
-  articles/HMP_2012_16S_gingival_V13_whole: HMP_2012_16S_gingival_V13_whole.html
-  articles/HMP_2012_16S_gingival_V35_downsampling: HMP_2012_16S_gingival_V35_downsampling.html
+  articles/HMP_2012_16S_gingival_V13: HMP_2012_16S_gingival_V13.html
   articles/HMP_2012_16S_gingival_V35_subset: HMP_2012_16S_gingival_V35_subset.html
-  articles/HMP_2012_16S_gingival_V35_whole: HMP_2012_16S_gingival_V35_whole.html
+  articles/HMP_2012_16S_gingival_V35: HMP_2012_16S_gingival_V35.html
   articles/HMP_2012_WMS_gingival: HMP_2012_WMS_gingival.html
   MicrobiomeBenchmarkDataAnalyses: MicrobiomeBenchmarkDataAnalyses.html
-  articles/Ravel_2011_16S_BV_downsampling: Ravel_2011_16S_BV_downsampling.html
-  articles/Ravel_2011_16S_BV_whole: Ravel_2011_16S_BV_whole.html
+  articles/Ravel_2011_16S_BV: Ravel_2011_16S_BV.html
   articles/Stammler_2016_16S_spikein: Stammler_2016_16S_spikein.html
-last_built: 2025-01-13T14:55Z
+last_built: 2025-01-13T19:23Z
 urls:
   reference: http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference
   article: http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/articles
