@@ -31,54 +31,44 @@ conditions_col <- 'study_condition'
 conditions <- c(condB = 'healthy', condA = 'bacterial_vaginosis')
 
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
-col_data <- tse |> 
-    colData() |> 
-    as.data.frame() |> 
-    dplyr::filter(study_condition %in% conditions)
-col_data |> 
-    summarise(
-        .by = c(
-            "ethnicity", "nugent_score_category", "study_condition"
-        ),
-        range = paste0(min(nugent_score), "-", max(nugent_score)),
-        n = n()
-    ) |> 
-    arrange(ethnicity, study_condition, n)
+tse
 ```
 
-```{r subset data}
-select_samples <- col_data |>
-    {\(y) split(y, factor(y$study_condition))}() |> 
-    map(rownames) |> 
-    flatten_chr()
-tse_subset <- tse[, select_samples]
+Select samples:
 
+```{r}
+select_samples <- which(colData(tse)$study_condition %in% conditions)
+tse_subset <- tse[, select_samples]
+tse_subset
+```
+
+Agglomerate by genus:
+
+```{r subset data}
 tse_genus <- agglomerateByRank(
     tse_subset, rank = 'genus', na.rm = FALSE, onRankOnly = FALSE 
 ) |> 
     filterTaxa(min_ab = 1, min_per = 0.2) |> 
     {\(y) magrittr::set_rownames(y, editMiaTaxaNames(y))}()
-
 colData(tse_genus)$study_condition <- 
     factor(colData(tse_genus)$study_condition, levels = conditions)
-
 tse_genus
 ```
 
-```{r sample counts}
-tse_genus |> 
-    colData() |> 
-    as_tibble() |> 
-        summarise(
+Samples metadata:
+
+```{r}
+col_data <- as_tibble(colData(tse_genus))
+col_data |> 
+    summarise(
         .by = c(
-            # "ethnicity", "nugent_score_category", "study_condition"
             "nugent_score_category", "study_condition"
         ),
         range = paste0(min(nugent_score), "-", max(nugent_score)),
         n = n()
     ) |> 
     arrange(study_condition, n) |> 
-    relocate(study_condition)
+    relocate(study_condition, n)
 ```
 
 ## Prior info (biological annotations)
@@ -104,16 +94,14 @@ Convert to phyloseq:
 
 ```{r convert to phyloseq, warning=FALSE}
 ps <- convertToPhyloseq(tse_genus)
-sample_data(ps)[[conditions_col]] <- factor(
-    sample_data(ps)[[conditions_col]], levels = conditions
-)
+sample_data(ps)[[conditions_col]] <- 
+    factor(sample_data(ps)[[conditions_col]], levels = conditions)
 ```
 
 Set method parameters:
 
 ```{r method parameters, weights, DA methods, warning=FALSE}
 norm_methods <- set_norm_list()
-
 ps <- runNormalizations(norm_methods, ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
@@ -150,8 +138,7 @@ tim
 
 ## Enrichment
 
-We need a threshold for DA for lefse-CLR
-(It can't be the same as when using lefse-TSS):
+We need a threshold for DA for lefse-CLR:
 
 ```{r median lefser}
 c(
@@ -160,14 +147,11 @@ c(
 )
 ```
 
-Create some variables for selecting and ranking differentially abundant
-features:
+Create some variables for selecting and ranking differentially abundant features:
 
 ```{r variables for enrichment funs}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
 
-## The methods based on lefse have artificial p-values because
-## the lefser output doesn't provide such information
 adjThr<- rep(0.1, length(DA_output))
 names(adjThr) <- names(DA_output)
 
@@ -178,7 +162,6 @@ esThr <- case_when(
 ) |> 
     set_names(names(DA_output))
 
-## Use effect size for lefser and adjusted p-value for all of the other methods
 slotV <- ifelse(grepl("lefse", names(DA_output)), "statInfo", "pValMat")
 colNameV <- ifelse(grepl("lefse", names(DA_output)), "LDA_scores", "adjP")
 typeV <- ifelse(grepl("lefse", names(DA_output)), "logfc", "pvalue")
