@@ -304,8 +304,11 @@ posPlot <- positives |>
     scale_shape(name = "Normalization") +
     scale_linetype(name = "Normalization") +
     scale_color_manual(values = vec, name = "Base method") +
-    theme_minimal() +
-    theme(legend.position = "bottom")
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white")
+    )
 ```
 
 ### Combined plots
