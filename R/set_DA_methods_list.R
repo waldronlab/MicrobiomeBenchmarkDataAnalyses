@@ -24,7 +24,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
             weights_logical = FALSE
         ) |> 
             unname(),
-        edgeR.TMM.weighted = benchdamic::set_edgeR(
+        edgeR.TMM.w = benchdamic::set_edgeR(
             group_name = conditions_col,
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM",
@@ -39,21 +39,21 @@ set_DA_methods_list <- function(conditions_col, conditions) {
             weights_logical = FALSE
         ) |> 
             unname(),
-        DESeq2.poscounts.weighted = benchdamic::set_DESeq2(
+        DESeq2.poscounts.w = benchdamic::set_DESeq2(
             contrast = c(conditions_col, conditions['condA'], conditions['condB']),
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "poscounts",
             weights_logical = TRUE
         ) |> 
             unname(),
-        limma.TMM = benchdamic::set_limma(
+        `Limma-Voom.TMM` = benchdamic::set_limma(
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM",
             coef = 2,
             weights_logical = FALSE
         ) |> 
             unname(),
-        limma.TMM.weighted = benchdamic::set_limma(
+        `Limma-Voom.TMM.w` = benchdamic::set_limma(
             design = stats::as.formula(paste0("~", conditions_col)),
             norm = "TMM", 
             coef = 2,
@@ -66,7 +66,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
             coef = 2
         ) |> 
             unname(),
-        ALDEx2 = benchdamic::set_ALDEx2(
+        `ALDEx2-Wilcox` = benchdamic::set_ALDEx2(
             contrast = c(conditions_col, conditions[[2]], conditions[[1]]),
             test = "wilcox",
             design = conditions_col
@@ -78,7 +78,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
             coefficient = paste0(conditions_col, conditions['condA'])
         ) |> 
             unname(),
-        Seurat = benchdamic::set_Seurat(
+        `Seurat-Wilcox` = benchdamic::set_Seurat(
             test = "wilcox",
             contrast = c(conditions_col, conditions['condA'], conditions['condB']),
             # contrast = NULL,
@@ -86,7 +86,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
         ) |> 
             unname(),
         list(
-            ANCOMBC = list(
+            `ANCOM-BC` = list(
                 method = 'DA_ancombc',
                 conditions = conditions,
                 group = conditions_col,
@@ -124,7 +124,7 @@ set_DA_methods_list <- function(conditions_col, conditions) {
                 method = 'DA_lefse',
                 conditions = conditions,
                 norm = 'TSS',
-                groupCol = conditions_col,
+                groupCol = conditions_col, ## classCol in lefser
                 kruskal.threshold = 0.05,
                 wilcox.threshold = 0.05,
                 lda.threshold = 0
@@ -133,12 +133,11 @@ set_DA_methods_list <- function(conditions_col, conditions) {
                 method = 'DA_lefse',
                 conditions = conditions,
                 norm = 'CLR',
-                groupCol = conditions_col,
+                groupCol = conditions_col, ## classCol in lefser
                 kruskal.threshold = 0.05,
                 wilcox.threshold = 0.05,
                 lda.threshold = 0
             )
         )
-        
     )
 }

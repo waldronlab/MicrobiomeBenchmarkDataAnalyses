@@ -12,7 +12,6 @@ output:
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  message = FALSE,
   warning = FALSE
 )
 ```
@@ -93,20 +92,21 @@ names(DA_methods)
 
 Run DA analysis:
 
-```{r run DA, warning=FALSE}
+```{r run DA, warning=FALSE, message=FALSE}
 tim <- system.time({
-    DA_output <- vector("list", length(DA_methods))
-    for (i in seq_along(DA_output)) {
-        message(
-            "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
-        )
-        DA_output[[i]] <- tryCatch(
+    DA_output <- imap(DA_methods, ~ {
+        message("Running method ", .y, " - ", Sys.time())
+        tryCatch(
             error = function(e) NULL,
-            runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
+            runDA(list(.x), ps, weights = zw, verbose = FALSE)
         )
-    }
-    DA_output <- purrr::list_flatten(DA_output, name_spec = "{inner}")
-    DA_output <- purrr::discard(DA_output, is.null)
+    }) |> 
+        list_flatten(name_spec = "{outer}") |> 
+        discard(is.null)
+    DA_output <- map2(DA_output, names(DA_output), ~ {
+        .x$name <- .y
+        .x
+    })
 })
 tim
 ```
@@ -234,10 +234,11 @@ enPlot <- enrichmentSummary |>
     labs(
         x = "DA method", y = "Number of DA taxa"
     ) +
-    theme_minimal() +
+    theme_bw() +
     theme(
         axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "bottom"
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white")
     )
 ```
 

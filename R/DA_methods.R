@@ -29,22 +29,13 @@
 #'
 DA_ZINQ <- function(
     object, pseudo_count = FALSE, conditions_col, conditions, 
-    norm = 'none', pval_method, y_CorD, verbose = FALSE 
+    norm = 'none', pval_method = "Cauchy", y_CorD, verbose = FALSE 
 ) {
-    
-    if (class(object) != 'phyloseq')
-        stop(
-            'The `object` argument must be a phyloseq object.',
-            call. = FALSE
-        )
-    
     name <- "ZINQ"
-    
     abundances <- microbiome::abundances(object)
     taxa <- microbiome::taxa(object)
     sample_metadata <- microbiome::meta(object)
     
-    ## Pseudo count or not
     if (pseudo_count) {
         if (verbose)
             message(
@@ -53,26 +44,6 @@ DA_ZINQ <- function(
             )
         abundances <- abundances + 1
     }
-    
-    ## Normalize data 
-    
-    if (
-        !length(names(conditions)) ||
-        any(names(conditions) != c('condB', 'condA'))
-    ) {
-        stop(
-            'Condtions must be a named character vector with "condB"',
-            ' and "condA" as names. For example:',
-            ' `c(condB = "control", condA = "Treatment")`'
-        )
-    }
-    
-    if (length(norm) != 1 || !is.character(norm))
-        stop(
-            '`norm` must be a single character string. Valid options:',
-            ' none, TSS, or CLR.',
-            call. = FALSE
-        )
     
     if (norm == 'none') {
         if (verbose)
@@ -90,56 +61,40 @@ DA_ZINQ <- function(
         abundances <- norm_tss(abundances)
     }
     
-    ## Calculate log2 fold change
     condition_vector <- sample_metadata[[conditions_col]]
     denom <- conditions[['condB']]
-    
     if (norm == 'CLR') {
-        log2FoldChange <- 
-            log2_fold_change(abundances, condition_vector, denom, log = TRUE)
+        log2FoldChange <- log2_fold_change(
+            abundances, condition_vector, denom, log = TRUE
+        )
         
     } else {
         log2FoldChange <- log2_fold_change(abundances, condition_vector, denom)
     }
     
-    
-    ## Sanity check from ZINQ. If there are any warnings they should be
-    ## Captured and reported if verbose
-    ## TODO ??
-    
     sample_metadata[[conditions_col]] <- factor(
-        ## ZINQ::ZINQ_check requires a factor with 0 and 1.
         sample_metadata[[conditions_col]], levels = conditions, labels = c(0,1)
     )
-
+    
     abundances_t <- as.data.frame(t(abundances))
     
-    rawP <- vector("double", ncol(abundances_t))
-    names(rawP) <- colnames(abundances_t)
-    
-    form <- stats::as.formula('X ~ Y')
-    
-    for (i in seq_along(rawP)) {
-        
+    rawP <- purrr::map_dbl(abundances_t, ~ {
         df <- data.frame(
-            X = abundances_t[[i]], 
+            X = .x,
             Y = sample_metadata[[conditions_col]]
         )
-        
         res <- tryCatch(
-            error = function(e) NULL, {
+            error = function(e) NA, {
                 ZINQ::ZINQ_tests(
-                    formula.logistic = form,
-                    formula.quantile = form,
+                    formula.logistic =  stats::as.formula('X ~ Y'),
+                    formula.quantile =  stats::as.formula('X ~ Y'),
                     C = "Y", y_CorD = y_CorD, data = df
                 )
             })
-        
-        rawP[[i]] <- ZINQ::ZINQ_combination(res, method = pval_method) 
-        
-    }
+        ZINQ::ZINQ_combination(res, method = pval_method)
+    })
     
-    name <- paste0(name, '.', pval_method)
+    # name <- paste0(name, '.', pval_method)
     
     adjP <- stats::p.adjust(rawP, method = 'fdr')
     
@@ -147,12 +102,11 @@ DA_ZINQ <- function(
     rownames(pValMat) <- taxa
     
     statInfo <- data.frame(
-        log2FoldChange = log2FoldChange,
+        log2FoldChange = log2FoldChange[names(rawP)],
         rawP = rawP,
         adjP = adjP
     )
-    
-    list(pValMat = pValMat, statInfo = statInfo, name = name)
+    return(list(pValMat = pValMat, statInfo = statInfo, name = name))
 }
 
 #' Lefser method
@@ -176,59 +130,25 @@ DA_ZINQ <- function(
 #' @export
 #'
 DA_lefse <- function(
-    object, pseudo_count = FALSE, conditions, norm = 'none', verbose = FALSE,
-    groupCol, ...
+        object, pseudo_count = FALSE, conditions, norm = 'none', verbose = FALSE,
+        groupCol, ...
 ) {
+    name <- 'LEfSe'
     
-    if (class(object) != 'phyloseq') {
-        stop(
-            'The object argument must be a phyloseq object',
-            call. = FALSE
-        )
-    }
-    
-    name <- 'lefse'
-    
-    se <- mia::makeTreeSummarizedExperimentFromPhyloseq(object)
+    # se <- mia::makeTreeSummarizedExperimentFromPhyloseq(object)
+    se <- mia::convertFromPhyloseq(object)
     abundances <- SummarizedExperiment::assay(se)
-   
-    ## Pseudocount 
+    
     if (pseudo_count) {
         if (verbose)
             message('Adding a pseudocount of 1.')
         abundances <- abundances + 1
     }
     
-    ## Conditions
-    if (
-        !length(names(conditions)) ||
-        !all(names(conditions) == c('condB', 'condA'))
-    ) {
-        stop(
-            'the `conditions` argument must be a named vector, and the names',
-            ' must be "condB" and "condA". "condB" must be',
-            ' the reference/control/denominator. Example:',
-            ' `c(condB = "control", condA = "treatment")`',
-            call. = FALSE
-        )
-    }
-    
     SummarizedExperiment::colData(se)[[groupCol]] <- 
         factor(
             SummarizedExperiment::colData(se)[[groupCol]], levels = conditions
         )
-    
-    ## Normalization
-    if (
-        length(norm) != 1 ||
-        !norm %in% c('none', 'CLR', 'TSS')
-    ) {
-        stop(
-            'Only one normalization method should be included.',
-            ' Supported options are none, CLR, and TSS.',
-            call. = FALSE
-        )
-    }
     
     if (norm == 'none') {
         if (verbose)
@@ -248,12 +168,12 @@ DA_lefse <- function(
     
     SummarizedExperiment::assay(se) <- abundances
     
-    statInfo <- lefser::lefser(se, groupCol = groupCol, ...) 
+    statInfo <- lefser::lefser(se, classCol = groupCol, ...) 
     
     statInfo <- statInfo |> 
         dplyr::mutate(abs_score = abs(.data$scores)) |> 
         dplyr::arrange(abs_score)
-   
+    
     ## Add artificial p-values and adjusted p-values. This is for
     ## compatibility with the benchdamic workflow.
     ## I used these artificial values to order the lefse results by
@@ -262,18 +182,17 @@ DA_lefse <- function(
     ## This is no longer necessary beacuse the results are now
     ## ordered according to LDA.
     ## However, I'm leaving the code here.
-     
+    
     statInfo$rawP <- seq(0.04, 0, length.out = nrow(statInfo))
     statInfo$adjP <- seq(0.09, 0, length.out = nrow(statInfo))
     rownames(statInfo) <- statInfo[["features"]]
     colnames(statInfo) <- c("Taxa", "LDA_scores", "abs_score", "rawP", "adjP")
-   
+    
     pValMat <- statInfo[, c("rawP", "adjP")]
     rownames(pValMat) <- statInfo[["Taxa"]]
-   
+    
     list(pValMat = pValMat, statInfo = statInfo, name = name) 
 }
-
 
 #' Wilcox test for differential abundance
 #' 
@@ -291,110 +210,79 @@ DA_lefse <- function(
 #' @return A list with outputs compatible with the benchdamic framework.
 #' @export
 #'
-DA_wilcox <- 
-    function(
+DA_wilcox <- function(
         object, pseudo_count = FALSE, norm = 'none', 
         conditions_col, conditions, 
         verbose = FALSE
-    ) {
-        if(class(object) != 'phyloseq')
-            stop(
-                'Object must be phyloseq.',
-                call. = FALSE
+) {
+    
+    name <- "Wilcox"
+    
+    abundances <- microbiome::abundances(object)
+    sample_metadata <- microbiome::meta(object)
+    
+    sample_metadata[[conditions_col]] <- 
+        factor(sample_metadata[[conditions_col]], levels = conditions)
+    
+    if (pseudo_count) {
+        if (verbose)
+            message(
+                'A pseudocount of 1 was added to the abundance matrix.',
+                ' for wilcox test.'
             )
-        
-        name <- "wilcox"
-        
-        abundances <- microbiome::abundances(object)
-        taxa <- microbiome::taxa(object)
-        sample_metadata <- microbiome::meta(object)
-        
-        sample_metadata[[conditions_col]] <- 
-            factor(sample_metadata[[conditions_col]], levels = conditions)
-        
-        if (pseudo_count) {
-            if (verbose)
-                message(
-                    'A pseudocount of 1 was added to the abundance matrix.',
-                    ' for wilcox test.'
-                )
-            abundances <- abundances + 1
-        }
-        
-        ## Normalize data 
-        
-        if (
-            !length(names(conditions)) ||
-            any(names(conditions) != c('condB', 'condA'))
-        ) {
-            stop(
-                'Condtions must be a named character vector with "condB"',
-                ' and "condA" as names. For example:',
-                ' `c(condB = "control", condA = "Treatment")`'
-            )
-        }
-        
-        if (length(norm) != 1 || !is.character(norm))
-            stop(
-                '`norm` must be a single character string. Valid options:',
-                ' none, TSS, or CLR.',
-                call. = FALSE
-            )
-        
-        if (norm == 'none') {
-            if (verbose)
-                message('No normalization applied for wilcox test.')
-            name <- paste0(name, '.none')
-        } else if (norm == 'CLR') {
-            if (verbose)
-                message('Applying CLR normalization for wilcox test.')
-            name <- paste0(name, '.CLR')
-            abundances <- norm_clr(abundances, log = TRUE)
-        } else if (norm == 'TSS') {
-            if (verbose)
-                message('Applying TSS normalization for wilcox test.')
-            name <- paste0(name, '.TSS')
-            abundances <- norm_tss(abundances)
-        }
-        
-        ## Calculate log2 fold change
-        condition_vector <- sample_metadata[[conditions_col]]
-        denom <- conditions[['condB']]
-        
-        if (norm == 'CLR') {
-            log2FoldChange <- 
-                log2_fold_change(abundances, condition_vector, denom, log = TRUE)
-            
-        } else {
-            log2FoldChange <- log2_fold_change(abundances, condition_vector, denom)
-        }
-        
-        ## Perform Wilcox test 
-        pvalues <- vector("double", length(taxa))
-        
-        for (i in seq_along(pvalues)) {
-            df <- data.frame(
-                condition = condition_vector, value = abundances[i,]
-            )
-            wi_res <- stats::wilcox.test(value ~ condition, data = df)
-            pvalues[i] <- wi_res$p.value
-        }
-        
-        adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
-       
-        ## Combine result and return output 
-        statInfo <- data.frame(
-            log2FoldChange = log2FoldChange, 
-            rawP = pvalues, 
-            adjP = adj_pvalues
+        abundances <- abundances + 1
+    }
+    
+    if (norm == 'none') {
+        if (verbose)
+            message('No normalization applied for wilcox test.')
+        name <- paste0(name, '.none')
+    } else if (norm == 'CLR') {
+        if (verbose)
+            message('Applying CLR normalization for wilcox test.')
+        name <- paste0(name, '.CLR')
+        abundances <- norm_clr(abundances, log = TRUE)
+    } else if (norm == 'TSS') {
+        if (verbose)
+            message('Applying TSS normalization for wilcox test.')
+        name <- paste0(name, '.TSS')
+        abundances <- norm_tss(abundances)
+    }
+    
+    ## Calculate log2 fold change
+    condition_vector <- sample_metadata[[conditions_col]]
+    denom <- conditions[['condB']]
+    
+    if (norm == 'CLR') {
+        log2FoldChange <- log2_fold_change(
+            abundances, condition_vector, denom, log = TRUE
         )
-        rownames(statInfo) <- taxa
-        
-        pValMat <- statInfo[, c("rawP", "adjP")]
-        rownames(pValMat) <- taxa
-        
-        list(pValMat = pValMat, statInfo = statInfo, name = name)
-
+    } else {
+        log2FoldChange <- log2_fold_change(
+            abundances, condition_vector, denom
+        )
+    }
+    
+    abundances_t <- as.data.frame(t(abundances))
+    pvalues <- purrr::map_dbl(abundances_t, ~ {
+        df <- data.frame(
+            condition = condition_vector,
+            value = .x
+        )
+        wi_res <- stats::wilcox.test(value ~ condition, data = df)
+        wi_res$p.value
+    }) 
+    
+    adj_pvalues <- stats::p.adjust(pvalues, method = "fdr")
+    names(adj_pvalues) <- names(pvalues)
+    
+    statInfo <- data.frame(
+        log2FoldChange = log2FoldChange[names(pvalues)], 
+        rawP = pvalues, 
+        adjP = adj_pvalues
+    )
+    pValMat <- statInfo[, c("rawP", "adjP")]
+    return(list(pValMat = pValMat, statInfo = statInfo, name = name))
 }
 
 #' DA_ancombc
@@ -433,24 +321,8 @@ DA_ancombc <- function(
     verbose = TRUE, group, formula, ...
 ) {
     
-    name <- 'ancombc'
-    
-    if (!phyloseq::taxa_are_rows(object)) {
-        object <- t(object)
-    }
-    
+    name <- 'ANCOM-BC'
     counts <- phyloseq::otu_table(object)
-    
-    ## Check and set conditions for 'control' and 'treatment'
-    if (
-        !length(names(conditions)) || any(names(conditions) != c('condB', 'condA'))
-    ) {
-        stop(
-            'Condtions must be a named character vector with "condB"',
-            ' and "condA" as names. For example:',
-            ' `c(condB = "control", condA = "Treatment")`'
-        )
-    }
     
     conditions_col <- as.factor(phyloseq::sample_data(object)[[group]])
     
@@ -474,17 +346,12 @@ DA_ancombc <- function(
     phyloseq::sample_data(object)[[group]] <- 
         factor(conditions_col, levels = conditions)
     
-    # phyloseq::sample_data(obsample_metadata[[group]] <- 
-        # factor(sample_metadata[[group]], levels = conditions)
-    
-    ## Pseudocount
     if (any(counts == 0) && pseudo_count) {
         if (verbose)
             message('A pseudocount of 1 was added to the abundance matrix.')
         counts <- counts + 1
     }
     
-    ## Normalization
     if (!norm %in% c('none', 'TSS'))
         stop('Normalization must be either `none` or `TSS`.')
     
@@ -492,7 +359,6 @@ DA_ancombc <- function(
         if (verbose)
             message('No normalization was applied.')
         name <- paste0(name, '.none')
-        ## Nothing is done on the otu_table
         
     } else if (norm == 'TSS') {
         if (verbose)
@@ -501,18 +367,13 @@ DA_ancombc <- function(
         counts <- norm_tss(counts)
     }
     
-    ## Perform analysis with ancombc
-    phyloseq::otu_table(object) <- counts ## replace otu table 
+    phyloseq::otu_table(object) <- counts
     res <- ANCOMBC::ancombc(
         data = object, group = group, formula = formula, ...
     )[['res']]
     
-    # Create pValMat and statInfo
-    
-    # features_names <- rownames(res$p_val) # names are the same for all outputs
     features_names <- res$p_val[[1]] # change when code of the acnbombc package changed
     
-    ## I had to change the column in p_val, q_val, etc from 1 to 3
     pValMat <- data.frame(rawP = res$p_val[[3]], adjP = res$q_val[[3]])
     pValMat <- as.data.frame(pValMat)
     rownames(pValMat) <- features_names
@@ -521,6 +382,124 @@ DA_ancombc <- function(
     statInfo <- as.data.frame(statInfo)
     rownames(statInfo) <- features_names
     
-    list(pValMat = pValMat, statInfo = statInfo, name = name)
+    return(list(pValMat = pValMat, statInfo = statInfo, name = name))
 }
 
+#' TSS normalization
+#' 
+#' \code{norm_TSS} Applies TSS normalization to a matrix of count data.
+#' 
+#' @param mat A numeric matrix of counts.
+#' @param total_sum The tolal sum of the scaling, e.g. 100 or 1e.
+#' 
+#' @return A TSS-normalized matrix,
+#' 
+#' @export
+#'
+norm_tss <- function(mat, total_sum = 1e6) {
+    apply(mat, 2, function(x) x / sum(x) * total_sum)
+}
+
+#' CLR normalization
+#' 
+#' \code{norm_clr} applies a centered-log ratio (CLR) transformation to a
+#' matrix column-wise. Features (e.g. taxa, OTUs) must be in the rows and
+#' samples in the columns.
+#'
+#' @param mat A count matrix.
+#' @param pseudocount Pseudocount added to the matrix.
+#' Default value is 0 (no pseudocount)..
+#' @param log If TRUE, CLR will be logged. Default = TRUE. In most
+#' cases this should be set to TRUE
+#'
+#' @return A CLR-transformed matrix.
+#' @export
+#'
+norm_clr <- function(mat, pseudocount = 0, log = TRUE) {
+    ## Centered log ratio transformation of a vector
+    ## Sources: 
+    ## + https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6755255/
+    ## + https://www.r-bloggers.com/2021/08/calculate-geometric-mean-in-r/
+    ## + https://doi.org/10.1038/s41467-022-28401-w
+    if (any(is.na(mat) | any(mat < 0))) 
+        stop("NA's or negative numbers are not allowed.", call. = FALSE)
+    
+    mat <- mat + pseudocount
+    
+    if (any(mat == 0)) {
+        warning(
+            "0s found in matrix. 1 was added as pseudocount.", call. = FALSE
+        )
+        mat <- mat + 1
+    }
+    
+    if (log) {
+        output <- apply(
+            mat, 2, function(x) log(x / exp(mean(log(x))))
+        ) # exp(mean(log(x))) is the geometric mean
+    } else {
+        output <- apply(mat, 2, function(x) x / exp(mean(log(x))))
+    }
+    return(output)
+}
+
+#' Calculate log2 fold change
+#' 
+#' \code{log2_fold_change} calculates the log2 fold change of a matrix with
+#' features in the rows and samples in the columns.
+#'
+#' @param mat A matrix. Features in rows and samples in columns.
+#' @param condition_vector A character vector or factor with the names of the 
+#' conditions. The conditions must correspond to the samples, i.e. the exact
+#' same order. Two and only two conditions (levels) are needed.
+#' @param condB Condition used as reference. E.g. control condition.
+#' @param log If log is TRUE, it's assumed that the matrix is already log
+#' transformed.
+#' @param pseudocount Numeric value indicating pseudocount to be added.
+#'
+#' @return
+#' A named vector of log2 fold changes per feature.
+log2_fold_change <- function(
+        mat, condition_vector, condB = NULL, log = FALSE, pseudocount = 0
+) {
+    ## condB is control; condA is treated
+    condition_vector <- as.factor(condition_vector)
+    conditions <- levels(condition_vector)
+    
+    if (length(conditions) != 2)
+        stop('Two and only two conditions are needed.', call. = FALSE)
+    
+    if (!is.null(condB)) {
+        condA <- conditions[conditions != condB] # treated
+        
+    } else {
+        condB <- conditions[1]
+        condA <- conditions[2]
+    }
+    
+    mat <- mat + pseudocount
+    
+    features <- rownames(mat)
+    log2FoldChange <- vector("double", length(features))
+    names(log2FoldChange) <- features 
+    
+    for (i in seq_along(features)) {
+        
+        mean_condB <- mean(mat[features[i], which(condition_vector == condB), drop = TRUE])
+        mean_condA <- mean(mat[features[i], which(condition_vector == condA), drop = TRUE])
+        
+        if (log) { # CLR (already logged)
+            log2FoldChange[i] <- mean_condA - mean_condB
+            
+        } else {
+            if (mean_condA >= mean_condB) { # TSS - relative abundance
+                log2FoldChange[i] <- log2(mean_condA / mean_condB)
+                
+            } else if (mean_condA < mean_condB) {
+                log2FoldChange[i] <- -log2(mean_condB / mean_condA)
+            }
+        }
+        
+    }
+    log2FoldChange
+}

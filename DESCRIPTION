@@ -1,6 +1,6 @@
 Package: MicrobiomeBenchmarkDataAnalyses
 Title: Benchmarking analyses with the MicrobiomeBenchmarkData package
-Version: 0.99.22
+Version: 0.99.24
 Authors@R: 
     person("Samuel David", "Gamboa-Tuz", email = "Samuel.Gamboa.Tuz@gmail.com",
         role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6863-7943"))
