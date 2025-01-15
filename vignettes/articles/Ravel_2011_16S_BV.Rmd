@@ -42,9 +42,9 @@ tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 tse
 ```
 
-Select samples:
+Select samples with low and high Nugent scores only:
 
-```{r}
+```{r select}
 select_samples <- which(colData(tse)$study_condition %in% conditions)
 tse_subset <- tse[, select_samples]
 tse_subset
@@ -53,6 +53,8 @@ tse_subset
 Agglomerate by genus:
 
 ```{r subset data}
+## all(colSums(assay(tse_subset)) == colSums(assay(tse_genus)))
+## the code above should be TRUE before filering
 tse_genus <- agglomerateByRank(
     tse_subset, rank = 'genus', na.rm = FALSE, onRankOnly = FALSE 
 ) |> 
@@ -63,9 +65,9 @@ colData(tse_genus)$study_condition <-
 tse_genus
 ```
 
-Samples metadata:
+Sample counts per condition:
 
-```{r}
+```{r sample counts}
 col_data <- as_tibble(colData(tse_genus))
 col_data |> 
     summarise(
