@@ -8,7 +8,7 @@ output:
         toc: yes
 ---
 
-```{r, include=FALSE}
+```{r options, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, message=FALSE, warning=FALSE}
+```{r packages, message=FALSE, warning=FALSE}
 library(MicrobiomeBenchmarkDataAnalyses)
 library(MicrobiomeBenchmarkData)
 library(mia)
@@ -44,7 +44,7 @@ tse
 
 Select samples with low and high Nugent scores only:
 
-```{r select}
+```{r select samples}
 select_samples <- which(colData(tse)$study_condition %in% conditions)
 tse_subset <- tse[, select_samples]
 tse_subset
@@ -54,7 +54,7 @@ Agglomerate by genus:
 
 ```{r subset data}
 ## all(colSums(assay(tse_subset)) == colSums(assay(tse_genus)))
-## the code above should be TRUE before filering
+## the code in the line above should be TRUE before filtering 
 tse_genus <- agglomerateByRank(
     tse_subset, rank = 'genus', na.rm = FALSE, onRankOnly = FALSE 
 ) |> 
@@ -130,34 +130,26 @@ Run DA analysis:
 
 ```{r run DA, warning=FALSE, message=FALSE}
 tim <- system.time({
-    DA_output <- vector("list", length(DA_methods))
-    for (i in seq_along(DA_output)) {
-        message(
-            "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
-        )
-        DA_output[[i]] <- tryCatch(
+    DA_output <- imap(DA_methods, ~ {
+        message("Running method ", .y, " - ", Sys.time())
+        tryCatch(
             error = function(e) NULL,
-            runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
+            runDA(list(.x), ps, weights = zw, verbose = FALSE)
         )
-    }
-    DA_output <- purrr::list_flatten(DA_output, name_spec = "{inner}")
-    DA_output <- purrr::discard(DA_output, is.null)
+    }) |> 
+        list_flatten(name_spec = "{outer}") |> 
+        discard(is.null)
+    DA_output <- map2(DA_output, names(DA_output), ~ {
+        .x$name <- .y
+        .x
+    })
 })
 tim
 ```
 
 ## Enrichment
 
-We need a threshold for DA for lefse-CLR:
-
-```{r median lefser}
-c(
-    lefse.TSS = median(DA_output$lefse.TSS$statInfo$abs_score),
-    lefse.CLR = median(DA_output$lefse.CLR$statInfo$abs_score)
-)
-```
-
-Create some variables for selecting and ranking differentially abundant features:
+Set threshold variables:
 
 ```{r variables for enrichment funs}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
@@ -167,7 +159,7 @@ names(adjThr) <- names(DA_output)
 
 esThr <- case_when(
     grepl("lefse.TSS", names(DA_output)) ~ 2,
-    grepl("lefse.CLR", names(DA_output)) ~ 0.15,
+    grepl("lefse.CLR", names(DA_output)) ~ median(DA_output$LEfSe.CLR$statInfo$abs_score),
     TRUE ~ 0
 ) |> 
     set_names(names(DA_output))
@@ -177,7 +169,7 @@ colNameV <- ifelse(grepl("lefse", names(DA_output)), "LDA_scores", "adjP")
 typeV <- ifelse(grepl("lefse", names(DA_output)), "logfc", "pvalue")
 ```
 
-Create enrichment:
+Run enrichment analysis:
 
 ```{r enrichment}
 enrichment <- createEnrichment(
@@ -234,24 +226,16 @@ Create enrichment plot:
 ```{r enrichment plot}
 enPlot <- enrichmentSummary |> 
     left_join(getMethodClass(), by = "method") |> 
-    mutate(
-        direction = factor(
-            direction, levels = c("BV", "HV")
-        )
-    ) |> 
     filter(annotation != "Unannotated") |> 
     mutate(
-        method = case_when(
-            grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
-            grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
-            TRUE ~ method
-        )
+        direction = factor(direction, levels = c("BV", "HV"))
     ) |> 
     mutate(
         annotation = case_when(
             annotation == "bv-associated" ~ "BV-associated",
             annotation == "hv-associated" ~ "HV-associated"
-        )
+        ) |> 
+            forcats::fct_relevel("BV-associated")
     ) |> 
     ggplot(aes(method, n)) +
     geom_col(
@@ -265,15 +249,17 @@ enPlot <- enrichmentSummary |>
     facet_grid(
         direction ~ method_class, scales = "free_x", space = "free"
     ) +
-    scale_fill_viridis_d(option = "D", name = "Biological data") +
-    scale_color_viridis_d(option = "D", name = "Biological data") +
+    scale_y_continuous(breaks = pretty) +
+    scale_fill_discrete(name = "Feature annotations") +
+    scale_color_discrete(name = "Feature annotations") +
     labs(
-        x = "DA method", y = "Number of DA taxa"
+        x = "DA method", y = "Number of DAFs"
     ) +
-    theme_minimal() +
+    theme_bw() +
     theme(
         axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "bottom"
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white")
     )
 ```
 
@@ -299,19 +285,7 @@ positives <- map(1:length(DA_output), .f = function(i) {
     ) |> 
         left_join(getMethodClass(), by = 'method')
 }) |>
-    bind_rows() |> 
-        mutate(
-        base_method = case_when(
-            grepl("lefse", base_method) ~ sub("lefse", "LEfSe", base_method),
-            grepl("wilcox", base_method) ~ sub("wilcox", "Wilcox", base_method),
-            TRUE ~ base_method 
-        ),
-        method = case_when(
-            grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
-            grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
-            TRUE ~ method
-        )
-    )
+    bind_rows()
 ```
 
 Create "positives" plot:
@@ -335,13 +309,16 @@ posPlot <- positives |>
     ) +
     facet_wrap(~method_class, nrow = 1) +
     labs(
-        x = "Top DA features", y = "TP - FP"
+        x = "Top DAFs", y = "TP - FP"
     ) +
     scale_shape(name = "Normalization") +
     scale_linetype(name = "Normalization") +
-    scale_color_manual(values = vec, name = "Base method") +
-    theme_minimal() +
-    theme(legend.position = "bottom")
+    scale_color_manual(values = vec, name = "Base DA method") +
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white")
+    )
 ```
 
 Combine enrichment and "positives" plot:
@@ -362,6 +339,8 @@ ggsave(
 
 # Perform DA with lefse and Wilcox
 
+Convert the TSE to tibble:
+
 ```{r manual transformations}
 tssFun <- function(x) {
     (x) / sum(x) * 1e6
@@ -372,7 +351,6 @@ clrFun <- function(x) {
 }
 
 assay(tse_genus, "TSS") <- apply(assay(tse_genus, "counts"), 2, tssFun)
-## PseudoCount only needed for CLR
 assay(tse_genus, "CLR") <- apply(assay(tse_genus, "counts") + 1, 2, clrFun)
 
 data <- tse_genus |> 
@@ -393,14 +371,12 @@ Define function:
 ```{r define calcWilcox}
 calcWilcox <- function(dat, val_col, log = FALSE) {
     
-    ## Separate components
     taxa <- split(dat, factor(dat$taxon_name))
     taxa_names <- names(taxa)
     taxa_annotations <- data |> 
         dplyr::select(tidyselect::starts_with('taxon')) |> 
         dplyr::distinct()
     
-    ## Perform Wilcoxon test 
     pvalues <- vector('double', length(taxa))
     names(pvalues) <- taxa_names 
     formula_chr <- paste0(val_col, ' ~ study_condition')
@@ -410,10 +386,8 @@ calcWilcox <- function(dat, val_col, log = FALSE) {
         pvalues[[i]] <- res$p.value
     }
     
-    ## Adjust P-values
     adj_pvalues <- stats::p.adjust(pvalues, method = 'fdr')
     
-    ## Calculate fold change
     log_fold_change <- vector('double', length(taxa))
     lll <- vector('double', length(taxa))
     for (i in seq_along(log_fold_change)) {
@@ -439,7 +413,6 @@ calcWilcox <- function(dat, val_col, log = FALSE) {
         }
     }
     
-    ## Combine results and annotations
     pval_results <- data.frame(
         taxon_name = taxa_names,
         rawP = pvalues,
@@ -552,8 +525,8 @@ wilcox_genus_plot <- wilcox_raw |>
         labels = c('log(counts + 1)', 'log(TSS + 1)', 'CLR')
     )) |> 
     mutate(study_condition = factor(
-        study_condition, levels = c('healthy', 'bacterial_vaginosis'),
-        labels = c('HV', 'BV')
+        study_condition, levels = c('bacterial_vaginosis', 'healthy'),
+        labels = c('BV', 'HV')
     )) |> 
     ggplot(aes(taxon_name, value)) + 
     geom_boxplot(aes(color = study_condition), position = position_dodge2(0.9)) +
@@ -572,8 +545,8 @@ wilcox_genus_plot <- wilcox_raw |>
     theme(
         panel.grid.major.x = element_blank(),
         legend.title = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1, face = "italic")
-        
+        axis.text.x = element_text(angle = 45, hjust = 1, face = "italic"),
+        plot.margin = margin(10, 10, 10, 50)  # top, right, bottom, left
     )
 wilcox_genus_plot
 ```
@@ -861,7 +834,8 @@ plot_4b <- data_with_lact |>
     theme_bw()
 
 plotsb <- ggpubr::ggarrange(
-    plot_4b, plot_3b, plot_1b, plot_2b, align = 'hv',
+    plot_4b, plot_3b, plot_1b, plot_2b,
+    align = 'hv', ncol = 2, nrow = 2,
     common.legend = TRUE, legend = 'bottom', 
     labels = c('a)', 'b)', 'c)', 'd)')
 ) 

@@ -136,7 +136,7 @@ esThr <- rep(0, length(DA_output))
 names(esThr) <- names(DA_output)
 esThr[grep("lefse.TSS", names(esThr))] <- 2
 esThr[grep("lefse.CLR", names(esThr))] <-
-    median(DA_output$lefse.CLR$statInfo$abs_score)
+    median(DA_output$LEfSe.CLR$statInfo$abs_score)
 
 slotV <- ifelse(grepl("lefse", names(DA_output)), "statInfo", "pValMat")
 colNameV <- ifelse(grepl("lefse", names(DA_output)), "LDA_scores", "adjP")
@@ -234,7 +234,7 @@ enPlot <- enrichmentSummary |>
     scale_fill_manual(values = colorPalette, name = "Annotation") +
     scale_color_manual(values = colorPalette, name = "Annotation") +
     labs(
-        x = "DA method", y = "Number of DA taxa"
+        x = "DA method", y = "Number of DAFs"
     ) +
     theme_bw() +
     theme(
@@ -302,11 +302,11 @@ posPlot <- positives |>
     ) +
     facet_wrap(~method_class, nrow = 1) +
     labs(
-        x = "Top DA features", y = "TP - FP"
+        x = "Top DAFs", y = "TP - FP"
     ) +
     scale_shape(name = "Normalization") +
     scale_linetype(name = "Normalization") +
-    scale_color_manual(values = vec, name = "Base method") +
+    scale_color_manual(values = vec, name = "Base DA method") +
     theme_bw() +
     theme(
         legend.position = "bottom",

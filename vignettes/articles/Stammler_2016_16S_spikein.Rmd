@@ -271,7 +271,7 @@ p_a <- dat |>
     scale_x_continuous(labels = \(x) format(x, big.mark = ",")) +
     scale_y_continuous(labels = \(x) format(x, big.mark = ",")) +
     labs(
-        x = "TSS ranking", y = "GM ranking"
+        x = "TSS ranking", y = "GMN ranking"
     ) +
     theme_bw() +
     theme(
@@ -298,7 +298,7 @@ p_b <- dat |>
     scale_x_continuous(labels = \(x) format(x, big.mark = ",")) +
     scale_y_continuous(labels = \(x) format(x, big.mark = ",")) +
     labs(
-        x = "TSS ranking", y = "GM ranking"
+        x = "TSS ranking", y = "GMN ranking"
     ) +
     theme_bw() +
     theme(
@@ -366,7 +366,7 @@ p3 <- hexFun(dat, tss_mean, tss_ranking) +
     # )
 p4 <- hexFun(dat, gmn_mean, gmn_ranking) +
     labs(
-        x = "GM mean", y = "GM ranking"
+        x = "GMN mean", y = "GMN ranking"
     )
     # geom_label_repel(
     #     data = filter(dat, feature_label != ""),
