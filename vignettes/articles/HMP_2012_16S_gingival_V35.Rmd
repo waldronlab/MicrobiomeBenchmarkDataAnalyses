@@ -30,7 +30,9 @@ library(ggpubr)
 
 ## Data
 
-```{r import data}
+Import data:
+
+```{r import data, message=FALSE}
 dat_name <- 'HMP_2012_16S_gingival_V35'
 conditions_col <- 'body_subsite'
 conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
@@ -38,15 +40,22 @@ tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
 tse
 ```
 
+Filter low-abundant features:
+
 ```{r filter features}
 tse_subset <- filterTaxa(tse, min_ab = 1, min_per = 0.2)
 tse_subset
 ```
 
+Counts per body subsite:
+
 ```{r samples per body subsite}
 col_data <- as_tibble(colData(tse_subset)) 
 count(col_data, body_subsite)
 ```
+
+Number of subjects:
+
 ```{r unique subjects}
 length(unique(col_data$subject_id))
 ```
@@ -74,7 +83,7 @@ ps
 
 ## Differential abundance analysis
 
-Set normalization, weight, and DA method options:
+Set normalization, weights, and DA method options:
 
 ```{r norm, weights, methods}
 ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
@@ -203,13 +212,6 @@ enPlot <- enrichmentSummary |>
         annotation = factor(annotation, levels = nn)
     ) |> 
     mutate(
-        method = case_when(
-            grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
-            grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
-            TRUE ~ method
-        )
-    ) |> 
-    mutate(
         annotation = case_when(
             annotation == "aerobic" ~ "Aerobic",
             annotation == "anaerobic" ~ "Anaerobic",
@@ -229,8 +231,8 @@ enPlot <- enrichmentSummary |>
     facet_grid(
         direction ~ method_class, scales = "free_x", space = "free"
     ) +
-    scale_fill_manual(values = colorPalette) +
-    scale_color_manual(values = colorPalette) +
+    scale_fill_manual(values = colorPalette, name = "Annotation") +
+    scale_color_manual(values = colorPalette, name = "Annotation") +
     labs(
         x = "DA method", y = "Number of DA taxa"
     ) +
@@ -244,7 +246,7 @@ enPlot <- enrichmentSummary |>
 
 ### Putative true positives - putative false positives
 
-Calculate TP - FP ratio (no threshold)
+Calculate TP - FP ratio (no threshold):
 
 ```{r positives object}
 positives <- map(1:length(DA_output), .f = function(i) {
@@ -263,26 +265,27 @@ positives <- map(1:length(DA_output), .f = function(i) {
         FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
     ) |> 
         dplyr::left_join(getMethodClass(), by = 'method')
-}) |> bind_rows()
+}) |> bind_rows() |> 
+    mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2))
 ```
 
 Positives plot:
 
 ```{r positives plot, fig.height = 4, fig.width=12}
-positives <- positives |> 
-    mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
-    mutate(
-        base_method = case_when(
-            grepl("lefse", base_method) ~ sub("lefse", "LEfSe", base_method),
-            grepl("wilcox", base_method) ~ sub("wilcox", "Wilcox", base_method),
-            TRUE ~ base_method 
-        ),
-        method = case_when(
-            grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
-            grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
-            TRUE ~ method
-        )
-    )
+# positives <- positives |> 
+#     mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
+#     mutate(
+#         base_method = case_when(
+#             grepl("lefse", base_method) ~ sub("lefse", "LEfSe", base_method),
+#             grepl("wilcox", base_method) ~ sub("wilcox", "Wilcox", base_method),
+#             TRUE ~ base_method
+#         ),
+#         method = case_when(
+#             grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
+#             grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
+#             TRUE ~ method
+#         )
+#     )
 vec <- positives$color
 names(vec) <- positives$base_method
 posPlot <- positives |> 
@@ -323,7 +326,7 @@ pp
 ```{r export plots, eval=TRUE, echo=FALSE}
 ggsave(
     filename = "Figure1.pdf", plot = pp, dpi = 300,
-    height = 9, width = 11, 
+    height = 9, width = 10, 
 )
 ```
 
