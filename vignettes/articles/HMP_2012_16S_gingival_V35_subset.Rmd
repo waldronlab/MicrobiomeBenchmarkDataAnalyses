@@ -1,68 +1,94 @@
 ---
-title: "HMP_2012_16S_gingival_V35_subset - subgingival vs supragingival"
-output: 
-    html_document: 
-      toc: yes
+title: "Subgingival vs supgragingival plaque (35 subset - OTU)"
+subtitle: "HMP_2012_16S_gingival_V35_subset"
+author: "Samuel Gamboa"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+    html_document:
+        toc: yes
 ---
 
-```{r, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE
+)
 ```
 
-```{r setup}
+```{r packages, message=FALSE, warning=FALSE}
 library(MicrobiomeBenchmarkDataAnalyses)
 library(MicrobiomeBenchmarkData)
+library(dplyr)
+library(purrr)
+library(phyloseq)
 library(mia)
 library(benchdamic)
-library(dplyr)
 library(ggplot2)
-library(gridExtra)
-library(purrr)
+library(ggpubr)
 ```
 
-# Import data
+## Data
 
-```{r, message=FALSE, warning=FALSE}
-dat_name <-'HMP_2012_16S_gingival_V35_subset'
+Import data:
+
+```{r import data, message=FALSE}
+dat_name <- 'HMP_2012_16S_gingival_V35_subset'
 conditions_col <- 'body_subsite'
 conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
-
-tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
-
-tse <- filterTaxa(tse, min_ab = 1, min_per = 0.2)
-
-colData(tse)[[conditions_col]] <- 
-    factor(colData(tse)[[conditions_col]], levels = conditions)
-
-tse
+tse_subset <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
+tse_subset
 ```
 
-# Prior knowledge
+Filter low-abundant features:
 
-```{r}
-row_data <- as.data.frame(rowData(tse))
+```{r filter features}
+# tse_subset <- filterTaxa(tse, min_ab = 1, min_per = 0.2)
+# tse_subset
+```
+
+Counts per body subsite:
+
+```{r samples per body subsite}
+col_data <- as_tibble(colData(tse_subset)) 
+count(col_data, body_subsite)
+```
+
+Number of subjects:
+
+```{r unique subjects}
+length(unique(col_data$subject_id))
+```
+
+## Prior information
+
+```{r feature annotations}
+row_data <- as.data.frame(rowData(tse_subset))
 prior_info <- row_data[, c('genus', 'taxon_annotation')]
-prior_info$taxon_name <- rownames(prior_info)
+prior_info$taxon_name <- rownames(row_data)
 prior_info$new_names <- paste0(prior_info$taxon_name, '|', prior_info$genus)
+prior_info <- 
+    dplyr::relocate(prior_info, taxon_name, new_names, genus, taxon_annotation)
 head(prior_info)
 ```
 
-# Convert to phyloseq
+## Convert to phyloseq
 
-```{r, message=FALSE, warning=FALSE}
-ps <- makePhyloseqFromTreeSummarizedExperiment(tse)
-phyloseq::sample_data(ps)$body_subsite <- 
-    factor(phyloseq::sample_data(ps)$body_subsite)
+```{r convert to phyloseq}
+ps <- convertToPhyloseq(tse_subset)
+sample_data(ps)[[conditions_col]] <- 
+    factor(sample_data(ps)[[conditions_col]], levels = conditions)
 ps
 ```
 
-# Run DA
+## Differential abundance analysis
 
-```{r}
+Set normalization, weights, and DA method options:
+
+```{r norm, weights, methods}
 ps <- runNormalizations(set_norm_list(), ps, verbose = FALSE)
 zw <- weights_ZINB(ps, design = conditions_col)
 DA_methods <- set_DA_methods_list(conditions_col, conditions)
-
 for (i in seq_along(DA_methods)) {
     if (grepl("Seurat", names(DA_methods)[i])) {
         names(DA_methods[[i]]$contrast) <- NULL
@@ -73,109 +99,240 @@ for (i in seq_along(DA_methods)) {
 names(DA_methods)
 ```
 
-Run all of the differential analysis (DA) methods:
+Run DA analysis:
 
-```{r, warning=FALSE, message=FALSE}
+```{r run DA, warning=FALSE, message=FALSE}
 tim <- system.time({
-    DA_output <- vector("list", length(DA_methods))
-    for (i in seq_along(DA_output)) {
-        # message(
-        #     "Running method ", i, ": ", names(DA_methods)[i], " - ", Sys.time()
-        # )
-        DA_output[[i]] <- tryCatch(
+    DA_output <- imap(DA_methods, ~ {
+        message("Running method ", .y, " - ", Sys.time())
+        tryCatch(
             error = function(e) NULL,
-            runDA(DA_methods[i], ps, weights = zw, verbose = FALSE) 
+            runDA(list(.x), ps, weights = zw, verbose = FALSE)
         )
-    }
-    DA_output <- purrr::list_flatten(DA_output, name_spec = "{inner}")
-    DA_output <- purrr::discard(DA_output, is.null)
+    }) |> 
+        list_flatten(name_spec = "{outer}") |> 
+        discard(is.null)
+    DA_output <- map2(DA_output, names(DA_output), ~ {
+        .x$name <- .y
+        .x
+    })
 })
 tim
 ```
 
-# Enrichment
+## Enrichment analysis
 
-Get direction 
+### Define a threshold for LEFSE with CLR
 
-```{r}
+Define threshold variables:
+
+```{r define variables to use in createEnrichment}
 direction <- get_direction_cols(DA_output, conditions_col, conditions)
+
+adjThr<- rep(0.1, length(DA_output))
+names(adjThr) <- names(DA_output)
+
+esThr <- rep(0, length(DA_output))
+names(esThr) <- names(DA_output)
+esThr[grep("lefse.TSS", names(esThr))] <- 2
+esThr[grep("lefse.CLR", names(esThr))] <-
+    median(DA_output$LEfSe.CLR$statInfo$abs_score)
+
+slotV <- ifelse(grepl("lefse", names(DA_output)), "statInfo", "pValMat")
+colNameV <- ifelse(grepl("lefse", names(DA_output)), "LDA_scores", "adjP")
+typeV <- ifelse(grepl("lefse", names(DA_output)), "logfc", "pvalue")
 ```
 
-## Enrichment (adjP <= 0.1)
+Run enrichment:
 
-```{r}
+```{r perform enrichment}
 enrichment <- createEnrichment(
     object = DA_output,
     priorKnowledge = prior_info,
     enrichmentCol = "taxon_annotation",
     namesCol = "new_names",
-    slot = "pValMat", colName = "adjP", type = "pvalue",
+    slot = slotV, colName = colNameV, type = typeV,
     direction = direction,
-    threshold_pvalue = 0.1,
-    threshold_logfc = 0,
+    threshold_pvalue = adjThr,
+    threshold_logfc = esThr,
     top = NULL, # No top feature selected
     alternative = "greater",
     verbose = FALSE 
 )
 ```
 
-## Plot enrichment
+Extract summary of the enrichment analysis:
 
-```{r, warning=FALSE, message=FALSE, fig.height=6, fig.width=10}
-enrich_plot <- plot_enrichment(
-    enrichment = enrichment, 
-    enrichment_col = "taxon_annotation",
-    levels_to_plot = c("aerobic", "anaerobic", "facultative_anaerobic"),
-    conditions = c(condB = 'subgingival', condA = 'supragingival') 
+```{r enrichment summary}
+enrichmentSummary <- purrr::map(enrichment,  ~ {
+    .x$summaries |> 
+        purrr::map(function(x) {
+            x |> 
+                tibble::rownames_to_column(var = "direction") |> 
+                tidyr::pivot_longer(
+                    names_to = "annotation", values_to = "n",
+                    cols = 2
+                )
+                
+        }) |> 
+        dplyr::bind_rows() |> 
+        dplyr::relocate(pvalue)
+}) |> 
+    dplyr::bind_rows(.id = "method") |> 
+    dplyr::mutate(
+        sig = dplyr::case_when(
+            pvalue < 0.05 & pvalue > 0.01 ~ "*",
+            pvalue < 0.01 & pvalue > 0.001 ~ "**",
+            pvalue < 0.001 ~ "***",
+            TRUE ~ ""
+        ) 
+    ) |> 
+    dplyr::mutate(
+        direction = dplyr::case_when(
+            direction == "DOWN Abundant" ~ "Subgingival",
+            direction == "UP Abundant" ~ "Supragingival",
+            TRUE ~ direction 
+        )
+    )
+head(enrichmentSummary)
+```
+
+## Plots
+
+### Enrichment plot
+
+```{r enrichment plot}
+nn <- unique(enrichmentSummary$annotation)
+nn <- nn[!is.na(nn)]
+colorPalette <- palette.colors(palette = "Okabe-Ito")[2:(length(nn) + 1)]
+enPlot <- enrichmentSummary |> 
+    dplyr::left_join(getMethodClass(), by = "method") |> 
+    mutate(
+        direction = factor(direction, levels = c("Supragingival", "Subgingival")),
+        annotation = factor(annotation, levels = nn)
+    ) |> 
+    mutate(
+        annotation = case_when(
+            annotation == "aerobic" ~ "Aerobic",
+            annotation == "anaerobic" ~ "Anaerobic",
+            annotation == "facultative_anaerobic" ~ "Facultative anaerobic",
+            TRUE ~ annotation
+        )
+    ) |> 
+    ggplot(aes(method, n)) +
+    geom_col(
+        aes(fill = annotation),
+        position = position_dodge2(width = 0.9)
+    ) +
+    geom_text(
+        aes(label = sig, color = annotation),
+        position = position_dodge2(width = 0.9)
+    ) +
+    facet_grid(
+        direction ~ method_class, scales = "free_x", space = "free"
+    ) +
+    scale_fill_manual(values = colorPalette, name = "Annotation") +
+    scale_color_manual(values = colorPalette, name = "Annotation") +
+    labs(
+        x = "DA method", y = "Number of DAFs"
+    ) +
+    theme_bw() +
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white")
+    )
+```
+
+### Putative true positives - putative false positives
+
+Calculate TP - FP ratio (no threshold):
+
+```{r positives object}
+positives <- map(1:length(DA_output), .f = function(i) {
+    positives <- createPositives(
+        object = DA_output[i],
+        priorKnowledge = prior_info, 
+        enrichmentCol = "taxon_annotation", namesCol = "new_names",
+        slot = slotV[i], colName = colNameV[i], type = typeV[i],
+        direction = direction[i],
+        threshold_pvalue = 1,
+        threshold_logfc = 0,
+        top = seq.int(from = 0, to = 50, by = 5),
+        alternative = "greater",
+        verbose = FALSE,
+        TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
+        FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
+    ) |> 
+        dplyr::left_join(getMethodClass(), by = 'method')
+}) |> bind_rows() |> 
+    mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2))
+```
+
+Positives plot:
+
+```{r positives plot, fig.height = 4, fig.width=12}
+# positives <- positives |> 
+#     mutate(diff = jitter(TP - FP, amount = 1.5, factor = 2)) |> 
+#     mutate(
+#         base_method = case_when(
+#             grepl("lefse", base_method) ~ sub("lefse", "LEfSe", base_method),
+#             grepl("wilcox", base_method) ~ sub("wilcox", "Wilcox", base_method),
+#             TRUE ~ base_method
+#         ),
+#         method = case_when(
+#             grepl("lefse", method) ~ sub("lefse", "LEfSe", method),
+#             grepl("wilcox", method) ~ sub("wilcox", "Wilcox", method),
+#             TRUE ~ method
+#         )
+#     )
+vec <- positives$color
+names(vec) <- positives$base_method
+posPlot <- positives |> 
+    ggplot(aes(top, diff)) +
+    geom_line(
+        aes(
+            group = method, color = base_method, linetype = norm,
+        ),
+    ) +
+    geom_point(
+        aes(
+            color = base_method, shape = norm
+        ),
+    ) +
+    facet_wrap(~method_class, nrow = 1) +
+    labs(
+        x = "Top DAFs", y = "TP - FP"
+    ) +
+    scale_shape(name = "Normalization") +
+    scale_linetype(name = "Normalization") +
+    scale_color_manual(values = vec, name = "Base DA method") +
+    theme_bw() +
+    theme(
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white")
+    )
+```
+
+### Combined plots
+
+```{r combined plots, fig.height=9, fig.width=10}
+pp <- ggarrange(
+    plotlist = list(enPlot, posPlot), ncol = 1, heights = c(1.5, 1)
 )
-enrich_plot2 <- plot_enrichment_2(
-    enrich_plot,
-    dir = c(up = 'Sup Plq', down = 'Sub Plq')
-)
-enrich_plot2
+pp
 ```
 
-# Putative true positives - putative false positives
-
-## Calculate TP - FP ratio (no threshold)
-
-```{r create positives}
-positives <- createPositives(
-    object = DA_output, 
-    priorKnowledge = prior_info, 
-    enrichmentCol = "taxon_annotation", namesCol = "new_names",
-    slot = "pValMat", colName = "rawP", type = "pvalue",
-    direction = direction,
-    threshold_pvalue = 1,
-    threshold_logfc = 0,
-    top = seq.int(from = 0, to = 50, by = 5),
-    alternative = "greater",
-    verbose = FALSE,
-    TP = list(c("DOWN Abundant", "anaerobic"), c("UP Abundant", "aerobic")),
-    FP = list(c("DOWN Abundant", "aerobic"), c("UP Abundant", "anaerobic"))
-) |> 
-    left_join(getMethodClass(), by = 'method')
+```{r export plots, eval=TRUE, echo=FALSE}
+# Nice to have figure, but not for the paper
+# ggsave(
+#     filename = "FigureX.pdf", plot = pp, dpi = 300,
+#     height = 9, width = 10, 
+# )
 ```
 
-## Plot TP - FP 
+# Session Info
 
-```{r, fig.height = 10, fig.width=15}
-positive_plots <- plot_positives(positives) |> 
-    map( ~ {
-        .x +
-            theme(
-                axis.title = element_text(size = 17),
-                axis.text = element_text(size = 15),
-                legend.text = element_text(size = 13),
-                strip.text = element_text(size = 17)
-            )
-    })
-grid.arrange(grobs = positive_plots, ncol = 3)
-
-```
-
-# Session info
-```{r}
+```{r session information}
 sessioninfo::session_info()
 ```
-

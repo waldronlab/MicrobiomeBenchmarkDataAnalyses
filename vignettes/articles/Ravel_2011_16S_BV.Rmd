@@ -1,5 +1,5 @@
 ---
-title: "Bacterial vaginosis vs healthy vaginal samples"
+title: "Bacterial vaginosis vs healthy vaginal samples (OTU)"
 subtitle: "Ravel_2011_16S_BV"
 author: "Samuel Gamboa"
 date: "`r format(Sys.time(), '%d %B, %Y')`"

@@ -1,5 +1,5 @@
 ---
-title: "Subgingival vs supgragingival plaque"
+title: "Subgingival vs supgragingival plaque (V35 - OTU)"
 subtitle: "HMP_2012_16S_gingival_V35"
 author: "Samuel Gamboa"
 date: "`r format(Sys.time(), '%d %B, %Y')`"

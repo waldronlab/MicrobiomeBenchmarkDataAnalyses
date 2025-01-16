@@ -1,7 +1,8 @@
 ---
-title: "Sammler_2016_16S_spikein - Spike-in bacteria"
-subtitle:
-    "Comparison of coefficient of variation of spike-in bacteria across samples"
+title: "Sammler_2016_16S_spikein - Spike-in bacteria (OTU)"
+subtitle: "Sammler_2016_16S_spikein"
+author: "Samuel Gamboa"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
     html_document:
         toc: yes
