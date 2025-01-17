@@ -9,7 +9,6 @@
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/articles/MicrobiomeBenchmarkDataAnalyses.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/articles/Ravel_2011_16S_BV.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/articles/Stammler_2016_16S_spikein.html</loc></url>
-<url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/articles/compare_gingival_plaque.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/articles/index.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/authors.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/index.html</loc></url>
@@ -20,19 +19,13 @@
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/MicrobiomeBenchmarkDataAnalyses.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/editMiaTaxaNames.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/filterTaxa.html</loc></url>
+<url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/getMethodClass.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/get_direction_cols.html</loc></url>
-<url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/get_meth_class.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/index.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/log2_fold_change.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/norm_clr.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/norm_tss.html</loc></url>
-<url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/plot_enrichment.html</loc></url>
-<url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/plot_enrichment_2.html</loc></url>
-<url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/plot_positives.html</loc></url>
-<url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/quiet.html</loc></url>
-<url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/run_DA.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/set_DA_methods_list.html</loc></url>
 <url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/set_norm_list.html</loc></url>
-<url><loc>http://waldronlab.io/MicrobiomeBenchmarkDataAnalyses/reference/taxize_classification_to_taxonomy_table.html</loc></url>
 </urlset>
 
