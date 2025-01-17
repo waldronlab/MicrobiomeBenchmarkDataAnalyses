@@ -1,6 +1,6 @@
 ---
-title: "Subgingival vs supgragingival plaque (WMS - Species)"
-subtitle: "HMP_2012_WMS_gingival"
+title: "Subgingival vs supgragingival plaque (V13 - OTU)"
+subtitle: "HMP_2012_16S_gingival_V13"
 author: "Samuel Gamboa"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -28,16 +28,12 @@ library(ggplot2)
 library(ggpubr)
 ```
 
-> edgeR didn't run in this dataset
-> A pseudocount of 1 was added, otherwiser there were problems with
-infinite values when calculating log2 fold change
-
 ## Data
 
 Import data:
 
 ```{r import data, message=FALSE}
-dat_name <- 'HMP_2012_WMS_gingival'
+dat_name <- 'HMP_2012_16S_gingival_V13'
 conditions_col <- 'body_subsite'
 conditions <- c(condB = 'subgingival_plaque', condA = 'supragingival_plaque')
 tse <- getBenchmarkData(dat_name, dryrun = FALSE)[[1]]
@@ -48,7 +44,7 @@ Filter low-abundant features:
 
 ```{r filter features}
 tse_subset <- filterTaxa(tse, min_ab = 1, min_per = 0.2)
-assay(tse_subset) <- assay(tse_subset) + 1
+tse_subset <- tse_subset[,which(!colSums(assay(tse_subset)) <= 1)] ## Needed for metagenomeSeq
 tse_subset
 ```
 
@@ -101,8 +97,6 @@ for (i in seq_along(DA_methods)) {
         next
     }
 }
-## edgeR keeps causing problems (segmentation fault C stack overflow)
-DA_methods <- DA_methods[grep("edgeR",names(DA_methods), invert = TRUE)]
 names(DA_methods)
 ```
 
@@ -124,8 +118,6 @@ tim <- system.time({
         .x
     })
 })
-# DA_output$MAST <- NULL
-# DA_output$`Seurat-Wilcox` <- NULL
 tim
 ```
 
@@ -184,7 +176,8 @@ enrichmentSummary <- purrr::map(enrichment,  ~ {
                 )
                 
         }) |> 
-        dplyr::bind_rows()
+        dplyr::bind_rows() |> 
+        dplyr::relocate(pvalue)
 }) |> 
     dplyr::bind_rows(.id = "method") |> 
     dplyr::mutate(
@@ -332,7 +325,7 @@ pp
 ```
 
 ```{r export plots, eval=TRUE, echo=FALSE}
-## Intersting to explore, but not a figure for the paper
+## Nice figure to explore. Not included in the paper
 # ggsave(
 #     filename = "FigureX.pdf", plot = pp, dpi = 300,
 #     height = 9, width = 10, 
