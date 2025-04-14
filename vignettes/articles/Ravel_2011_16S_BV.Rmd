@@ -225,7 +225,7 @@ Create enrichment plot:
 
 ```{r enrichment plot}
 enPlot <- enrichmentSummary |> 
-    left_join(getMethodClass(), by = "method") |> 
+    dplyr::left_join(getMethodClass(), by = "method") |> 
     filter(annotation != "Unannotated") |> 
     mutate(
         direction = factor(direction, levels = c("BV", "HV"))
@@ -283,7 +283,7 @@ positives <- map(1:length(DA_output), .f = function(i) {
         TP = list(c("DOWN Abundant", "hv-associated"), c("UP Abundant", "bv-associated")),
         FP = list(c("DOWN Abundant", "bv-associated"), c("UP Abundant", "hv-associated"))
     ) |> 
-        left_join(getMethodClass(), by = 'method')
+        dplyr::left_join(getMethodClass(), by = 'method')
 }) |>
     bind_rows()
 ```
@@ -501,7 +501,7 @@ wilcox_raw <- bind_rows(l1, .id = 'transformation') |>
     {\(y) pivot_longer(
         y, cols = 3:ncol(y), values_to = 'value', names_to = 'sample'
     )}() |> 
-    left_join(
+    dplyr::left_join(
         distinct(data[,c('sample', 'study_condition')]), by = 'sample'
     )
 
@@ -589,7 +589,7 @@ lefse_DA <- list(
         DA = ifelse(scores > 0.15, 'OA', 'UA')
     ) |> 
     rename(taxon_name = 'features') |> 
-    left_join(taxa_annotations, by = 'taxon_name')
+    dplyr::left_join(taxa_annotations, by = 'taxon_name')
 head(lefse_DA)
 ```
 Plot lefse results:
@@ -733,7 +733,7 @@ Get Latobacillus relative abundance per sample
 ```{r}
 sample_sizes <- filter(data, taxon_name == 'genus:Lactobacillus') |> 
     select(sample, lact_tss = TSS, lact_clr = CLR)
-data_with_lact <- left_join(data, sample_sizes, by = 'sample')
+data_with_lact <- dplyr::left_join(data, sample_sizes, by = 'sample')
 ```
 
 Plotting log(CLR) vs log(Relab) of Lactobacillus, Prevotella, Actinomyces, and
