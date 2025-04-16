@@ -7,8 +7,9 @@ Compositional	LEfSe	LEfSe.CLR	CLR	LDA_scores	#aaffc3	#911eb4	5	5	lefse.CLR
 Compositional	Wilcox	Wilcox.CLR	CLR	log2FoldChange	#ffe119	#000075	2	2	wilcox.CLR
 Compositional	ZINQ	ZINQ.CLR	CLR	log2FoldChange	#f032e6	#3cb44b	3	3	ZINQ.CLR.Cauchy
 Micro	ZINQ	ZINQ.TSS	TSS	log2FoldChange	#a9a9a9	#3cb44b	3	3	ZINQ.TSS.Cauchy
-Micro	corncob	corncob.none.Wald	none	Estimate	#42d4f4	#f58231	2	2	corncob.none.Wald
-Micro	maaslin2	maaslin2	none	coef	#000000	#000000	1	1	maaslin2
+Micro	corncob	corncob	none	coef	#f6f667	#f6f667	1	2	maaslin3
+Micro	maaslin2	maaslin2	TSS	coef	#c994c7	#c994c7	1	3	maaslin2
+Micro	maaslin3	maaslin3	TSS	coef	#bcbddc	#bcbddc	1	3	maaslin3
 Micro	metagenomeSeq	metagenomeSeq.CSS	CSSmedian	XXXX	#3cb44b	#e6194B	1	1	metagenomeSeq.CSS.fitFeatureModel
 RNA-Seq	DESeq2	DESeq2.poscounts	poscounts	log2FoldChange	#9A6324	#9A6324	1	1	DESeq2.poscounts
 RNA-Seq	Limma-Voom	Limma-Voom.TMM	TMM	logFC	#e6194B	#469990	3	3	limma.TMM
@@ -18,4 +19,3 @@ scRNA-Seq	Limma-Voom	Limma-Voom.TMM.w	TMM	logFC	#f58231	#469990	3	3	limma.TMM.we
 scRNA-Seq	MAST	MAST	none	logFC	#4363d8	#ffe119	4	4	MAST.median
 scRNA-Seq	Seurat	Seurat-Wilcox	none	avg_log2FC	#911eb4	#bfef45	5	5	Seurat.wilcox
 scRNA-Seq	edgeR	edgeR.TMM.w	TMM	logFC	#000075	#808000	2	2	edgeR.TMM.weighted
-Micro	maaslin3	maaslin3	none	coef	#f6f667	#f6f667	1	2	maaslin3
