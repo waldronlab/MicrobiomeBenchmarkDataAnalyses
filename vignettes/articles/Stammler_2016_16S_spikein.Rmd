@@ -97,7 +97,7 @@ data <- spk_bac_tse |>
         ~ tidy.RangedSummarizedExperiment(spk_bac_tse, assay = .x) |> 
             magrittr::set_colnames(c("taxon", "sample", .x))
     }) |> 
-    reduce(.f = \(.x, .y) left_join(.x, .y, by = c("taxon", "sample")))
+    reduce(.f = \(.x, .y) dplyr::left_join(.x, .y, by = c("taxon", "sample")))
 DT::datatable(data, filter = 'top')
 ```
 
@@ -238,7 +238,7 @@ gmn$mean <- apply(gmn_mat, 1, mean)
 tss <- rename_with(tss, ~ paste0("tss_", .x), -matches("feature"))
 gmn <- rename_with(gmn, ~ paste0("gmn_", .x), -matches("feature"))
 
-dat <- left_join(tss, gmn, by = "feature") |> 
+dat <- dplyr::left_join(tss, gmn, by = "feature") |> 
     mutate(
         spikein = ifelse(feature %in% spk_bac, "Spike-in", "Non-spike-in")
     )
