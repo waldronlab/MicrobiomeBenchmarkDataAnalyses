@@ -7,6 +7,47 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+```{r setup, message=FALSE}
 library(MicrobiomeBenchmarkDataAnalyses)
+library(dplyr)
 ```
+
+# Some overall numbers to cite in the Results
+
+For the statement: 
+
+> *We utilized Human Microbiome Project (HMP1) data (Human Microbiome Project Consortium, 2012) comprising both 16S rRNA (V13 and V15 variable region datasets, each 311 measurements on 132 participants)*
+
+V13:
+```{r}
+data('sampleMetadata', package = 'MicrobiomeBenchmarkData')
+filter(sampleMetadata, dataset ==  "HMP_2012_16S_gingival_V13") |>
+    nrow()
+filter(sampleMetadata, dataset ==  "HMP_2012_16S_gingival_V13") |>
+    pull(subject_id) |>
+    unique() |>
+    length()
+```
+V35:
+
+```{r}
+filter(sampleMetadata, dataset ==  "HMP_2012_16S_gingival_V35") |>
+    nrow()
+filter(sampleMetadata, dataset ==  "HMP_2012_16S_gingival_V35") |>
+    pull(subject_id) |>
+    unique() |>
+    length()
+```
+
+
+> *... and shotgun metagenomic sequencing (MGX, 16 measurements on 5 participants)*
+
+```{r}
+filter(sampleMetadata, dataset == "HMP_2012_WMS_gingival") |>
+    nrow()
+filter(sampleMetadata, dataset == "HMP_2012_WMS_gingival") |>
+  pull(subject_id) |>
+  unique() |>
+  length()
+```
+
