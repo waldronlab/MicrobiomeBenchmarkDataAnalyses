@@ -306,11 +306,21 @@ posPlot <- positives |>
     ) +
     scale_shape(name = "Normalization") +
     scale_linetype(name = "Normalization") +
-    scale_color_manual(values = vec, name = "Base DA method") +
+    scale_color_manual(values = vec, name = "Base DA method",
+                       guide = guide_legend(nrow = 4))+
     theme_bw() +
     theme(
         legend.position = "bottom",
+        legend.box = "vertical",
+        legend.key.height = unit(0.4, "lines"),
+        legend.margin = margin(t = 2, b = 2),
+        legend.spacing.y = unit(0.2, "lines"),
         strip.background = element_rect(fill = "white")
+    ) +
+    guides(
+        color = guide_legend(nrow = 3, byrow = TRUE),
+        linetype = guide_legend(nrow = 2, byrow = TRUE),
+        shape = guide_legend(nrow = 2, byrow = TRUE)
     )
 ```
 
@@ -325,7 +335,7 @@ pp
 
 ```{r export plots, eval=TRUE, echo=FALSE}
 ggsave(
-    filename = "Figure1.pdf", plot = pp, dpi = 300,
+    filename = "Figure1.png", plot = pp, dpi = 300,
     height = 9, width = 10, 
 )
 ```

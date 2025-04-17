@@ -317,7 +317,16 @@ posPlot <- positives |>
     theme_bw() +
     theme(
         legend.position = "bottom",
+        legend.box = "vertical",
+        legend.key.height = unit(0.4, "lines"),
+        legend.margin = margin(t = 2, b = 2),
+        legend.spacing.y = unit(0.2, "lines"),
         strip.background = element_rect(fill = "white")
+    ) +
+    guides(
+        color = guide_legend(nrow = 3, byrow = TRUE),
+        linetype = guide_legend(nrow = 2, byrow = TRUE),
+        shape = guide_legend(nrow = 2, byrow = TRUE)
     )
 ```
 
