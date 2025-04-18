@@ -194,8 +194,13 @@ enrichmentSummary <- purrr::map(enrichment,  ~ {
             TRUE ~ direction 
         )
     )
-head(enrichmentSummary)
+DT::datatable(enrichmentSummary)
 ```
+What three methods had non-significant aerobic supragingival results?
+```{r}
+enrichmentSummary |> filter(direction == "Supragingival" & annotation=="aerobic" & pvalue > 0.05)
+```
+
 
 ## Plots
 
