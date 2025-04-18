@@ -85,6 +85,33 @@ set_DA_methods_list <- function(conditions_col, conditions) {
             norm = "none"
         ) |> 
             unname(),
+        `maaslin2` = benchdamic::set_Maaslin2(
+            normalization = "TSS",
+            transform = "LOG",
+            analysis_method = "LM",
+            contrast = c(conditions_col, conditions['condA'], conditions['condB']),
+            fixed_effects = conditions_col
+        ) |> 
+            unname(),
+        `maaslin3` = benchdamic::set_maaslin3(
+            normalization = "TSS",
+            transform = "LOG",
+            median_comparison_abundance =TRUE,
+            subtract_median = TRUE,
+            contrast = c(conditions_col, conditions['condA'], conditions['condB']),
+            fixed_effects = conditions_col
+        ) |> 
+            unname(),
+        `corncob` = benchdamic::set_corncob(
+            formula = ~ conditions_col,
+            phi.formula = ~ conditions_col,
+            formula_null = ~1,
+            phi.formula_null = ~ conditions_col,
+            coefficient = conditions['condA'],
+            test = "LRT",
+            boot = TRUE
+        ) |> 
+            unname(),
         list(
             `ANCOM-BC` = list(
                 method = 'DA_ancombc',
