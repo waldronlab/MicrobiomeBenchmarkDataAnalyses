@@ -344,6 +344,10 @@ ggsave(
     filename = "Figure2.pdf", plot = pp,
     dpi = 300, height = 9, width = 10
 )
+ggsave(
+    filename = "Figure2.png", plot = pp,
+    dpi = 300, height = 9, width = 10
+)
 ```
 
 # Perform DA with lefse and Wilcox
@@ -563,6 +567,10 @@ wilcox_genus_plot
 ```{r save plot, eval=FALSE, echo=FALSE}
 ggsave(
     file = "Figure3.pdf", plot = wilcox_genus_plot,
+    dpi = 300, width = 9, height = 4.5
+)
+ggsave(
+    file = "Figure3.png", plot = wilcox_genus_plot,
     dpi = 300, width = 9, height = 4.5
 )
 ```
@@ -858,6 +866,10 @@ plotsb
 ```{r, echo=FALSE}
 ggsave(
     plotsb, filename = 'Figure4.pdf',
+    width = 10, height = 8, dpi = 300
+)
+ggsave(
+    plotsb, filename = 'Figure4.png',
     width = 10, height = 8, dpi = 300
 )
 ```

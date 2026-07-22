@@ -323,6 +323,10 @@ ggsave(
     filename = "Figure5.pdf", plot = p_a,
     width = 6, height = 5, dpi = 300
 )
+ggsave(
+    filename = "Figure5.png", plot = p_a,
+    width = 6, height = 5, dpi = 300
+)
 ```
 
 
@@ -384,6 +388,10 @@ plts
 ```{r, echo=FALSE, eval=FALSE}
 ggsave(
     filename = "Supplementary_Figure_S1.pdf", plot = plts,
+    width = 10, height = 4, dpi = 300
+)
+ggsave(
+    filename = "Supplementary_Figure_S1.png", plot = plts,
     width = 10, height = 4, dpi = 300
 )
 ```
